@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-08T23:05:00-05:00",
+  "title": "Design System: Truth Desire",
+  "extensions": {
+    "colorMeta": {
+      "obsidian-noir": {
+        "role": "neutral",
+        "displayName": "Obsidian Noir",
+        "canonical": "#08060a",
+        "tonalRamp": ["#050406", "#08060a", "#110c13", "#19121b", "#271c2b", "#3d2d43", "#644b6d", "#e3d6e8"]
+      },
+      "velvet-surface": {
+        "role": "neutral",
+        "displayName": "Velvet Surface",
+        "canonical": "#110c13",
+        "tonalRamp": ["#08060a", "#110c13", "#19121b", "#271c2b", "#37273d", "#543e5d", "#896c94", "#efe7f2"]
+      },
+      "plum-veil": {
+        "role": "neutral",
+        "displayName": "Plum Veil",
+        "canonical": "#19121b",
+        "tonalRamp": ["#0c080d", "#19121b", "#271c2b", "#39293f", "#533c5c", "#7b5e85", "#ad93b6", "#f2ebf4"]
+      },
+      "electric-rose-pink": {
+        "role": "primary",
+        "displayName": "Electric Rose Pink",
+        "canonical": "#ff5c9e",
+        "tonalRamp": ["#3d091f", "#6b1138", "#9e1953", "#c2185b", "#ff5c9e", "#ff87b7", "#ffb8d5", "#ffe8f2"]
+      },
+      "mauve-silk": {
+        "role": "primary",
+        "displayName": "Mauve Silk",
+        "canonical": "#e882af",
+        "tonalRamp": ["#3a1525", "#60233d", "#883358", "#b34977", "#e882af", "#f0a4c5", "#f7c7dc", "#fdf0f6"]
+      },
+      "champagne-gold": {
+        "role": "secondary",
+        "displayName": "Champagne Gold",
+        "canonical": "#e5bc87",
+        "tonalRamp": ["#382813", "#5e4320", "#896330", "#b68848", "#e5bc87", "#edd0a9", "#f5e3cb", "#fcf6ed"]
+      },
+      "boundary-coral-pink": {
+        "role": "tertiary",
+        "displayName": "Boundary Coral Pink",
+        "canonical": "#ff789b",
+        "tonalRamp": ["#400e1c", "#701730", "#a12246", "#d1335f", "#ff789b", "#ffa1b9", "#ffc8d6", "#ffedf2"]
+      },
+      "sage-alignment": {
+        "role": "tertiary",
+        "displayName": "Sage Alignment",
+        "canonical": "#8cd3ae",
+        "tonalRamp": ["#132b1f", "#1e4733", "#2d684b", "#45926b", "#8cd3ae", "#aee1c7", "#d0eee0", "#effaf4"]
+      },
+      "blush-ivory-ink": {
+        "role": "neutral",
+        "displayName": "Blush Ivory Ink",
+        "canonical": "#fdf2f7",
+        "tonalRamp": ["#2d2227", "#4d3a43", "#705662", "#997888", "#c29fae", "#e2c9d4", "#f5e4ec", "#fdf2f7"]
+      },
+      "blush-canvas-light": {
+        "role": "neutral",
+        "displayName": "Blush Canvas (Light Theme)",
+        "canonical": "#fff3f7",
+        "tonalRamp": ["#2f1d24", "#553642", "#7e5364", "#a9768a", "#d29eb3", "#efc3d4", "#fae1eb", "#fff3f7"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display Serif", "purpose": "Hero monograph statements with expressive single-word italics." },
+      "headline": { "displayName": "Editorial Headline", "purpose": "Primary section titles across landing, catalog, profile, and couples spaces." },
+      "title": { "displayName": "Card & Modal Title", "purpose": "Assessment spotlight titles, archetypes, and dialog headers." },
+      "body": { "displayName": "Editorial Body", "purpose": "Readable 65ch prose, test prompts, and coaching commentary." },
+      "label": { "displayName": "Tabular Metrics & Meta", "purpose": "Item counts, durations, scores, and engine version labels." },
+      "caption": { "displayName": "Compact Tag & Badge Meta", "purpose": "Compact 11px status pills, chart coordinates, and inline form hints." }
+    },
+    "shadows": [
+      {
+        "name": "shadow-soft",
+        "value": "0 16px 40px -14px rgba(0, 0, 0, 0.72), 0 2px 10px -2px rgba(255, 92, 158, 0.08)",
+        "purpose": "Subtle ambient separation for primary CTA pills and closure asides on Obsidian Noir."
+      },
+      {
+        "name": "shadow-lifted",
+        "value": "0 26px 58px -16px rgba(0, 0, 0, 0.85), 0 6px 18px -4px rgba(255, 92, 158, 0.14)",
+        "purpose": "Deep elevation reserved strictly for the Interactive Report Folio and foreground Radix modals."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-exponential-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Question transitions, matcher state reveals, and SVG radar transitions (overridden to 0.01ms under prefers-reduced-motion)."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action Pill",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Electric Rose Pink primary pill CTA paired with near-black contrast ink for unmistakable WCAG contrast.",
+      "html": "<button class=\"ds-btn-primary\">Take the Intimacy Test <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-plum, #ff5c9e); color: var(--accent-plum-contrast, #090509); border: none; border-radius: 9999px; padding: 14px 24px; font-family: var(--font-figtree), system-ui, sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; box-shadow: var(--shadow-soft, 0 16px 40px -14px rgba(0,0,0,0.72)); transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1), filter 160ms ease; } .ds-btn-primary:hover { transform: translateY(-1px); filter: brightness(1.06); } .ds-btn-primary:active { transform: scale(0.99); } .ds-btn-primary:focus-visible { outline: 2px solid var(--accent-gold, #e5bc87); outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Outline Pill",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "High-contrast bordered pill used for catalog browsing, full assessment launches, and optional account triggers.",
+      "html": "<button class=\"ds-btn-secondary\">Explore All 30 Tests</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--ink-primary, #fdf2f7); border: 1px solid var(--border-strong, #5e3b55); border-radius: 9999px; padding: 14px 24px; font-family: var(--font-figtree), system-ui, sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: border-color 160ms ease, background-color 160ms ease; } .ds-btn-secondary:hover { border-color: var(--accent-plum, #ff5c9e); background: var(--bg-subtle, #19121b); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--accent-gold, #e5bc87); outline-offset: 2px; }"
+    },
+    {
+      "name": "Monograph Header Bar",
+      "kind": "nav",
+      "description": "Sticky translucent Noir header uniting the intertwined double-ring SVG mark, Bodoni Moda wordmark, and optional sign-in / theme controls.",
+      "html": "<nav class=\"ds-nav\"><div class=\"ds-brand\"><svg width=\"28\" height=\"28\" viewBox=\"0 0 32 32\" fill=\"none\" aria-hidden=\"true\"><circle cx=\"12.5\" cy=\"16\" r=\"7.5\" stroke=\"#ff5c9e\" stroke-width=\"1.75\"/><circle cx=\"19.5\" cy=\"16\" r=\"7.5\" stroke=\"#e5bc87\" stroke-width=\"1.6\"/></svg><span class=\"ds-brand-word\">Truth Desire</span></div><div class=\"ds-nav-links\"><a href=\"#\" class=\"ds-link ds-link-active\">Explore Tests</a><a href=\"#\" class=\"ds-link\">Couples</a><a href=\"#\" class=\"ds-link\">My Profile</a></div><button class=\"ds-signin-pill\">Sign In</button></nav>",
+      "css": ".ds-nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 64px; padding: 0 24px; background: color-mix(in srgb, var(--bg-canvas, #08060a) 88%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-hairline, #2f202d); } .ds-brand { display: flex; align-items: center; gap: 12px; } .ds-brand-word { font-family: 'Bodoni Moda', Georgia, serif; font-size: 24px; letter-spacing: -0.02em; color: var(--ink-primary, #fdf2f7); } .ds-nav-links { display: flex; align-items: center; gap: 20px; } .ds-link { font-size: 14px; font-weight: 500; color: var(--ink-secondary, #dfc2d1); text-decoration: none; transition: color 150ms ease; } .ds-link:hover { color: var(--ink-primary, #fdf2f7); } .ds-link-active { color: var(--accent-plum, #ff5c9e); text-decoration: underline; text-decoration-color: var(--accent-gold, #e5bc87); text-underline-offset: 4px; } .ds-signin-pill { border-radius: 9999px; border: 1px solid var(--border-strong, #5e3b55); background: transparent; color: var(--ink-primary, #fdf2f7); padding: 6px 14px; font-size: 12px; font-weight: 500; cursor: pointer; } .ds-signin-pill:hover { border-color: var(--accent-plum, #ff5c9e); background: var(--bg-subtle, #19121b); }"
+    },
+    {
+      "name": "Interactive Report Specimen Folio",
+      "kind": "custom",
+      "refersTo": "card-elevated",
+      "description": "Signature 2-pane interactive showcase uniting specimen tab rails with Velvet Surface live visualization panels.",
+      "html": "<div class=\"ds-folio\"><div class=\"ds-folio-rail\"><div class=\"ds-folio-tab ds-folio-tab-active\"><span>Preference Radar</span><small>7-axis sensual &amp; initiative shape</small></div><div class=\"ds-folio-tab\"><span>BDSM &amp; Kink Reveal</span><small>Complementary fit + zero-leak matching</small></div></div><div class=\"ds-folio-stage\"><span class=\"ds-folio-meta\">94% POLARITY FIT</span><h3 class=\"ds-folio-title\">The Velvet Switch</h3><p class=\"ds-folio-copy\">Thrives on deliberate tension&mdash;equally energized by commanding the tempo one evening and melting into trust-filled surrender the next.</p></div></div>",
+      "css": ".ds-folio { display: grid; grid-template-columns: 1fr 1.6fr; overflow: hidden; border-radius: 24px; border: 1px solid var(--border-strong, #5e3b55); background: var(--bg-elevated, #110c13); box-shadow: var(--shadow-lifted, 0 26px 58px -16px rgba(0,0,0,0.85)); } .ds-folio-rail { background: var(--bg-subtle, #19121b); border-right: 1px solid var(--border-hairline, #2f202d); padding: 20px; display: flex; flex-direction: column; gap: 10px; } .ds-folio-tab { border-radius: 16px; border: 1px solid var(--border-hairline, #2f202d); padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; cursor: pointer; transition: border-color 150ms ease; } .ds-folio-tab:hover { border-color: var(--border-strong, #5e3b55); } .ds-folio-tab span { font-size: 14px; font-weight: 600; color: var(--ink-primary, #fdf2f7); } .ds-folio-tab small { font-size: 12px; color: var(--ink-secondary, #dfc2d1); } .ds-folio-tab-active { background: var(--bg-elevated, #110c13); border-color: var(--accent-plum, #ff5c9e); } .ds-folio-tab-active span { color: var(--accent-plum, #ff5c9e); } .ds-folio-stage { padding: 24px 28px; display: flex; flex-direction: column; justify-content: center; gap: 8px; } .ds-folio-meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--accent-gold, #e5bc87); } .ds-folio-title { margin: 0; font-family: 'Bodoni Moda', Georgia, serif; font-size: 28px; font-weight: 500; color: var(--ink-primary, #fdf2f7); } .ds-folio-copy { margin: 0; font-size: 13px; line-height: 1.6; color: var(--ink-secondary, #dfc2d1); }"
+    },
+    {
+      "name": "Zero-Leak Privacy Chip",
+      "kind": "chip",
+      "description": "Category count or match visibility pill communicating active cohorts and strict zero-leak protections.",
+      "html": "<div class=\"ds-chip-row\"><span class=\"ds-chip-active\">11 live</span><span class=\"ds-chip-sage\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" aria-hidden=\"true\"><polyline points=\"20 6 9 17 4 12\"/></svg> Mutual Match</span></div>",
+      "css": ".ds-chip-row { display: inline-flex; gap: 8px; align-items: center; } .ds-chip-active { border-radius: 9999px; padding: 3px 10px; font-size: 11px; font-weight: 500; background: color-mix(in srgb, var(--accent-plum, #ff5c9e) 15%, transparent); color: var(--accent-plum, #ff5c9e); } .ds-chip-sage { display: inline-flex; align-items: center; gap: 5px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--accent-sage, #8cd3ae); }"
+    },
+    {
+      "name": "Obsidian Text Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Recessed Obsidian field with crisp strong-rose border and champagne-gold focus visibility.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-label\" for=\"ds-email\">Email address</label><input id=\"ds-email\" class=\"ds-input\" type=\"email\" placeholder=\"you@example.com\" /></div>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; max-width: 320px; } .ds-label { font-size: 12px; font-weight: 500; color: var(--ink-primary, #fdf2f7); } .ds-input { border-radius: 12px; border: 1px solid var(--border-strong, #5e3b55); background: var(--bg-canvas, #08060a); color: var(--ink-primary, #fdf2f7); padding: 10px 14px; font-size: 14px; outline: none; transition: border-color 150ms ease; } .ds-input::placeholder { color: var(--ink-muted, #ae8e9e); } .ds-input:focus { border-color: var(--accent-plum, #ff5c9e); } .ds-input:focus-visible { outline: 2px solid var(--accent-gold, #e5bc87); outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Nocturnal Silk & Rose-Ink Monograph",
+    "overview": "Truth Desire merges the intimate candor of a midnight print journal with clinical-grade analytical charts for adult self-discovery, desire gaps, BDSM dynamics, and kink compatibility. Instead of treating personal intimacy like a flashy arcade quiz or a cold spreadsheet, the interface rests on velvety obsidian black surfaces punctuated by sharp hot-rose pink accents, blush-ivory typography, warm champagne partner highlights, and generous architectural whitespace.\n\nThe system defaults to its Noir Pink & Black theme (data-theme=\"dark\"), paired symmetrically with a crisp Blush Pink & Carbon light mode toggle for daylight reading. Surfaces separate primarily through deliberate value steps and hairline plum borders rather than blurry glassmorphism or neon halos. Every component preserves high readability, adult dignity, and calm precision across desktop and mobile viewports.",
+    "keyCharacteristics": [
+      "Predominantly pink-and-black palette anchored by #08060a Obsidian Noir and #ff5c9e Electric Rose Pink, with near-black #090509 text on filled pink CTAs for unmistakable contrast.",
+      "Editorial display serif (Bodoni Moda with expressive italics) set tightly against readable sans-serif copy (Figtree) and tabular monospace coordinates (JetBrains Mono).",
+      "Quantitative honesty rendered directly through interactive custom SVG charts (PreferenceRadarChart, desire-experience quadrant maps, compatibility dials) with keyboard accessibility and data tables.",
+      "Strict rejection of loud rainbow gradients, flickering neon box-shadows, repetitive centered badge clusters, or explicit pornography tropes."
+    ],
+    "rules": [
+      {
+        "name": "The Noir Pink Contrast Rule",
+        "body": "Solid --accent-plum surfaces (#ff5c9e) in dark mode always carry near-black ink (--accent-plum-contrast: #090509), never pure white—ensuring instant legibility and crisp dark-mode contrast without darkening the vibrancy of the pink.",
+        "section": "colors"
+      },
+      {
+        "name": "The Scarcity of Spark Rule",
+        "body": "Electric rose pink stays confined to primary actions, single-word italic display highlights, and active data paths (<=12% of viewport area) so the black obsidian canvas retains nocturnal tension and intimacy.",
+        "section": "colors"
+      },
+      {
+        "name": "The Typographic Discipline Rule",
+        "body": "Display headings rely purely on solid foreground and italic rose ink (--ink-primary + --accent-plum), never CSS linear-gradient text clipping or decorative uppercase tracked kickers.",
+        "section": "typography"
+      },
+      {
+        "name": "The Quiet-Frame Rule",
+        "body": "Never apply vivid pink outer box-shadow glows (0 0 20px #ff5c9e) around idle cards or buttons; pink stays strictly inside razor-sharp 1px focus/active strokes and low-opacity (<= 14%) shadow depth.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do enforce data-theme=\"dark\" (Noir Pink & Black) as the default experience paired symmetrically with Blush Pink light mode tokens.",
+      "Do keep dark-mode filled rose buttons paired strictly with near-black contrast text (#090509 on #ff5c9e).",
+      "Do preserve keyboard navigation, 2px focus rings (--accent-gold), and prefers-reduced-motion fallbacks across every custom chart and quiz screen.",
+      "Do display transparent sample thresholds (n >= 50 community floor) and zero-exposure protection states prominently."
+    ],
+    "donts": [
+      "Don't place bright pink outer neon box-shadows, animated sparkles, or gradient text masks on headings or buttons.",
+      "Don't require login anywhere in the discovery, testing, compatibility invitation, or PDF export flow—authentication stays strictly optional.",
+      "Don't expose internal redaction tokens ([OBSCURED]) or fabricated community averages inside user-facing copy.",
+      "Don't add small all-caps eyebrow tags above headlines or decorative oversized step numerals next to clean section titles."
+    ]
+  }
+}

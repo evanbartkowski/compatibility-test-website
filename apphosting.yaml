@@ -1,0 +1,11 @@
+runConfig:
+  cpu: 1
+  memoryMiB: 512
+  minInstances: 0
+  maxInstances: 4
+
+env:
+  - variable: NEXT_PUBLIC_BRAND_NAME
+    value: Between Us
+  - variable: NEXT_PUBLIC_FIREBASE_USE_EMULATOR
+    value: "false"

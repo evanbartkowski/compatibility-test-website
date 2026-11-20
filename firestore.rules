@@ -1,0 +1,113 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.admin == true;
+    }
+
+    // User profile & privacy preferences
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Assessment drafts (autosaved private progress)
+    match /drafts/{draftId} {
+      allow read: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.ownerUid == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
+    }
+
+    // Private assessment submissions & scored results across all 30 assessments
+    match /submissions/{submissionId} {
+      allow read: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
+      allow create: if isSignedIn()
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.consent.confirmedAdult18Plus == true
+        && request.resource.data.consent.acceptedPrivacyTerms == true;
+      allow update, delete: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
+    }
+
+    // Partner invitations: never publicly queryable; token lookup happens strictly via server/Cloud Functions
+    match /invitations/{inviteId} {
+      allow get: if isSignedIn() && resource.data.creatorUid == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.creatorUid == request.auth.uid;
+      allow update: if isSignedIn()
+        && resource.data.creatorUid == request.auth.uid
+        && request.resource.data.status in ['pending', 'revoked'];
+      allow create, delete: if false;
+    }
+
+    // Couple compatibility reports: visible only to the two participating accounts
+    match /compatibilities/{compatibilityId} {
+      allow read: if isSignedIn()
+        && request.auth.uid in resource.data.participantUids
+        && resource.data.revoked != true;
+      allow write: if false;
+    }
+
+    // Shared persistent Couples Bucket List state (Test 26)
+    match /sharedBucketLists/{compatibilityId} {
+      allow read, write: if isSignedIn()
+        && exists(/databases/$(database)/documents/compatibilities/$(compatibilityId))
+        && request.auth.uid in get(/databases/$(database)/documents/compatibilities/$(compatibilityId)).data.participantUids;
+    }
+
+    // Multi-rater 360 feedback invites & submissions (Test 19): individual ratings are strictly server-only
+    match /multiRaterInvites/{feedbackInviteId} {
+      allow get, list: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
+      allow update: if isSignedIn()
+        && resource.data.ownerUid == request.auth.uid
+        && request.resource.data.revoked == true;
+      allow create, delete: if false;
+    }
+
+    match /multiRaterSubmissions/{responseId} {
+      allow read, write: if false;
+    }
+
+    // Expiring private result access grants, email verification OTPs & delivery audit: server-only
+    match /resultAccessGrants/{grantId} {
+      allow read, write: if false;
+    }
+
+    match /emailVerifications/{emailHash} {
+      allow read, write: if false;
+    }
+
+    match /emailDeliveries/{deliveryId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /auditEvents/{eventId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // Public anonymized community aggregates: only readable when respondent threshold >= 50
+    match /communityAggregates/{aggregateId} {
+      allow read: if resource.data.respondentCount >= 50;
+      allow write: if false;
+    }
+
+    // Extensible custom assessment catalog managed via Admin / Studio
+    match /assessments/{assessmentSlug} {
+      allow read: if resource.data.status == 'published' || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Editorial audit flags for reference verification
+    match /editorialAudit/{auditId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

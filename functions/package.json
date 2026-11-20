@@ -1,0 +1,21 @@
+{
+  "name": "between-us-functions",
+  "version": "1.0.0",
+  "description": "Cloud Functions v2 for Between Us compatibility platform",
+  "main": "lib/index.js",
+  "engines": {
+    "node": "22"
+  },
+  "scripts": {
+    "build": "tsc",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "deploy": "firebase deploy --only functions"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.2.0",
+    "firebase-functions": "^6.3.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

@@ -1,0 +1,13 @@
+node_modules/
+.next/
+out/
+.env*
+!.env.example
+*.tsbuildinfo
+.between-us-data/
+playwright-report/
+test-results/
+functions/lib/
+functions/node_modules/
+firebase-debug.log*
+.DS_Store
