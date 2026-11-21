@@ -128,7 +128,7 @@ export function AgreementScale({
                     ? level.activeBg
                     : level.bgColor,
                   color: isSelected
-                    ? level.activeText
+                    ? "#09060f"
                     : "var(--ink-primary)",
                   boxShadow: isSelected
                     ? `0 0 16px ${level.color}40`

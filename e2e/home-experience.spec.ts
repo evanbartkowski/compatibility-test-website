@@ -8,7 +8,7 @@ test("a concise homepage has a rotatable, adjustable profile and pausable living
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
   await expect(page.locator("main section")).toHaveCount(2);
-  await expect(page.locator("main .test-card")).toHaveCount(3);
+  await expect(page.locator("main .test-card")).toHaveCount(12);
   const stage = page.getByRole("group", { name: "Rotate the example profile" });
   await expect(stage.locator("canvas")).toHaveAttribute("data-ready", "true");
   const before = await stage.getAttribute("data-yaw");

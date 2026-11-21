@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getGuestSubmissions } from "./guest-storage";
 import type { ScoredAssessmentResult } from "./types";
+import { useOptionalAuth } from "@/components/auth/AuthProvider";
 
 export interface SavedResultEntry {
   submissionId: string;
@@ -14,6 +15,7 @@ export interface SavedResultEntry {
 const EMPTY: SavedResultEntry[] = [];
 
 export function useSavedResults(initial: SavedResultEntry[] = EMPTY) {
+  const { user, sessionReady } = useOptionalAuth();
   const [browser, setBrowser] = useState<SavedResultEntry[]>([]);
   const [remote, setRemote] = useState(initial);
   const [ready, setReady] = useState(false);
@@ -31,7 +33,7 @@ export function useSavedResults(initial: SavedResultEntry[] = EMPTY) {
       })
       .catch(() => { /* Browser results remain available without a server. */ });
     return () => { controller.abort(); window.removeEventListener("storage", loadBrowser); };
-  }, []);
+  }, [initial, user?.uid, sessionReady]);
   const serverIds = useMemo(() => new Set([...initial, ...remote].map(s => s.submissionId)), [initial, remote]);
   const submissions = useMemo(() => {
     const map = new Map<string, SavedResultEntry>();

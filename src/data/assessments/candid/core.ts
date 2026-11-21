@@ -517,7 +517,7 @@ export const candidCore: Record<string, Record<string, string[]>> = {
       "Breeding talk, creampies, and being come in are kinks, and I know whether I want them.",
       "Public sex, or sex where we might be heard, is a kink I want rated honestly.",
       "!I experience a request to try a named kink as a sign the current sex is not enough.",
-      "I can want a kink once, as an experiment, and then decide. Curiosity is not a personality.",
+      "I want a threesome: me and two other adults, every person able to stop.",
     ],
     imagination: [
       "CNC is a fantasy I get off to: a struggled no that was planned, with a real stop that is not part of the plot.",
@@ -525,13 +525,13 @@ export const candidCore: Record<string, Record<string, string[]>> = {
       "!I prefer sex in literal terms. Kink fantasies pull me out of it.",
       "Cuckold, hotwife, or watching my partner fuck someone else is a fantasy I have, or it is not. I will say which.",
       "A gangbang, a threesome, or more than two people is a kink fantasy I can name without blushing it away.",
-      "Cheating, or almost cheating, is a turn-on in my head even when I would not do it.",
+      "I want to be the third with a couple, or to bring a third into my bed.",
       "!If I would not do it, I do not see the point of getting wet or hard over it.",
       "Taboo roleplay between adults — boss, stranger, step-sibling fiction, priest — can get me off. The people in the room are adults.",
       "I fantasize about somnophilia that was agreed before sleep: being fucked awake because we already said yes.",
       "Humiliation, exposure, being made to beg: the shame is the kink, not a side effect I am embarrassed to admit.",
       "!Pretending, roles, and filthy stories make sex less honest to me.",
-      "I can be aroused by a kink I will never schedule. The fantasy still counts as mine.",
+      "Group sex, more than three adults, is a kink I want if everyone agreed and can leave.",
     ],
     sensory_exploration: [
       "Wax, ice, clamps, and electricity are sensation kinks I want mapped, not lumped into 'spice.'",
@@ -559,7 +559,7 @@ export const candidCore: Record<string, Record<string, string[]>> = {
       "Primal prey and hunter, biting and chasing, is different from protocol. I do not want them collapsed into 'kinky.'",
       "I want to switch: in charge tonight, on my knees tomorrow, without either night becoming my identity.",
       "!I think a real kinkster picks one role and never wants the other side.",
-      "The role question is who I want to be for an hour, and who I refuse to be.",
+      "Multiple partners in the same week, or the same night, is a kink I want, not only a joke.",
     ],
     boundary_clarity: [
       "I can name the kink that i love the most and the kink that is a hard no",

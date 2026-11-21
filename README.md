@@ -41,3 +41,5 @@ npm run test:e2e
 The browser suite builds the production application and uses isolated data under test-results. It covers desktop, tablet and mobile journeys, both forms of every published test, Firefox, and 1920px desktop layouts. Firebase rules and account cases require local emulators; the exact commands and explicit skips are documented in [OPERATIONS.md](OPERATIONS.md).
 
 See [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for delivered behavior, [ASSESSMENT_AUDIT.md](ASSESSMENT_AUDIT.md) for the library and scoring contract, [DESIGN.md](DESIGN.md) for UI guidance, and [QUALITY_REPORT.md](QUALITY_REPORT.md) for verification evidence and limits.
+
+The [November 21 site audit](docs/SITE_AUDIT_2026-11-21.md) records artwork, security, browser and privacy fixes, local measurements and remaining production/legal work. `security-headers.json` is shared by Next.js and the Firebase header synchronization script. These checks do not certify that the service is unhackable or compliant in every jurisdiction.

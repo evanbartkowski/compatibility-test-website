@@ -25,7 +25,7 @@ test("a teaser produces ranked styles, tailored advice and a limit-respecting ga
   await page.goto(`/assess/${a.slug}?mode=quick`);
   await page.getByLabel(/confirm I am at least/i).check();
   await page.getByLabel(/understand my responses are private/i).check();
-  await page.getByRole("button", { name: /Begin Questions/ }).click();
+  await page.getByRole("button", { name: /Begin Test/ }).click();
   const quick = a.questions.filter((q) => q.quickDiscovery);
   for (let offset = 0; offset < quick.length; offset += 5) {
     for (const q of quick.slice(offset, offset + 5)) {

@@ -70,7 +70,7 @@ test("five-question pages produce explainable category scores and a detailed rep
   await page.goto(`/assess/${assessment.slug}?mode=quick`);
   await page.getByLabel(/confirm I am at least/i).check();
   await page.getByLabel(/understand my responses are private/i).check();
-  await page.getByRole("button", { name: /Begin Questions/ }).click();
+  await page.getByRole("button", { name: /Begin Test/ }).click();
   expect(
     await page
       .getByRole("heading", { level: 2 })

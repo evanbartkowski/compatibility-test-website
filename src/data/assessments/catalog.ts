@@ -16,6 +16,7 @@ import { intimacyAssessments } from "./intimacy";
 import { withAdviceProfile } from "./advice-profiles";
 import { publishCandidRevision } from "./candid";
 import { publishLegacyCandid } from "./candid/legacy-publish";
+import { extraAssessments } from "./extra-tests";
 
 export interface AssessmentCategoryMeta {
   slug: AssessmentCategorySlug;
@@ -131,7 +132,6 @@ export const activeIntimacySlugs = new Set([
   "toys-tools-gear-preferences",
   "fantasy-catalog",
   "communication-language-profile",
-  "group-multipartner-interest",
   "partner-ideal-dealbreakers",
   "long-term-dynamic-vision",
   "spicy-would-you-rather",
@@ -147,6 +147,7 @@ export const coreAssessments = curatedAssessments.map(publishCandidRevision);
 export const builtInAssessments = [
   ...coreAssessments,
   ...activeIntimacyAssessments.map(publishCandidRevision),
+  ...extraAssessments,
 ].map(withAdviceProfile);
 
 export function getArchivedAssessmentBySlug(slug: string, version = "2.0.0") {

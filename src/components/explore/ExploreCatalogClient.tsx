@@ -97,7 +97,7 @@ export function ExploreCatalogClient({
         </span>
         <h1 className="font-display mt-5">What would you like to discover?</h1>
         <p>
-          The BDSM test, the kink test, the love compatibility test, the IQ test, the friendship test, the love language test, the sexual desire test, the husband/wife test, the partner finding test, the icks test, and more. Start with a teaser or explore the full collection.
+          The BDSM test, the kink test, the personality type test, the gay test, the bias test, and the standards calculator. Threesomes live in the kink test.
         </p>
       </div>
       <div className="library-toolbar">

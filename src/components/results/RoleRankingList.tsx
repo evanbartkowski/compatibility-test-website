@@ -2,6 +2,7 @@
 
 import { Sparkles, Trophy } from "lucide-react";
 import type { ScoredAssessmentResult } from "@/lib/assessment/types";
+import { CollapsibleSection } from "./CollapsibleSection";
 import { cn } from "@/lib/utils";
 
 export function RoleRankingList({ result }: { result: ScoredAssessmentResult }) {
@@ -12,51 +13,38 @@ export function RoleRankingList({ result }: { result: ScoredAssessmentResult }) 
   const groups = [...new Set(roles.map((r) => r.group))];
 
   return (
-    <section
-      className="mt-7 rounded-3xl border p-6 sm:p-8 transition-all"
-      style={{
-        backgroundColor: "var(--bg-elevated)",
-        borderColor: "var(--border-hairline)",
-      }}
-      aria-labelledby="role-ranking-title"
-    >
-      <div
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b pb-5"
-        style={{ borderColor: "var(--border-hairline)" }}
-      >
-        <div>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border border-rose-500/20 bg-rose-500/10 text-rose-300">
-            <Sparkles size={12} className="text-rose-400" />
-            Role &amp; Dynamic Compatibility
+    <CollapsibleSection
+      id="role-ranking-section"
+      title="Role & Archetype Match"
+      subtitle={top.map((r) => `${r.label} (${r.percent}%)`).join(", ")}
+      icon={Sparkles}
+      badge={
+        top.length > 0 ? (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-rose-500/10 text-rose-300 border border-rose-500/30">
+            <Trophy size={11} className="text-amber-400" />
+            Top: {top[0].label} {top[0].percent}%
           </span>
-          <h2
-            id="role-ranking-title"
-            className="font-display text-2xl sm:text-3xl text-[var(--ink-primary)] mt-2"
-          >
-            Role &amp; Archetype Match
-          </h2>
-          <p className="text-xs sm:text-sm text-[var(--ink-muted)] mt-1">
-            Compatibility percentage across each power dynamic and role archetype.
-          </p>
+        ) : null
+      }
+      className="mt-6"
+      defaultOpen={false}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b" style={{ borderColor: "var(--border-hairline)" }}>
+        <p className="text-xs sm:text-sm text-[var(--ink-muted)]">
+          Compatibility percentage across each power dynamic and role archetype.
+        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          {top.map((r) => (
+            <span
+              key={r.key}
+              className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/30 bg-rose-500/10 px-3 py-1 text-xs font-medium text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.15)]"
+            >
+              <Trophy size={11} className="text-amber-400" />
+              <span>{r.label}</span>
+              <strong className="font-mono text-rose-300 font-bold">{r.percent}%</strong>
+            </span>
+          ))}
         </div>
-
-        {/* Top 3 High-Match Badges */}
-        {top.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
-            {top.map((r) => (
-              <span
-                key={r.key}
-                className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/30 bg-rose-500/10 px-3 py-1 text-xs font-medium text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.15)]"
-              >
-                <Trophy size={11} className="text-amber-400" />
-                <span>{r.label}</span>
-                <strong className="font-mono text-rose-300 font-bold">
-                  {r.percent}%
-                </strong>
-              </span>
-            ))}
-          </div>
-        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
@@ -136,6 +124,6 @@ export function RoleRankingList({ result }: { result: ScoredAssessmentResult }) 
           );
         })}
       </div>
-    </section>
+    </CollapsibleSection>
   );
 }

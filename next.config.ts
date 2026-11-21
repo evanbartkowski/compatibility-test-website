@@ -7,6 +7,12 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  async redirects() {
+    return [
+      { source: "/assess/private-fantasy-matcher", destination: "/assess/sexual-interests-curiosity-map", permanent: true },
+      { source: "/assess/couples-communication-conflict-matching", destination: "/assess/conflict-communication-personality", permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

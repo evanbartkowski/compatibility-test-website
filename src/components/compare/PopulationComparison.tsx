@@ -11,6 +11,7 @@ type View = "appealing" | "not-appealing";
 export function PopulationComparison({ compact = false }: { compact?: boolean }) {
   const [views, setViews] = useState<Record<string, View>>({});
   const [storageError, setStorageError] = useState("");
+  const [ready, setReady] = useState(false);
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
@@ -20,6 +21,7 @@ export function PopulationComparison({ compact = false }: { compact?: boolean })
       }
       setViews(valid);
     } catch { /* An empty comparison is valid when browser storage is unavailable. */ }
+    finally { setReady(true); }
   }, []);
   const update = (id: string, value: string) => {
     const next = { ...views };
@@ -52,7 +54,7 @@ export function PopulationComparison({ compact = false }: { compact?: boolean })
               <p className="research-detail">{topic.detail} · n={topic.respondents.toLocaleString("en-US")}</p>
               {"lifetime" in topic && <p className="research-detail">{topic.lifetime}% reported having tried it at least once (Table 2).</p>}
               <label className="form-field">Your view
-                <select value={views[topic.id] || ""} onChange={e => update(topic.id, e.target.value)}>
+                <select disabled={!ready} value={views[topic.id] || ""} onChange={e => update(topic.id, e.target.value)}>
                   <option value="">Choose, or leave private</option>
                   <option value="appealing">Appeals to me</option>
                   <option value="not-appealing">Doesn’t appeal to me</option>

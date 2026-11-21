@@ -1,9 +1,90 @@
 "use client";
+
 import { useState } from "react";
-import { Fingerprint, Check, Info } from "lucide-react";
+import { Sparkles, Check, Info } from "lucide-react";
 import type { ScoredAssessmentResult } from "@/lib/assessment/types";
 import type { CommunityDimensionComparison } from "@/lib/assessment/community";
 import { DistributionHistogram } from "@/components/charts/DistributionHistogram";
+import { CollapsibleSection } from "./CollapsibleSection";
+import { cn } from "@/lib/utils";
+
+export type ScoreTier = {
+  band: "peak" | "high" | "moderate" | "mild" | "boundary";
+  label: string;
+  badgeClass: string;
+  textClass: string;
+  borderClass: string;
+  bgClass: string;
+  gradientClass: string;
+  glowClass: string;
+  hex: string;
+};
+
+export function getScoreTier(score: number): ScoreTier {
+  if (score >= 80) {
+    return {
+      band: "peak",
+      label: "Core Drive",
+      badgeClass: "bg-rose-500/20 text-rose-300 border-rose-500/40",
+      textClass: "text-rose-400",
+      borderClass: "border-rose-500/40 hover:border-rose-500/70",
+      bgClass: "bg-rose-500/[0.06]",
+      gradientClass: "from-rose-500 via-pink-500 to-rose-400",
+      glowClass: "shadow-[0_0_15px_rgba(244,63,94,0.35)]",
+      hex: "#f43f5e",
+    };
+  }
+  if (score >= 60) {
+    return {
+      band: "high",
+      label: "Strong",
+      badgeClass: "bg-purple-500/20 text-purple-300 border-purple-500/40",
+      textClass: "text-purple-400",
+      borderClass: "border-purple-500/40 hover:border-purple-500/70",
+      bgClass: "bg-purple-500/[0.06]",
+      gradientClass: "from-purple-500 via-violet-500 to-purple-400",
+      glowClass: "shadow-[0_0_15px_rgba(168,85,247,0.3)]",
+      hex: "#a855f7",
+    };
+  }
+  if (score >= 40) {
+    return {
+      band: "moderate",
+      label: "Moderate",
+      badgeClass: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+      textClass: "text-amber-400",
+      borderClass: "border-amber-500/35 hover:border-amber-500/60",
+      bgClass: "bg-amber-500/[0.05]",
+      gradientClass: "from-amber-500 via-orange-400 to-amber-400",
+      glowClass: "shadow-[0_0_12px_rgba(245,158,11,0.2)]",
+      hex: "#f59e0b",
+    };
+  }
+  if (score >= 20) {
+    return {
+      band: "mild",
+      label: "Mild",
+      badgeClass: "bg-teal-500/20 text-teal-300 border-teal-500/40",
+      textClass: "text-teal-400",
+      borderClass: "border-teal-500/30 hover:border-teal-500/50",
+      bgClass: "bg-teal-500/[0.04]",
+      gradientClass: "from-teal-500 via-cyan-400 to-teal-400",
+      glowClass: "shadow-[0_0_12px_rgba(20,184,166,0.2)]",
+      hex: "#14b8a6",
+    };
+  }
+  return {
+    band: "boundary",
+    label: "Low / Boundary",
+    badgeClass: "bg-slate-500/20 text-slate-300 border-slate-500/30",
+    textClass: "text-slate-400",
+    borderClass: "border-slate-700/60 hover:border-slate-600",
+    bgClass: "bg-slate-800/[0.2]",
+    gradientClass: "from-slate-600 to-slate-500",
+    glowClass: "",
+    hex: "#64748b",
+  };
+}
 
 export function ResultsOverview({
   result,
@@ -16,182 +97,253 @@ export function ResultsOverview({
   const [selected, setSelected] = useState(measured[0]?.dimension);
   const dimension =
     measured.find((d) => d.dimension === selected) || measured[0];
-  if (!dimension)
+
+  if (!dimension) {
     return (
       <section className="empty-state mt-6">
-        <h2 className="font-display">
-          Your profile needs a little more input.
-        </h2>
-        <p>
-          Answer a few questions to see your category breakdown. Skipped answers
-          stay out of the scoring.
-        </p>
+        <h2 className="font-display">Your profile needs a little more input.</h2>
+        <p>Answer a few questions to see your category breakdown.</p>
       </section>
     );
+  }
+
+  const selectedTier = getScoreTier(dimension.score);
+
   return (
-    <section
-      className="results-snapshot mt-7"
-      aria-label="Your category profile"
-    >
-      <div>
-        <span className="intro-pill">
-          <Fingerprint size={13} />
-          Your patterns, at a glance
-        </span>
-        <h2 className="font-display mt-5">{dimension.label}</h2>
-        <p>
-          {dimension.description ||
-            "This category reflects the pattern in your answers. Select a category to see what shaped your score."}
-        </p>
-        <div className="flex items-baseline gap-2 mt-5">
-          <strong className="font-display text-5xl text-[var(--accent-plum)]">
-            {dimension.score}
-            <span className="text-2xl">%</span>
-          </strong>
-          <span className="text-xs text-[var(--ink-muted)]">
-            category score
-          </span>
-        </div>
-        <p className="!text-xs">
-          {dimension.score > 60
-            ? dimension.highLabel
-            : dimension.score < 40
-              ? dimension.lowLabel
-              : "You sit between the two ends of this dimension."}
-        </p>
-        <p className="!text-xs flex items-start gap-2">
-          <Info size={13} className="mt-1 shrink-0" />
-          Higher means more of this tendency. Each category stands on its own.
-        </p>
-      </div>
+    <section className="mt-7 space-y-6" aria-label="Category scores and breakdown">
+      {/* 1. TOP OF PAGE: VISUALLY APPEALING COLOR-CODED SCORES SHOWCASE */}
       <div
-        className="snapshot-rows"
-        role="group"
-        aria-label="Choose a category"
+        className="rounded-3xl border p-6 sm:p-8 transition-all"
+        style={{
+          backgroundColor: "var(--bg-elevated)",
+          borderColor: "var(--border-hairline)",
+        }}
       >
-        {result.radar.map((d) => {
-          const prev = previousResult?.radar.find(
-            (p) => p.dimension === d.dimension && p.answeredCount > 0,
-          );
-          return (
-            <button
-              type="button"
-              className="snapshot-row"
-              aria-pressed={d.dimension === dimension.dimension}
-              key={d.dimension}
-              disabled={d.answeredCount === 0}
-              onClick={() => setSelected(d.dimension)}
-            >
-              <span className="snapshot-row-top">
-                <span className="flex items-center gap-2">
-                  {d.label}
-                  {d.dimension === dimension.dimension && (
-                    <Check size={12} className="text-[var(--accent-plum)]" />
-                  )}
-                </span>
-                <strong>
-                  {d.answeredCount ? `${d.score}%` : "Not measured"}
-                  {prev && d.answeredCount > 0 && (
-                    <span className="ml-2 text-[var(--ink-muted)] text-xs">
-                      {d.score - prev.score > 0 ? "+" : ""}
-                      {d.score - prev.score} pts
-                    </span>
-                  )}
-                </strong>
-              </span>
-              <div className="bar-track">
-                <div
-                  className="bar-fill"
-                  style={{
-                    width: d.answeredCount ? `${d.score}%` : "0%",
-                    opacity: d.dimension === dimension.dimension ? 1 : 0.45,
-                  }}
-                />
-              </div>
-            </button>
-          );
-        })}
-        <p className="text-xs text-[var(--ink-muted)] mt-1">
-          {result.answeredCount} answers ·{" "}
-          {result.mode === "quick" ? "Quick discovery" : "Full assessment"} ·
-          Saved to your private results
-        </p>
-      </div>
-      {dimension.interpretation && (
         <div
-          className="category-interpretation col-span-full"
-          aria-live="polite"
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b pb-5"
+          style={{ borderColor: "var(--border-hairline)" }}
         >
-          <div className="category-evidence-note">
-            <span>
-              {dimension.answeredCount} of {dimension.eligibleCount} category
-              statements answered
+          <div>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border border-rose-500/20 bg-rose-500/10 text-rose-300">
+              <Sparkles size={12} className="text-rose-400" />
+              Overview &amp; Category Scores
             </span>
-            <span>
-              {dimension.interpretation.band === "balanced"
-                ? "Mixed or context-dependent pattern"
-                : dimension.interpretation.band === "high"
-                  ? "More of this tendency"
-                  : "Less of this tendency"}
-            </span>
-          </div>
-          {dimension.answeredCount < 3 && (
-            <p className="category-limited">
-              A tentative reading based on fewer than three statements. Add more
-              answers before treating this as a settled pattern.
+            <h2 className="font-display text-2xl sm:text-3xl text-[var(--ink-primary)] mt-2">
+              Category Score Breakdown
+            </h2>
+            <p className="text-xs sm:text-sm text-[var(--ink-muted)] mt-1">
+              Color-coded by intensity. Click any category card to inspect its in-depth breakdown.
             </p>
-          )}
-          <div className="category-reading-grid">
-            <div>
-              <h3>What your answers suggest</h3>
-              <p>{dimension.interpretation.meaning}</p>
-              <h3>A tension to notice</h3>
-              <p>{dimension.interpretation.possibleTradeoff}</p>
-            </div>
-            <div>
-              <h3>Something to try</h3>
-              <p>{dimension.interpretation.experiment}</p>
-              <h3>A question to sit with</h3>
-              <p className="category-reflection">
-                {dimension.interpretation.reflection}
-              </p>
-            </div>
           </div>
-          {dimension.contributors.length >= 3 &&
-            Math.max(
-              ...dimension.contributors.map((c) => c.normalizedContribution),
-            ) -
-              Math.min(
-                ...dimension.contributors.map((c) => c.normalizedContribution),
-              ) >=
-              66 && (
-              <p className="category-context-note">
-                Your answers differ noticeably across situations in this
-                category. The average brings those differences together; review
-                the individual statements below to see where context matters.
-              </p>
-            )}
+
+          <div className="flex items-center gap-3 text-xs font-mono text-[var(--ink-muted)] shrink-0">
+            <span>{result.answeredCount} answers</span>
+            <span>·</span>
+            <span className="text-[var(--accent-plum)] font-semibold">
+              {result.mode === "quick" ? "Quick discovery" : "Full assessment"}
+            </span>
+          </div>
         </div>
-      )}
-      <details className="col-span-full border-t pt-4">
-        <summary className="text-sm text-[var(--ink-secondary)] cursor-pointer">
-          What shaped your {dimension.label.toLowerCase()} score?
-        </summary>
-        <ul className="grid gap-3 sm:grid-cols-2 mt-4">
-          {dimension.contributors.map((c) => (
-            <li
-              className="rounded-xl border p-4 bg-[var(--bg-canvas)]"
-              key={c.questionId}
-            >
-              <p className="text-sm leading-relaxed">{c.prompt}</p>
-              <p className="text-xs text-[var(--ink-muted)] mt-2">
-                {c.enjoymentLabel} · {c.normalizedContribution}% contribution
-                {c.direction === "inverse" ? " · Reverse direction" : ""}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </details>
+
+        {/* The Grid of Category Scores */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-6">
+          {result.radar.map((d) => {
+            const tier = getScoreTier(d.score);
+            const isSelected = d.dimension === dimension.dimension;
+            const prev = previousResult?.radar.find(
+              (p) => p.dimension === d.dimension && p.answeredCount > 0,
+            );
+            const delta =
+              prev && d.answeredCount > 0 ? d.score - prev.score : null;
+
+            return (
+              <button
+                key={d.dimension}
+                type="button"
+                onClick={() => setSelected(d.dimension)}
+                disabled={d.answeredCount === 0}
+                className={cn(
+                  "flex flex-col justify-between text-left p-4 sm:p-5 rounded-2xl border transition-all duration-300 relative group overflow-hidden cursor-pointer",
+                  tier.bgClass,
+                  tier.borderClass,
+                  isSelected
+                    ? "ring-2 ring-rose-500/70 shadow-[0_0_24px_rgba(244,63,94,0.22)] scale-[1.01]"
+                    : "hover:scale-[1.01] hover:shadow-lg opacity-90 hover:opacity-100"
+                )}
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="font-display text-sm sm:text-base font-semibold text-[var(--ink-primary)] leading-snug">
+                      {d.label}
+                    </span>
+                    <span
+                      className={cn(
+                        "font-mono text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0",
+                        tier.badgeClass
+                      )}
+                    >
+                      {d.answeredCount ? tier.label : "Unmeasured"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-baseline gap-2 mt-3">
+                    <span
+                      className={cn(
+                        "font-display text-4xl sm:text-5xl font-black tracking-tight",
+                        tier.textClass
+                      )}
+                    >
+                      {d.answeredCount ? d.score : "--"}
+                      <span className="text-xl font-bold ml-0.5">%</span>
+                    </span>
+
+                    {delta !== null && (
+                      <span
+                        className={cn(
+                          "font-mono text-xs font-semibold",
+                          delta > 0
+                            ? "text-emerald-400"
+                            : delta < 0
+                              ? "text-rose-400"
+                              : "text-[var(--ink-muted)]"
+                        )}
+                      >
+                        {delta > 0 ? `+${delta}` : delta} pts
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <div
+                    className="h-2 w-full rounded-full overflow-hidden"
+                    style={{
+                      backgroundColor:
+                        "var(--bg-inset, rgba(255,255,255,0.06))",
+                    }}
+                  >
+                    <div
+                      className={cn(
+                        "h-full rounded-full transition-all duration-700 bg-gradient-to-r",
+                        tier.gradientClass,
+                        tier.glowClass
+                      )}
+                      style={{
+                        width: `${d.answeredCount ? Math.max(d.score, 4) : 0}%`,
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between text-[11px] text-[var(--ink-muted)] mt-2">
+                    <span className="truncate max-w-[170px]">
+                      {d.score >= 60
+                        ? d.highLabel
+                        : d.score <= 40
+                          ? d.lowLabel
+                          : "Context-dependent"}
+                    </span>
+                    {isSelected && (
+                      <span className="flex items-center gap-1 font-semibold text-rose-400 shrink-0">
+                        <Check size={11} /> Selected
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 2. IN-DEPTH CATEGORY DETAILS IN A DROP DOWN MENU */}
+      <CollapsibleSection
+        id="category-deep-dive"
+        title={`Category Deep Dive: ${dimension.label}`}
+        subtitle={
+          dimension.description ||
+          "Explanations, tensions, and contributing statements for this category"
+        }
+        icon={Info}
+        badge={
+          <span
+            className={cn(
+              "px-2.5 py-0.5 rounded-full text-xs font-mono font-bold border",
+              selectedTier.badgeClass
+            )}
+          >
+            {dimension.score}% · {selectedTier.label}
+          </span>
+        }
+        defaultOpen={false}
+      >
+        <div className="space-y-6">
+          {dimension.interpretation && (
+            <div className="category-interpretation" aria-live="polite">
+              <div className="category-evidence-note">
+                <span>
+                  {dimension.answeredCount} of {dimension.eligibleCount} category
+                  statements answered
+                </span>
+                <span>
+                  {dimension.interpretation.band === "balanced"
+                    ? "Mixed or context-dependent pattern"
+                    : dimension.interpretation.band === "high"
+                      ? "High tendency"
+                      : "Lower tendency"}
+                </span>
+              </div>
+              {dimension.answeredCount < 3 && (
+                <p className="category-limited">
+                  A tentative reading based on fewer than three statements. Add
+                  more answers before treating this as a settled pattern.
+                </p>
+              )}
+              <div className="category-reading-grid">
+                <div>
+                  <h3>What your answers suggest</h3>
+                  <p>{dimension.interpretation.meaning}</p>
+                  <h3>A tension to notice</h3>
+                  <p>{dimension.interpretation.possibleTradeoff}</p>
+                </div>
+                <div>
+                  <h3>Something to try</h3>
+                  <p>{dimension.interpretation.experiment}</p>
+                  <h3>A question to sit with</h3>
+                  <p className="category-reflection">
+                    {dimension.interpretation.reflection}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Statements that shaped the score */}
+          {dimension.contributors.length > 0 && (
+            <div>
+              <h4 className="font-display text-base font-semibold text-[var(--ink-primary)] mb-3">
+                Statements that shaped your {dimension.label.toLowerCase()} score
+              </h4>
+              <ul className="grid gap-3 sm:grid-cols-2">
+                {dimension.contributors.map((c) => (
+                  <li
+                    className="rounded-2xl border p-4 bg-[var(--bg-subtle)]"
+                    style={{ borderColor: "var(--border-hairline)" }}
+                    key={c.questionId}
+                  >
+                    <p className="text-xs sm:text-sm leading-relaxed text-[var(--ink-primary)]">
+                      {c.prompt}
+                    </p>
+                    <p className="text-xs text-[var(--ink-muted)] mt-2 font-mono">
+                      {c.enjoymentLabel} · {c.normalizedContribution}% weight
+                      {c.direction === "inverse" ? " · Inverse key" : ""}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </CollapsibleSection>
     </section>
   );
 }

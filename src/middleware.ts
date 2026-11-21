@@ -7,6 +7,13 @@ export function middleware(req: NextRequest) {
   if (!WRITE_METHODS.has(req.method)) return NextResponse.next();
   const origin = req.headers.get("origin");
   const allowed = new Set([req.nextUrl.origin]);
+  const host = req.headers.get("host");
+  if (host) {
+    try {
+      const target = new URL(`${req.nextUrl.protocol}//${host}`);
+      if (target.host === host && !target.username && !target.password) allowed.add(target.origin);
+    } catch { /* Invalid Host headers do not add an allowed origin. */ }
+  }
   for (const candidate of [process.env.NEXT_PUBLIC_APP_URL, ...(process.env.BETWEEN_US_ALLOWED_ORIGINS || "").split(",")]) {
     if (!candidate?.trim()) continue;
     try { allowed.add(new URL(candidate.trim()).origin); } catch { /* Invalid configuration grants no extra origins. */ }

@@ -8,23 +8,29 @@ import dynamic from "next/dynamic";
 import { useSearchParams, useRouter } from "next/navigation";
 import * as Tabs from "@radix-ui/react-tabs";
 import {
+  Activity,
   AlertTriangle,
   ArrowRight,
   BarChart3,
   Check,
   ChevronDown,
+  Compass,
   Copy,
   Download,
   FileJson,
   FileSpreadsheet,
+  Fingerprint,
   Flame,
   HeartHandshake,
+  Image as ImageIcon,
   Info,
+  Layers,
   Link2,
   Printer,
   RotateCcw,
   ShieldAlert,
   Sparkles,
+  Trophy,
   UserPlus,
   Users,
 } from "lucide-react";
@@ -92,8 +98,10 @@ const ShareableSummaryCard = dynamic(() =>
   ),
 );
 import { ResultsOverview, CommunityBenchmarks } from "./ResultsOverview";
+import { CollapsibleSection } from "./CollapsibleSection";
 import { IntimacyInsights } from "./IntimacyInsights";
 import { RoleRankingList } from "./RoleRankingList";
+import { ExtraResultNote } from "./ExtraResultNote";
 import { AdviceGuide } from "./AdviceGuide";
 import type { CommunityDimensionComparison } from "@/lib/assessment/community";
 import type {
@@ -244,7 +252,6 @@ export function ResultsDashboard({
   const [includePrivateExport, setIncludePrivateExport] = useState(false);
   const [includeSensitiveExport, setIncludeSensitiveExport] = useState(false);
   const exportParams = `&answers=${includePrivateExport}&sensitive=${includeSensitiveExport}`;
-  const [showShareCard, setShowShareCard] = useState(false);
   useEffect(() => {
     const tab = query.get("tab");
     if (
@@ -625,19 +632,58 @@ export function ResultsDashboard({
         )}
       </div>
 
+      {/* 1. Category Scores Overview (Visually appealing color-coded scores showcase at top of page) */}
       <ResultsOverview result={result} previousResult={previousResult} />
-      <AdviceGuide result={result} />
-      <IntimacyInsights result={result} />
+
+      {/* 2. Role & Archetype Match (Collapsible dropdown menu) */}
       <RoleRankingList result={result} />
-      <details
-        className="result-card-disclosure"
-        onToggle={(event) => {
-          if (event.currentTarget.open) setShowShareCard(true);
-        }}
+
+      {/* 3. Action Guide (Collapsible dropdown menu) */}
+      {result.advice && result.advice.status === "ready" && (
+        <CollapsibleSection
+          title="Personalized Action Guide & Suggestions"
+          subtitle={result.advice.headline}
+          icon={Compass}
+          badge={
+            <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-300 border border-purple-500/30">
+              Coaching
+            </span>
+          }
+          className="mt-6"
+          defaultOpen={false}
+        >
+          <AdviceGuide result={result} />
+        </CollapsibleSection>
+      )}
+
+      {/* 4. Desire, Willingness & Experience Matrix (Collapsible dropdown menu) */}
+      {result.intimacyProfile && (
+        <CollapsibleSection
+          title="Desire, Willingness & Experience Blueprint"
+          subtitle="Want, willing, done. Not the same number."
+          icon={Activity}
+          badge={
+            <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-300 border border-rose-500/30">
+              {result.intimacyProfile.channels.length} Channels
+            </span>
+          }
+          className="mt-6"
+          defaultOpen={false}
+        >
+          <IntimacyInsights result={result} />
+        </CollapsibleSection>
+      )}
+
+      {/* 5. Create a Shareable Result Card (Collapsible dropdown menu) */}
+      <CollapsibleSection
+        title="Create a Shareable Result Card"
+        subtitle="Generate and download customized SVG or PNG graphic cards"
+        icon={ImageIcon}
+        className="mt-6"
+        defaultOpen={false}
       >
-        <summary>Create a shareable result card</summary>
-        {showShareCard && <ShareableSummaryCard result={result} />}
-      </details>
+        <ShareableSummaryCard result={result} />
+      </CollapsibleSection>
 
       {/* Previous Attempt Diff Comparison (if ?compare= passed) */}
       {previousResult && (
@@ -736,91 +782,52 @@ export function ResultsDashboard({
         <Tabs.Content value="overview" className="mt-8 space-y-10">
           {/* Attachment 2D Quadrant Plot (Test 11) */}
           {result.attachmentCoordinates && (
-            <section
-              className="rounded-3xl border p-6 sm:p-8"
-              style={{
-                backgroundColor: "var(--bg-elevated)",
-                borderColor: "var(--border-hairline)",
-              }}
+            <CollapsibleSection
+              title="Attachment Dynamics Map"
+              subtitle="Maps your self-reported reassurance vigilance alongside your autonomy reflex"
+              icon={Layers}
+              defaultOpen={false}
             >
-              <div className="mb-5">
-                <h2 className="font-display text-3xl text-[var(--ink-primary)]">
-                  Attachment Dynamics Map
-                </h2>
-                <p className="mt-1 text-sm text-[var(--ink-secondary)]">
-                  Maps your self-reported reassurance vigilance alongside your
-                  autonomy reflex.
-                </p>
-              </div>
               <AttachmentQuadrantPlot
                 anxiety={result.attachmentCoordinates.anxiety}
                 avoidance={result.attachmentCoordinates.avoidance}
                 quadrantLabel={result.attachmentCoordinates.quadrantLabel}
               />
-            </section>
+            </CollapsibleSection>
           )}
 
           {/* Dual-Channel Give vs Receive Matrix (Tests 6, 12, 28) */}
           {result.dualChannelScores && result.dualChannelScores.length > 0 && (
-            <section
-              className="rounded-3xl border p-6 sm:p-8"
-              style={{
-                backgroundColor: "var(--bg-elevated)",
-                borderColor: "var(--border-hairline)",
-              }}
+            <CollapsibleSection
+              title="Receive vs. Give Matrix"
+              subtitle="Where what you want done to you splits from what you want to do"
+              icon={Activity}
+              defaultOpen={false}
             >
-              <div className="mb-5">
-                <h2 className="font-display text-3xl text-[var(--ink-primary)]">
-                  Receive vs. give
-                </h2>
-                <p className="mt-1 text-sm text-[var(--ink-secondary)]">
-                  Where what you want done to you splits from what you want to
-                  do. A gap is a clue, not a duty to reciprocate.
-                </p>
-              </div>
               <GiveReceiveMatrixChart channels={result.dualChannelScores} />
-            </section>
+            </CollapsibleSection>
           )}
 
           {/* Ranked Priorities Bar Chart (Tests 10, 16, 22) */}
           {result.priorityRanking && result.priorityRanking.length > 0 && (
-            <section
-              className="rounded-3xl border p-6 sm:p-8"
-              style={{
-                backgroundColor: "var(--bg-elevated)",
-                borderColor: "var(--border-hairline)",
-              }}
+            <CollapsibleSection
+              title="Priority & Dealbreaker Hierarchy"
+              subtitle="Ranked by your tradeoffs, ratings, and explicitly flagged non-negotiables"
+              icon={Trophy}
+              defaultOpen={false}
             >
-              <div className="mb-5">
-                <h2 className="font-display text-3xl text-[var(--ink-primary)]">
-                  Priority &amp; Dealbreaker Hierarchy
-                </h2>
-                <p className="mt-1 text-sm text-[var(--ink-secondary)]">
-                  Ranked by your tradeoffs, ratings, and explicitly flagged
-                  non-negotiables.
-                </p>
-              </div>
               <RankedBarChart items={result.priorityRanking} />
-            </section>
+            </CollapsibleSection>
           )}
 
           {/* Curiosity Map Grid (Test 2) */}
           {result.curiosityGroups && result.curiosityGroups.length > 0 && (
-            <section
-              className="rounded-3xl border p-6 sm:p-8"
-              style={{
-                backgroundColor: "var(--bg-elevated)",
-                borderColor: "var(--border-hairline)",
-              }}
+            <CollapsibleSection
+              title="Curiosity & Exploration Map"
+              subtitle="Grouped across your six comfort and curiosity states"
+              icon={Compass}
+              defaultOpen={false}
             >
-              <div className="mb-5">
-                <h2 className="font-display text-3xl text-[var(--ink-primary)]">
-                  Curiosity &amp; Exploration Map
-                </h2>
-                <p className="mt-1 text-sm text-[var(--ink-secondary)]">
-                  Grouped across your six comfort and curiosity states.
-                </p>
-              </div>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {result.curiosityGroups.map((group) => (
                   <div
@@ -858,31 +865,22 @@ export function ResultsDashboard({
                   </div>
                 ))}
               </div>
-            </section>
+            </CollapsibleSection>
           )}
 
           {/* Blended Archetype Breakdown (Tests 14, 15, 21) */}
           {result.blendedArchetype &&
             result.blendedArchetype.blendScores.length > 0 && (
-              <section
-                className="rounded-3xl border p-6 sm:p-8"
-                style={{
-                  backgroundColor: "var(--bg-elevated)",
-                  borderColor: "var(--border-hairline)",
-                }}
+              <CollapsibleSection
+                title="Your Blended Archetype Fit"
+                subtitle={`Primary resonance: ${result.blendedArchetype.primary}${
+                  result.blendedArchetype.secondary
+                    ? ` · Secondary leaning: ${result.blendedArchetype.secondary}`
+                    : ""
+                }`}
+                icon={Sparkles}
+                defaultOpen={false}
               >
-                <div className="mb-5">
-                  <h2 className="font-display text-3xl text-[var(--ink-primary)]">
-                    Your Blended Archetype Fit
-                  </h2>
-                  <p className="mt-1 text-sm text-[var(--ink-secondary)]">
-                    Primary resonance:{" "}
-                    <strong>{result.blendedArchetype.primary}</strong>
-                    {result.blendedArchetype.secondary
-                      ? ` · Secondary leaning: ${result.blendedArchetype.secondary}`
-                      : ""}
-                  </p>
-                </div>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {result.blendedArchetype.blendScores.map((b, i) => (
                     <div
@@ -915,7 +913,7 @@ export function ResultsDashboard({
                     </div>
                   ))}
                 </div>
-              </section>
+              </CollapsibleSection>
             )}
 
           {/* Multi-Rater 360 Panel (Test 19) */}
@@ -1313,8 +1311,9 @@ export function ResultsDashboard({
               <p className="mt-1 text-sm text-[var(--ink-secondary)]">
                 Tap any dimension spoke or contributor below to inspect the
                 exact answers behind its score.
-              </p>
-            </div>
+            </p>
+            <ExtraResultNote result={result} />
+          </div>
             <PreferenceRadarChart
               dimensions={result.radar}
               onInspectQuestion={(questionId, dimKey) =>
@@ -1419,113 +1418,115 @@ export function ResultsDashboard({
               </section>
             )}
 
-          {/* Profile Narrative Breakdown */}
-          <section
-            className={
-              result.unmetPreferences && result.unmetPreferences.length > 0
-                ? "grid gap-6 md:grid-cols-2"
-                : "grid gap-6"
+          {/* Profile Narrative Breakdown (Collapsible dropdown menu) */}
+          <CollapsibleSection
+            title={
+              isCategoryReport
+                ? "Your Category Summary"
+                : "Your Preference Landscape"
             }
+            subtitle="Communication style, pace & energy, and novelty comfort"
+            icon={Fingerprint}
+            defaultOpen={false}
           >
             <div
-              className="rounded-3xl border p-6 sm:p-8"
-              style={{
-                backgroundColor: "var(--bg-elevated)",
-                borderColor: "var(--border-hairline)",
-              }}
+              className={
+                result.unmetPreferences && result.unmetPreferences.length > 0
+                  ? "grid gap-6 md:grid-cols-2"
+                  : "grid gap-6"
+              }
             >
-              <h2 className="font-display text-3xl text-[var(--ink-primary)]">
-                {isCategoryReport
-                  ? "Your Category Summary"
-                  : "Your Preference Landscape"}
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-[var(--ink-secondary)]">
-                {result.profile.summaryParagraph}
-              </p>
-              {!isCategoryReport && (
-                <dl className="mt-6 space-y-4 text-sm">
-                  <div>
-                    <dt className="text-xs font-semibold text-[var(--ink-muted)]">
-                      Communication Style
-                    </dt>
-                    <dd className="mt-1 text-[var(--ink-primary)]">
-                      {result.profile.communicationStyle}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs font-semibold text-[var(--ink-muted)]">
-                      Pace &amp; Energy
-                    </dt>
-                    <dd className="mt-1 text-[var(--ink-primary)]">
-                      {result.profile.paceAndEnergy}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs font-semibold text-[var(--ink-muted)]">
-                      Initiative Balance
-                    </dt>
-                    <dd className="mt-1 text-[var(--ink-primary)]">
-                      {result.profile.initiativeBalance}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs font-semibold text-[var(--ink-muted)]">
-                      Comfort With Novelty
-                    </dt>
-                    <dd className="mt-1 text-[var(--ink-primary)]">
-                      {result.profile.noveltyComfort}
-                    </dd>
-                  </div>
-                </dl>
+              <div>
+                <p className="text-sm leading-relaxed text-[var(--ink-secondary)]">
+                  {result.profile.summaryParagraph}
+                </p>
+                {!isCategoryReport && (
+                  <dl className="mt-6 space-y-4 text-sm">
+                    <div>
+                      <dt className="text-xs font-semibold text-[var(--ink-muted)]">
+                        Communication Style
+                      </dt>
+                      <dd className="mt-1 text-[var(--ink-primary)]">
+                        {result.profile.communicationStyle}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs font-semibold text-[var(--ink-muted)]">
+                        Pace &amp; Energy
+                      </dt>
+                      <dd className="mt-1 text-[var(--ink-primary)]">
+                        {result.profile.paceAndEnergy}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs font-semibold text-[var(--ink-muted)]">
+                        Initiative Balance
+                      </dt>
+                      <dd className="mt-1 text-[var(--ink-primary)]">
+                        {result.profile.initiativeBalance}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs font-semibold text-[var(--ink-muted)]">
+                        Comfort With Novelty
+                      </dt>
+                      <dd className="mt-1 text-[var(--ink-primary)]">
+                        {result.profile.noveltyComfort}
+                      </dd>
+                    </div>
+                  </dl>
+                )}
+              </div>
+
+              {result.unmetPreferences && result.unmetPreferences.length > 0 && (
+                <div
+                  className="rounded-2xl border p-5 sm:p-6"
+                  style={{
+                    backgroundColor: "var(--bg-subtle)",
+                    borderColor: "var(--border-hairline)",
+                  }}
+                >
+                  <h3 className="font-display text-xl text-[var(--ink-primary)]">
+                    Unmet Preferences &amp; Opportunities
+                  </h3>
+                  <ul className="mt-4 space-y-3 text-xs leading-relaxed text-[var(--ink-secondary)]">
+                    {result.unmetPreferences.slice(0, 4).map((u) => (
+                      <li
+                        key={u.questionId}
+                        className="rounded-xl border p-3.5"
+                        style={{
+                          backgroundColor: "var(--bg-elevated)",
+                          borderColor: "var(--border-hairline)",
+                        }}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <span>{u.message}</span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              jumpToQaQuestion(u.questionId, "into")
+                            }
+                            className="shrink-0 font-medium text-[var(--accent-plum)] hover:underline"
+                          >
+                            View Q&amp;A
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
+          </CollapsibleSection>
 
-            {result.unmetPreferences && result.unmetPreferences.length > 0 && (
-              <div
-                className="rounded-3xl border p-6 sm:p-8"
-                style={{
-                  backgroundColor: "var(--bg-subtle)",
-                  borderColor: "var(--border-hairline)",
-                }}
-              >
-                <h3 className="font-display text-2xl text-[var(--ink-primary)]">
-                  Unmet Preferences &amp; Opportunities
-                </h3>
-                <ul className="mt-4 space-y-3 text-xs leading-relaxed text-[var(--ink-secondary)]">
-                  {result.unmetPreferences.slice(0, 4).map((u) => (
-                    <li
-                      key={u.questionId}
-                      className="rounded-xl border p-3.5"
-                      style={{
-                        backgroundColor: "var(--bg-elevated)",
-                        borderColor: "var(--border-hairline)",
-                      }}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <span>{u.message}</span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            jumpToQaQuestion(u.questionId, "into")
-                          }
-                          className="shrink-0 font-medium text-[var(--accent-plum)] hover:underline"
-                        >
-                          View Q&amp;A
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </section>
-
-          {/* Ranked Preference Buckets */}
+          {/* Ranked Preference Buckets (Collapsible dropdown menu) */}
           {!isCategoryReport && (
-            <section className="space-y-4">
-              <h2 className="font-display text-3xl text-[var(--ink-primary)]">
-                Preference Overview by Category
-              </h2>
+            <CollapsibleSection
+              title="Preference Overview by Category"
+              subtitle="Strongly desired, important qualities, curious about, situational, avoid, and firm boundaries"
+              icon={Layers}
+              defaultOpen={false}
+            >
               <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
                 <PreferenceBucketList
                   title="Strongly Desired"
@@ -1558,7 +1559,7 @@ export function ResultsDashboard({
                   items={result.buckets.firmBoundaries}
                 />
               </div>
-            </section>
+            </CollapsibleSection>
           )}
 
           {/* Expandable Full Question & Answer Review Accordion */}

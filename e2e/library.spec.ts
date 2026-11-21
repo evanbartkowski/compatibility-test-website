@@ -14,21 +14,15 @@ for (const assessment of builtInAssessments)
       await page.goto(`/assess/${assessment.slug}?mode=${mode}`);
       await page.getByLabel(/confirm I am at least/i).check();
       await page.getByLabel(/understand my responses are private/i).check();
-      await page.getByRole("button", { name: /Begin Questions/i }).click();
+      await page.getByRole("button", { name: /Begin Test/i }).click();
       let answered = 0;
       for (let guard = 0; guard < 151; guard++) {
-        if (
-          await page
-            .getByRole("button", { name: /Complete & View Results/i })
-            .isVisible()
-        )
-          break;
         const cards = page.getByRole("article");
         const total =
           mode === "quick" && assessment.supportsQuickMode !== false
             ? assessment.questions.filter((q) => q.quickDiscovery).length
             : assessment.questions.length;
-        await expect(cards).toHaveCount(Math.min(5, total - answered));
+        await expect(cards).toHaveCount(Math.min(10, total - answered));
         for (const card of await cards.all()) {
           const prompt = await card.getByRole("heading").innerText();
           const q = assessment.questions.find((q) => q.prompt === prompt);
@@ -80,22 +74,20 @@ for (const assessment of builtInAssessments)
               .click();
           answered++;
         }
-        await page
-          .getByRole("button", { name: /^(Next page|Review & Finish)$/ })
-          .click();
+        const finish = page.getByRole("button", { name: /Complete & View Results/i });
+        if (await finish.isVisible()) { await finish.click(); break; }
+        await page.getByRole("button", { name: "Next page", exact: true }).click();
       }
       expect(answered).toBeGreaterThan(0);
-      await page
-        .getByRole("button", { name: /Complete & View Results/i })
-        .click();
-      await expect(page).toHaveURL(/\/results\/sub_/);
+      await expect(page).toHaveURL(/\/results(?:\/sub_|\?id=sub_)/);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       expect(
         await page.evaluate(
           () => document.documentElement.scrollWidth <= innerWidth + 1,
         ),
       ).toBe(true);
-      const id = new URL(page.url()).pathname.split("/").pop();
+      const url = new URL(page.url());
+      const id = url.searchParams.get("id") || url.pathname.split("/").pop();
       const response = await page.request.get(`/api/results/${id}`);
       expect(response.ok()).toBe(true);
       const payload = await response.json();

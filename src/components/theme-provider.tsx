@@ -5,12 +5,14 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 type Theme = "light" | "dark";
 
 interface ThemeContextValue {
+  ready: boolean;
   theme: Theme;
   toggleTheme: () => void;
   setTheme: (theme: Theme) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
+  ready: true,
   theme: "dark",
   toggleTheme: () => {},
   setTheme: () => {},
@@ -20,6 +22,7 @@ const STORAGE_KEY = "between_us_theme";
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("dark");
+  const [ready, setReady] = useState(false);
 
   const applyTheme = (next: Theme) => {
     const root = document.documentElement;
@@ -45,6 +48,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setThemeState("dark");
       applyTheme("dark");
     }
+    setReady(true);
   }, []);
 
   const setTheme = (next: Theme) => {
@@ -62,7 +66,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme, ready }}>
       {children}
     </ThemeContext.Provider>
   );

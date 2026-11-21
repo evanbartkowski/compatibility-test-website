@@ -26,6 +26,8 @@ test("public pages have defensive headers and render without emoji or duplicate 
 test("discovery and population controls work with light theme, keyboard, and reduced motion", async ({ page }, info) => {
   await page.goto("/compare");
   await page.getByRole("button", { name: "Switch to light theme" }).click();
+  await expect(page.getByRole("button", { name: "Switch to dark theme" })).toBeVisible();
+  await expect.poll(() => page.locator("body").evaluate(node => getComputedStyle(node).color)).toBe("rgb(25, 22, 38)");
   const topic = page.getByRole("article", { name: "Blindfolds", exact: true });
   await topic.getByLabel("Your view").focus();
   await page.keyboard.press("ArrowDown");

@@ -4,17 +4,17 @@ import AxeBuilder from "@axe-core/playwright";
 test("question pages have readable tap targets, retain answers and support both themes", async ({
   page,
 }, info) => {
-  await page.goto("/assess/emotional-availability-reflection?mode=quick");
+  await page.goto("/assess/emotional-availability-reflection?mode=complete");
   await page.getByLabel(/confirm I am at least/i).check();
   await page.getByLabel(/understand my responses are private/i).check();
-  await page.getByRole("button", { name: /Begin Questions/ }).click();
-  await expect(page.getByRole("article")).toHaveCount(5);
+  await page.getByRole("button", { name: /Begin Test/ }).click();
+  await expect(page.getByRole("article")).toHaveCount(10);
   const first = page.getByRole("article").first();
   const firstPrompt = await first.getByRole("heading").innerText();
   // Click the visible wording to exercise the full answer target.
   await first
     .locator("label")
-    .filter({ hasText: /^6Agree$/ })
+    .filter({ hasText: /^Agree$/ })
     .click();
   await expect(
     first.getByRole("radio", { name: "Agree", exact: true }),

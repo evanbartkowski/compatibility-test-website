@@ -23,7 +23,7 @@ describe("AssessmentArtwork", () => {
     }
   });
   it("renders distinct thematic artwork for all 20 active assessments", () => {
-    expect(builtInAssessments).toHaveLength(20);
+    expect(builtInAssessments).toHaveLength(22);
 
     const renderedArtworks = new Set<string>();
 
@@ -46,7 +46,7 @@ describe("AssessmentArtwork", () => {
     }
 
     // Every one of the 20 assessments must produce unique artwork content
-    expect(renderedArtworks.size).toBe(20);
+    expect(renderedArtworks.size).toBe(builtInAssessments.length);
   });
 
   it("renders banner variant with wide viewBox for assessment consent header", () => {

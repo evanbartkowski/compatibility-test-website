@@ -59,7 +59,7 @@ const links = [
 ];
 export function SiteHeader() {
   const pathname = usePathname();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, ready: themeReady } = useTheme();
   const { user, loading, openAuthModal } = useOptionalAuth();
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -114,6 +114,7 @@ export function SiteHeader() {
             type="button"
             className="icon-button"
             onClick={toggleTheme}
+            disabled={!themeReady}
             aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
           >
             {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}

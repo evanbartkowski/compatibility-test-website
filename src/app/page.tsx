@@ -66,7 +66,9 @@ export default function HomePage() {
     "relationship-dealbreakers-boundaries",
     "big-five-personality-profile",
     "emotional-availability-reflection",
-    "group-multipartner-interest",
+    "myers-briggs-type-test",
+    "gay-lgbt-attraction-test",
+    "bias-self-check",
   ].map((slug) => getAssessmentBySlug(slug)!);
   return (
     <HomeExperience example={example(0)} partner={example(1)}>
@@ -77,10 +79,13 @@ export default function HomePage() {
               Which test are you actually curious about?
             </h2>
             <p>
-              The BDSM test, the kink test, the sex toy test, the love compatibility test, the IQ test, the friendship test, the love language test, the sexual desire test, the husband/wife test, the partner finding test, the icks test, and more. Start with a teaser.
+              The BDSM test, the kink test, the personality type test, the gay test, the bias test, and the standards calculator. Start with a teaser.
             </p>
           </div>
-          <Link href="/explore" className="text-link">
+            <Link href="/standards" className="text-link">
+              The Standards Test <ArrowUpRight size={15} aria-hidden="true" />
+            </Link>
+            <Link href="/explore" className="text-link">
             Explore all {builtInAssessments.length} tests <ArrowUpRight size={15} aria-hidden="true" />
           </Link>
         </div>

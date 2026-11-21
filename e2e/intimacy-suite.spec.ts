@@ -26,7 +26,7 @@ const sharing = {
 async function begin(page: Page) {
   await page.getByLabel(/confirm I am at least/i).check();
   await page.getByLabel(/understand my responses are private/i).check();
-  await page.getByRole("button", { name: /Begin Questions/ }).click();
+  await page.getByRole("button", { name: /Begin Test/ }).click();
 }
 test("independent controls retain limits and drafts, with accessible themes and narrow layouts", async ({
   page,

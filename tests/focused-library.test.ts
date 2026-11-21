@@ -4,8 +4,8 @@ import { inspectAssessmentDefinition } from "@/lib/assessment/definition";
 
 describe("Focused assessment library", () => {
   it("publishes the core tests and the intimacy collection without dropping archived versions", () => {
-    expect(builtInAssessments).toHaveLength(20);
-    expect(builtInAssessments.filter((a) => a.collection)).toHaveLength(11);
+    expect(builtInAssessments).toHaveLength(22);
+    expect(builtInAssessments.filter((a) => a.collection)).toHaveLength(10);
     for (const a of builtInAssessments) {
       expect(a.questions.length).toBeGreaterThanOrEqual(50);
       expect(a.questions.length).toBeLessThanOrEqual(150);

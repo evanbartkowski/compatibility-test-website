@@ -110,7 +110,7 @@ describe("New intimacy collection", () => {
     const suite = builtInAssessments.filter(
       (a) => a.collection === "intimacy-suite",
     );
-    expect(suite).toHaveLength(11);
+    expect(suite).toHaveLength(10);
     for (const a of suite) {
       expect(a.adultsOnly).toBe(true);
       expect(a.questions.length).toBeGreaterThanOrEqual(50);

@@ -1,4 +1,5 @@
 import { readJsonBody } from "@/lib/server/request-body";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { isAdminRequest } from "@/lib/server/admin-auth";
 import {
@@ -47,6 +48,8 @@ export async function POST(req: NextRequest) {
       if (typeof body.slug !== "string" || body.slug.length > 100)
         throw new Error("A valid assessment slug is required.");
       unpublishAssessment(body.slug);
+      revalidatePath(`/assess/${body.slug}`);
+      revalidatePath("/explore");
       return NextResponse.json({ unpublished: true });
     }
     if (body.type === "editorial_update") {
@@ -78,6 +81,8 @@ export async function POST(req: NextRequest) {
       );
     }
     const saved = saveCustomAssessment(assessment);
+    revalidatePath(`/assess/${saved.slug}`);
+    revalidatePath("/explore");
     return NextResponse.json({ assessment: saved });
   } catch (err) {
     return NextResponse.json(

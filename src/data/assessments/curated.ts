@@ -1414,8 +1414,9 @@ consolidatedSlugRedirects["roleplay-scenario-explorer"] = "fantasy-catalog";
 
 consolidatedSlugRedirects["praise-intensity-spectrum"] = "communication-language-profile";
 
-consolidatedSlugRedirects["privacy-visibility-risk-profile"] = "group-multipartner-interest";
-consolidatedSlugRedirects["jealousy-compersion-relationship-structures"] = "group-multipartner-interest";
+consolidatedSlugRedirects["privacy-visibility-risk-profile"] = "sexual-interests-curiosity-map";
+consolidatedSlugRedirects["jealousy-compersion-relationship-structures"] = "sexual-interests-curiosity-map";
+consolidatedSlugRedirects["group-multipartner-interest"] = "sexual-interests-curiosity-map";
 
 consolidatedSlugRedirects["attachment-bedroom"] = "attachment-style-discovery";
 consolidatedSlugRedirects["post-intimacy-morning-after"] = "emotional-availability-reflection";

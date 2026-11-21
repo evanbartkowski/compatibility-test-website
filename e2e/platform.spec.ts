@@ -14,7 +14,7 @@ const intimacyPartnerPreferencesAssessment = getAssessmentBySlug(
 async function consent(page: Page) {
   await page.getByLabel(/confirm I am at least/i).check();
   await page.getByLabel(/understand my responses are private/i).check();
-  await page.getByRole("button", { name: /Begin Questions/i }).click();
+  await page.getByRole("button", { name: /Begin Test/i }).click();
 }
 async function noOverflow(page: Page) {
   expect(
