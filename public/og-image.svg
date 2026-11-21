@@ -62,20 +62,20 @@
 
       <!-- Row 2 -->
       <g transform="translate(0, 52)">
-        <rect x="0" y="0" width="130" height="38" rx="19" fill="#201A2E" stroke="#A855F7" stroke-width="1.2" stroke-opacity="0.6"/>
-        <text x="65" y="24" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="600" fill="#FFF">The IQ Test</text>
+        <rect x="0" y="0" width="160" height="38" rx="19" fill="#201A2E" stroke="#A855F7" stroke-width="1.2" stroke-opacity="0.6"/>
+        <text x="80" y="24" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="600" fill="#FFF">The Sex Toy Test</text>
       </g>
-      <g transform="translate(145, 52)">
-        <rect x="0" y="0" width="180" height="38" rx="19" fill="#201A2E" stroke="#EC4899" stroke-width="1.2" stroke-opacity="0.6"/>
-        <text x="90" y="24" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="600" fill="#FFF">The Friendship Test</text>
+      <g transform="translate(175, 52)">
+        <rect x="0" y="0" width="150" height="38" rx="19" fill="#201A2E" stroke="#EC4899" stroke-width="1.2" stroke-opacity="0.6"/>
+        <text x="75" y="24" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="600" fill="#FFF">The IQ Test</text>
       </g>
       <g transform="translate(340, 52)">
-        <rect x="0" y="0" width="200" height="38" rx="19" fill="#201A2E" stroke="#06B6D4" stroke-width="1.2" stroke-opacity="0.6"/>
-        <text x="100" y="24" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="600" fill="#FFF">Love Language Test</text>
+        <rect x="0" y="0" width="220" height="38" rx="19" fill="#201A2E" stroke="#06B6D4" stroke-width="1.2" stroke-opacity="0.6"/>
+        <text x="110" y="24" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="600" fill="#FFF">The Friendship Test</text>
       </g>
     </g>
 
     <!-- Footer Trust Tag -->
-    <text x="0" y="320" font-family="sans-serif" font-size="16" font-weight="500" fill="#9D94B8">40 Candid Reflections · Private By Default · 100% Free · truth-desire.web.app</text>
+    <text x="0" y="320" font-family="sans-serif" font-size="16" font-weight="500" fill="#9D94B8">20 Viral Assessments · Private By Default · 100% Free · truth-desire.web.app</text>
   </g>
 </svg>

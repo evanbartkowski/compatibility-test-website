@@ -5,13 +5,14 @@ import { listPublishedAssessments } from "@/lib/server/store";
 import { summarizeAssessment } from "@/lib/assessment/catalog-summary";
 
 export const metadata: Metadata = {
-  title: "Explore All 40 Viral Tests | SoulFlame",
+  title: "Explore All 20 Viral Tests | SoulFlame",
   description:
-    "Take the viral BDSM test, kink test, love compatibility test, IQ test, friendship test, love language test, sexual desire test, and 40 deep assessments on SoulFlame.",
+    "Take the viral BDSM test, kink test, sex toy test, love compatibility test, IQ test, friendship test, love language test, sexual desire test, and 20 deep assessments on SoulFlame.",
   keywords: [
     "SoulFlame tests",
     "BDSM test",
     "the kink test",
+    "the sex toy test",
     "love compatibility test",
     "IQ test",
     "friendship test",
@@ -27,18 +28,18 @@ export const metadata: Metadata = {
     canonical: "https://truth-desire.web.app/explore",
   },
   openGraph: {
-    title: "Explore All 40 Viral Tests | SoulFlame",
+    title: "Explore All 20 Viral Tests | SoulFlame",
     description:
-      "Take the viral BDSM test, kink test, love compatibility test, IQ test, friendship test, and 40 relationship assessments on SoulFlame.",
+      "Take the viral BDSM test, kink test, sex toy test, love compatibility test, IQ test, friendship test, and 20 relationship assessments on SoulFlame.",
     url: "https://truth-desire.web.app/explore",
     siteName: brandConfig.name,
     images: ["/og-image.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Explore All 40 Viral Tests | SoulFlame",
+    title: "Explore All 20 Viral Tests | SoulFlame",
     description:
-      "Take the viral BDSM test, kink test, love compatibility test, IQ test, friendship test, and 40 relationship assessments on SoulFlame.",
+      "Take the viral BDSM test, kink test, sex toy test, love compatibility test, IQ test, friendship test, and 20 relationship assessments on SoulFlame.",
     images: ["/og-image.png"],
   },
 };

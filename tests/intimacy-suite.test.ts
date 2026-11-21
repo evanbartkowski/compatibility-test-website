@@ -106,11 +106,11 @@ describe("New intimacy collection", () => {
       expect(JSON.stringify(summary)).not.toContain(a.questions[0].prompt);
     }
   });
-  it("registers thirty-one complete adult-only assessments with real teaser and deep forms", () => {
+  it("registers eleven curated adult-only assessments with real teaser and deep forms", () => {
     const suite = builtInAssessments.filter(
       (a) => a.collection === "intimacy-suite",
     );
-      expect(suite).toHaveLength(31);
+    expect(suite).toHaveLength(11);
     for (const a of suite) {
       expect(a.adultsOnly).toBe(true);
       expect(a.questions.length).toBeGreaterThanOrEqual(50);

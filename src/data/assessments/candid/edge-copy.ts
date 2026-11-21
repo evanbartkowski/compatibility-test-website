@@ -43,21 +43,22 @@ export const liveNames: Record<string, { title: string; short: string; hook: str
     adult: true,
   },
   "sexual-interests-curiosity-map": {
-    title: "The Kink Test",
+    title: "The Kink & Taboo Desires Test",
     short: "The Kink Test",
-    hook: "A candid catalog of kinks. Bondage, CNC, group sex, feet, pain, humiliation, and beyond.",
+    hook: "A candid catalog of kinks: CNC, roleplay, edging, public play, group sex, impact, and taboos.",
     adult: true,
   },
   "bdsm-power-dynamics-test": {
-    title: "The BDSM Test",
+    title: "The BDSM & Bondage Test",
     short: "The BDSM Test",
-    hook: "Dominance, submission, bondage, discipline, sadism, masochism, and switch dynamics in action.",
+    hook: "Dominance, submission, bondage, discipline, sadism, masochism, switch dynamics, and impact play.",
     adult: true,
   },
   "desire-reality-map": {
-    title: "The Fantasy vs. Reality Test",
+    title: "The Fantasy vs. Reality Sex Test",
     short: "The Fantasy vs. Reality Test",
-    hook: "What you fantasize about, what you have done, and what you would actually say yes to tonight.",
+    hook: "What you secretly watch, what you fantasize about, and what you would actually do in bed tonight.",
+    adult: true,
   },
   "turn-on-anatomy": {
     title: "The Turn-On Test",
@@ -75,9 +76,10 @@ export const liveNames: Record<string, { title: string; short: string; hook: str
     hook: "Blindfolds, silence, sensory overload, and the safeword that must work when senses are stripped.",
   },
   "fantasy-catalog": {
-    title: "The Secret Fantasies Test",
-    short: "The Fantasy Test",
-    hook: "Fifty secret fantasies from tender to taboo. Receiving and performing rated independently.",
+    title: "The Secret Sex Fantasies Test",
+    short: "The Sex Fantasies Test",
+    hook: "Fifty secret sexual fantasies from tender romance to raw taboo. Receiving and performing rated independently.",
+    adult: true,
   },
   "aftercare-recovery-style": {
     title: "The Aftercare Test",
@@ -110,9 +112,10 @@ export const liveNames: Record<string, { title: string; short: string; hook: str
     hook: "How fast you want to try new things in bed, from slow-burn comfort to diving into the deep end.",
   },
   "communication-language-profile": {
-    title: "The Dirty Talk Test",
+    title: "The Dirty Talk & Moaning Test",
     short: "The Dirty Talk Test",
-    hook: "Orders, praise, dirty whispers, silence, and the words that take you completely over the edge.",
+    hook: "Orders, praise, degrading whispers, moans, silence, and the words that take you over the edge.",
+    adult: true,
   },
   "service-devotion-profile": {
     title: "The Pleasure & Devotion Test",
@@ -135,9 +138,10 @@ export const liveNames: Record<string, { title: string; short: string; hook: str
     hook: "Being looked after, head pats, tender dominance, and feeling completely cared for and safe.",
   },
   "primal-movement-play": {
-    title: "The Primal & Biting Test",
-    short: "The Primal Test",
-    hook: "Chase, pin, bite, scratch, growl, and uninhibited animal instincts in the bedroom.",
+    title: "The Primal & Rough Sex Test",
+    short: "The Primal Sex Test",
+    hook: "Chase, pin, bite, scratch, hair-pulling, and uninhibited animal hunger in the bedroom.",
+    adult: true,
   },
   "power-exchange-intensity": {
     title: "The Dominance & Submission Test",
@@ -160,9 +164,10 @@ export const liveNames: Record<string, { title: string; short: string; hook: str
     hook: "Monogamy, threesomes, polyamory, cuckolding, hall passes, and how you actually handle jealousy.",
   },
   "toys-tools-gear-preferences": {
-    title: "The Sex Toys & Gear Test",
-    short: "The Toy Test",
-    hook: "Wands, handcuffs, blindfolds, paddles, ropes, and the hardware you keep in your nightstand.",
+    title: "The Sex Toy Test",
+    short: "The Sex Toy Test",
+    hook: "Wands, vibrators, butt plugs, restraints, paddles, ropes, and bedroom hardware you secretly crave.",
+    adult: true,
   },
   "limits-boundaries-deep-dive": {
     title: "The Hard Limits & Red Lines Test",
@@ -175,9 +180,10 @@ export const liveNames: Record<string, { title: string; short: string; hook: str
     hook: "Who you would actually take home, sleep with, and keep. Chemistry, lifestyle, looks, and dealbreakers.",
   },
   "group-multipartner-interest": {
-    title: "The Threesome & Group Sex Test",
-    short: "The Group Sex Test",
-    hook: "Threesomes (MFM/FFM), orgies, watching your partner, and multi-partner sexual curiosity.",
+    title: "The Threesome & Wild Sex Test",
+    short: "The Threesome Test",
+    hook: "Threesomes (MFM/FFM), orgies, voyeurism, exhibitionism, and multi-partner sexual curiosity.",
+    adult: true,
   },
   "financial-gifting-boundaries": {
     title: "The Findom & Sugar Dating Test",

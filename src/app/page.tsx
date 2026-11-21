@@ -57,6 +57,7 @@ export default function HomePage() {
   const featured = [
     "bdsm-power-dynamics-test",
     "sexual-interests-curiosity-map",
+    "toys-tools-gear-preferences",
     "attachment-style-discovery",
     "intimacy-partner-preferences",
     "love-affection-preferences",
@@ -65,6 +66,7 @@ export default function HomePage() {
     "relationship-dealbreakers-boundaries",
     "big-five-personality-profile",
     "emotional-availability-reflection",
+    "group-multipartner-interest",
   ].map((slug) => getAssessmentBySlug(slug)!);
   return (
     <HomeExperience example={example(0)} partner={example(1)}>
@@ -75,7 +77,7 @@ export default function HomePage() {
               Which test are you actually curious about?
             </h2>
             <p>
-              The BDSM test, the kink test, the love compatibility test, the IQ test, the friendship test, the love language test, the sexual desire test, the husband/wife test, the partner finding test, the icks test, and more. Start with a teaser.
+              The BDSM test, the kink test, the sex toy test, the love compatibility test, the IQ test, the friendship test, the love language test, the sexual desire test, the husband/wife test, the partner finding test, the icks test, and more. Start with a teaser.
             </p>
           </div>
           <Link href="/explore" className="text-link">

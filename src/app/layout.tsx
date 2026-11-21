@@ -27,13 +27,14 @@ export const metadata: Metadata = {
     template: `%s · ${brandConfig.name}`,
   },
   description:
-    "Take the viral tests on SoulFlame: The BDSM Test, The Kink Test, The Love Compatibility Test, The IQ Test, The Friendship Test, Love Language, Sexual Desire, and 40 deep personality & relationship assessments. 100% free and private.",
+    "Take the viral tests on SoulFlame: The BDSM Test, The Kink Test, The Sex Toy Test, The Love Compatibility Test, The IQ Test, The Friendship Test, Love Language, Sexual Desire, and 20 deep personality & relationship assessments. 100% free and private.",
   keywords: [
     "SoulFlame",
     "soulflame",
     "soulflame test",
     "BDSM test",
     "the kink test",
+    "the sex toy test",
     "love compatibility test",
     "IQ test",
     "friendship test",
@@ -42,6 +43,7 @@ export const metadata: Metadata = {
     "husband wife test",
     "partner finding test",
     "icks test",
+    "threesome test",
     "couples test",
     "compatibility test",
     "personality quiz",
@@ -151,8 +153,14 @@ const SCHEMA_ORG_JSON_LD = {
         {
           "@type": "ListItem",
           "position": 3,
+          "name": "The Sex Toy Test",
+          "url": "https://truth-desire.web.app/assess/toys-tools-gear-preferences",
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
           "name": "The Love Compatibility Test",
-          "url": "https://truth-desire.web.app/assess/relationship-readiness-core",
+          "url": "https://truth-desire.web.app/assess/attachment-style-discovery",
         },
         {
           "@type": "ListItem",

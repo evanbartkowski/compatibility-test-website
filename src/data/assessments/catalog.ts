@@ -122,9 +122,32 @@ export const archivedAssessments: AssessmentDefinition[] = [
   ...intimacyAssessments,
   ...curatedAssessments.map(publishLegacyCandid),
   ...intimacyAssessments.map(publishLegacyCandid),
+  ...intimacyAssessments.map(publishCandidRevision).map(withAdviceProfile),
 ];
+
+export const activeIntimacySlugs = new Set([
+  "desire-reality-map",
+  "aftercare-recovery-style",
+  "toys-tools-gear-preferences",
+  "fantasy-catalog",
+  "communication-language-profile",
+  "group-multipartner-interest",
+  "partner-ideal-dealbreakers",
+  "long-term-dynamic-vision",
+  "spicy-would-you-rather",
+  "erotic-blueprint-style",
+  "personal-erotic-blueprint",
+]);
+
+export const activeIntimacyAssessments = intimacyAssessments.filter((a) =>
+  activeIntimacySlugs.has(a.slug),
+);
+
 export const coreAssessments = curatedAssessments.map(publishCandidRevision);
-export const builtInAssessments = [...coreAssessments, ...intimacyAssessments.map(publishCandidRevision)].map(withAdviceProfile);
+export const builtInAssessments = [
+  ...coreAssessments,
+  ...activeIntimacyAssessments.map(publishCandidRevision),
+].map(withAdviceProfile);
 
 export function getArchivedAssessmentBySlug(slug: string, version = "2.0.0") {
   return archivedAssessments.find(

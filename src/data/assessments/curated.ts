@@ -1393,6 +1393,37 @@ consolidatedSlugRedirects["how-well-do-you-know-your-partner"] =
 consolidatedSlugRedirects["who-is-more-likely-to"] =
   "love-affection-preferences";
 
+// Combined niche and kink tests (reduced to <= 20 core tests):
+consolidatedSlugRedirects["orgasm-pacing-control"] = "bdsm-power-dynamics-test";
+consolidatedSlugRedirects["power-exchange-intensity"] = "bdsm-power-dynamics-test";
+consolidatedSlugRedirects["adult-caregiving-comfort"] = "bdsm-power-dynamics-test";
+consolidatedSlugRedirects["financial-gifting-boundaries"] = "bdsm-power-dynamics-test";
+
+consolidatedSlugRedirects["curiosity-exploration-speed"] = "sexual-interests-curiosity-map";
+consolidatedSlugRedirects["kink-compatibility-stress-test"] = "sexual-interests-curiosity-map";
+
+consolidatedSlugRedirects["sensory-sensation-play-map"] = "toys-tools-gear-preferences";
+consolidatedSlugRedirects["sensory-deprivation-overload"] = "toys-tools-gear-preferences";
+
+consolidatedSlugRedirects["service-devotion-profile"] = "intimacy-partner-preferences";
+consolidatedSlugRedirects["aftercare-recovery-style"] = "intimacy-partner-preferences";
+consolidatedSlugRedirects["recovery-past-experiences"] = "intimacy-partner-preferences";
+
+consolidatedSlugRedirects["fantasy-sharing-comfort"] = "fantasy-catalog";
+consolidatedSlugRedirects["roleplay-scenario-explorer"] = "fantasy-catalog";
+
+consolidatedSlugRedirects["praise-intensity-spectrum"] = "communication-language-profile";
+
+consolidatedSlugRedirects["privacy-visibility-risk-profile"] = "group-multipartner-interest";
+consolidatedSlugRedirects["jealousy-compersion-relationship-structures"] = "group-multipartner-interest";
+
+consolidatedSlugRedirects["attachment-bedroom"] = "attachment-style-discovery";
+consolidatedSlugRedirects["post-intimacy-morning-after"] = "emotional-availability-reflection";
+consolidatedSlugRedirects["limits-boundaries-deep-dive"] = "relationship-dealbreakers-boundaries";
+consolidatedSlugRedirects["personal-erotic-blueprint"] = "erotic-blueprint-style";
+consolidatedSlugRedirects["turn-on-anatomy"] = "toys-tools-gear-preferences";
+consolidatedSlugRedirects["primal-movement-play"] = "bdsm-power-dynamics-test";
+
 function createAssessment(s: Survey, expanded = false): AssessmentDefinition {
   const itemsFor = (d: Scale) =>
     expanded ? [...d.items, ...extendedItems[s.slug][d.key]] : d.items;
