@@ -7,23 +7,37 @@ import { z } from "zod";
 
 const simulateSchema = z.object({
   assessmentSlug: z.string().min(1),
-  preset: z.enum(["balanced", "high_exploration", "boundary_focused", "reserved"]),
+  preset: z.enum([
+    "balanced",
+    "high_exploration",
+    "boundary_focused",
+    "reserved",
+  ]),
 });
 
 export async function POST(req: NextRequest) {
   if (!(await isAdminRequest(req))) {
-    return NextResponse.json({ error: "Administrator access required." }, { status: 401 });
+    return NextResponse.json(
+      { error: "Administrator access required." },
+      { status: 401 },
+    );
   }
 
   const json = await req.json().catch(() => null);
   const parsed = simulateSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid simulation request." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid simulation request." },
+      { status: 400 },
+    );
   }
 
   const assessment = resolveAssessment(parsed.data.assessmentSlug);
   if (!assessment) {
-    return NextResponse.json({ error: "Assessment not found." }, { status: 404 });
+    return NextResponse.json(
+      { error: "Assessment not found." },
+      { status: 404 },
+    );
   }
 
   const now = new Date().toISOString();
@@ -45,7 +59,15 @@ export async function POST(req: NextRequest) {
               ? 4
               : 3;
 
-    if (q.inputType === "curiosity_map") {
+    if (q.inputType === "rating_scale" && q.scaleConfig) {
+      const { min, max } = q.scaleConfig;
+      const value = Math.round(min + ((baseScore - 1) / 4) * (max - min));
+      answers[q.id] = {
+        questionId: q.id,
+        customValue: q.reverseScored ? min + max - value : value,
+        updatedAt: now,
+      };
+    } else if (q.inputType === "curiosity_map") {
       answers[q.id] = {
         questionId: q.id,
         curiosityLevel:
@@ -92,13 +114,19 @@ export async function POST(req: NextRequest) {
     } else if (q.inputType === "multi_select" && q.options) {
       answers[q.id] = {
         questionId: q.id,
-        customValue: q.options.slice(0, preset === "high_exploration" ? 4 : 2).map((o) => o.value),
+        customValue: q.options
+          .slice(0, preset === "high_exploration" ? 4 : 2)
+          .map((o) => o.value),
         updatedAt: now,
       };
     } else if (q.inputType === "slider" && q.sliderConfig) {
       const { min, max } = q.sliderConfig;
       const ratio =
-        preset === "high_exploration" ? 0.85 : preset === "reserved" ? 0.25 : 0.55;
+        preset === "high_exploration"
+          ? 0.85
+          : preset === "reserved"
+            ? 0.25
+            : 0.55;
       answers[q.id] = {
         questionId: q.id,
         customValue: Math.round(min + (max - min) * ratio),

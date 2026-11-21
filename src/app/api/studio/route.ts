@@ -4,6 +4,7 @@ import {
   getAdminTelemetrySummary,
   getEmailTemplates,
   listAllAssessments,
+  listPublishedAssessments,
   unpublishAssessment,
   listAssessmentVersions,
   listEditorialAuditItems,
@@ -24,6 +25,10 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     authenticated: true,
     assessments: listAllAssessments(),
+    simulationAssessments: listPublishedAssessments().map((a) => ({
+      slug: a.slug,
+      title: a.title,
+    })),
     versions: listAssessmentVersions(),
     editorialAudit: listEditorialAuditItems(),
     telemetry: getAdminTelemetrySummary(),

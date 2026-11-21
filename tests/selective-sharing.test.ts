@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { getAssessmentBySlug } from "@/data/assessments/catalog";
+import { getArchivedAssessmentBySlug } from "@/data/assessments/catalog";
 import { scoreAssessmentSubmission } from "@/lib/assessment/scoring";
 import {
   projectResultForSharing,
   type ResultShareSelection,
 } from "@/lib/assessment/sharing";
-const definition = getAssessmentBySlug("intimacy-partner-preferences")!;
+const definition = getArchivedAssessmentBySlug("intimacy-partner-preferences", "5.0.0")!;
 const question = definition.questions[0];
 const result = scoreAssessmentSubmission({
   assessment: definition,

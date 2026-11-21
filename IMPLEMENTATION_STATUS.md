@@ -4,13 +4,13 @@ Updated November 20, 2026. Implemented and verified locally in the existing Next
 
 ## Delivered
 
-- Adult intimacy collection: thirty-one v1 reflections, 1,710 full-form items, 312 teaser items and registration alongside the existing nine tests. Independent desire/willingness/experience/limit controls, complementary mutual-only reveals, private result channels and ownership-checked synthesis. The complete published library is 40 tests and 2,360 full-form questions.
+- Focused library: sixteen tests, 970 full-form questions, 184 short-form questions. Six core v6 tests and ten adult v3 tests consolidate overlapping topics while retaining personalized advice and historical definitions. See docs/FOCUSED_LIBRARY_AND_3D_PROFILE.md.
 - Personalized, versioned advice for every published assessment. Private guides include partner qualities and wording, constructive friction, practical changes, three or four optional experiments and supported desire/experience gap paths. The original five-style inventory ranks primary/secondary preferences only with evidence and handles ties explicitly. Pair guidance uses already disclosed topics only. See docs/ASSESSMENTS_AND_ADVICE.md and docs/ADVICE_EXAMPLES.md for generated deliverables.
 
 - Fluid, full-browser black, violet, magenta and cyan interface with four primary destinations: Discover tests, My profile, Compare and History. Optional light theme and reduced motion remain supported.
-- Two-section homepage: concise introduction, draggable 3D example profile and three starting tests. Scores reshape the illustration, a partner overlay shows another example, and a living background shares pausable motion with the profile. Keyboard, touch, reduced motion and canvas fallback are supported.
+- Two-section homepage with an actual six-axis 3D stats graph. Owned scores load through a compact private endpoint. Compatible retakes can be overlaid, examples are explicitly labeled, missing axes stay unmeasured, and source links explain each axis. Drag, keyboard, touch, motion pause and reduced motion are supported.
 - Central measured profile, full-width personal radar, detailed category interpretations, evidence counts, tradeoffs, practical experiments and reflection prompts, latest attempts, compatible history lines and an accessible values table. Unrelated tests are not averaged into an invented overall personality score.
-- Nine core version 4 definitions and scoring engine 1.2.0. These core tests retain 650 authored questions, 50-question standard forms and full forms of 50–100 questions. All 30 legacy version 1, 31 version 2 and nine version 3 definitions remain available for historical results and pinned invitations. Compatible browser drafts retain their answers when resuming in version 4. See ASSESSMENT_AUDIT.md.
+- Six core v6 definitions cover personality and decision style, emotional availability, attachment, affection, conflict and relationship values. Full forms contain 50?60 questions. Earlier definitions, scores and invitations remain archived; draft keys are version-specific.
 - Five questions per page with labeled native agreement buttons, arrow-key and numbered shortcuts, no preselected answer and no second importance rating. Standard-to-full answer preservation, pause/resume and review editing remain. The branching engine is retained for historical and custom definitions.
 - Private partner invitations and reports. Saved-result reuse validates ownership and version compatibility. Perspective-dependent intimacy forms and partner-specific games require appropriate fresh responses. Importance, complementary channels and firm boundaries affect the declared exploratory rubric.
 - Category distributions, empirical percentiles, strict-below percentages and pooled archetype frequencies from actual opted-in data. Test version, scoring engine, form and demographic cohort thresholds stay separate. Synthetic examples remain explicit.
@@ -22,7 +22,14 @@ Updated November 20, 2026. Implemented and verified locally in the existing Next
 - Production identity cookies fail closed without an independent 32-character signing secret. Strict prototype Firestore rules block client-written scores, roles, invitations, grants and private aggregates. All seven rules tests passed against the emulator.
 - Removed obsolete profile synthesis and unused UI dependencies. Browsing screens receive catalogue summaries; Firebase, charts, cards and authentication UI load when needed. Public publication/readiness queries reuse one store snapshot. Malformed private data files fail visibly rather than silently resetting.
 
-## Current advice verification
+## Current focused-library verification
+
+- 16 assessments, 970 full-form questions and 184 short-form questions.
+- 151 unit/integration checks plus seven Firestore emulator rule checks passed.
+- 123 full production-browser cases, three additional scoring-tester cases, three emulator account lifecycles and 33 final normal-build focused checks passed.
+- TypeScript, ESLint, the app production build and the Functions build passed. Historical results and invitations remain pinned. See QUALITY_REPORT.md.
+
+## Earlier advice verification
 
 - 169 unit/integration checks passed across 23 suites; seven Firestore emulator cases skipped.
 - All 80 catalog form journeys passed. A clean-build focused run passed 25 interaction, ranking, guide, matching, privacy, layout and theme checks across five configurations; five final tie/core/empty-result checks passed after another clean build.

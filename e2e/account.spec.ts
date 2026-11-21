@@ -1,4 +1,7 @@
 import { test, expect } from "@playwright/test";
+import { getAssessmentBySlug } from "../src/data/assessments/catalog";
+const assessment = getAssessmentBySlug("emotional-availability-reflection")!;
+const firstQuestion = assessment.questions[0];
 test("Firebase emulator registration, guest claim, sign-out isolation, sign-in and complete account deletion", async ({
   page,
 }, info) => {
@@ -10,7 +13,7 @@ test("Firebase emulator registration, guest claim, sign-out isolation, sign-in a
   const response = await page.request.post("/api/assessments/submit", {
     data: {
       assessmentSlug: "emotional-availability-reflection",
-      assessmentVersion: "4.0.0",
+      assessmentVersion: assessment.version,
       mode: "quick",
       perspective: "primary",
       consent: {
@@ -20,7 +23,11 @@ test("Firebase emulator registration, guest claim, sign-out isolation, sign-in a
         consentedAt: "",
       },
       answers: {
-        "awareness-1": { questionId: "awareness-1", customValue: 4, updatedAt: "" },
+        [firstQuestion.id]: {
+          questionId: firstQuestion.id,
+          customValue: 4,
+          updatedAt: "",
+        },
       },
     },
   });
@@ -30,6 +37,7 @@ test("Firebase emulator registration, guest claim, sign-out isolation, sign-in a
     password = "Local-only-password-123";
   await page.goto("/settings");
   await page
+    .getByRole("main")
     .getByRole("button", { name: "Create account", exact: true })
     .click();
   let modal = page.getByRole("dialog");

@@ -35,16 +35,17 @@ test("browser canvas, readable cards and consolidated links adapt to the viewpor
     expect(layout.overflow).toBe(false);
     expect(layout.clipped).toBe(0);
     if (path === "/")
-      await expect(page.locator(".orbit-categories button")).toHaveText([
-        /Clarity/,
-        /Openness/,
-        /Presence/,
-        /Mutual care/,
-        /Capacity/,
+      await expect(page.locator(".stat-axis-buttons button")).toHaveText([
+        /Romance/,
+        /Emotional/,
+        /Freaky/,
+        /Logical/,
+        /Communication/,
+        /Sensual/,
       ]);
   }
   for (const [oldSlug, newSlug] of [
-    ["private-fantasy-matcher", "sexual-interests-curiosity-map"],
+    ["private-fantasy-matcher", "fantasy-catalog"],
     [
       "couples-communication-conflict-matching",
       "conflict-communication-personality",
@@ -127,7 +128,7 @@ test("five-question pages produce explainable category scores and a detailed rep
   expect(result.radar).toHaveLength(5);
   for (const d of result.radar) {
     expect(d.score).toBe(67);
-    expect(d.answeredCount).toBe(10);
+    expect(d.answeredCount).toBe(2);
     await page.locator(".snapshot-row").filter({ hasText: d.label }).click();
     await expect(page.locator(".category-interpretation")).toContainText(
       d.interpretation.meaning,
@@ -136,7 +137,7 @@ test("five-question pages produce explainable category scores and a detailed rep
       d.interpretation.reflection,
     );
     await expect(page.locator(".category-interpretation")).toContainText(
-      "10 of 10",
+      "2 of 2",
     );
   }
   await page.screenshot({

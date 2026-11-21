@@ -49,13 +49,12 @@ export default async function CouplesPage() {
   const partnerPriority = builtInAssessments.filter(
     (a) =>
       a.category === "compatibility" ||
-      a.slug === "private-fantasy-matcher" ||
-      a.slug === "kink-exploration-map" ||
-      a.slug === "bdsm-power-dynamics-test" ||
-      a.slug === "intimacy-partner-preferences" ||
+      a.slug === "erotic-blueprint-style" ||
+      a.slug === "partner-ideal-dealbreakers" ||
+      a.slug === "desire-reality-map" ||
+      a.slug === "aftercare-recovery-style" ||
       a.slug === "love-affection-preferences" ||
-      a.slug === "relationship-dealbreakers-boundaries" ||
-      a.slug === "desire-frequency-initiation"
+      a.slug === "relationship-dealbreakers-boundaries"
   );
 
   const couplesAssessments = partnerPriority.map((a) => ({

@@ -13,7 +13,6 @@ import {
   Mail,
   Sparkles,
 } from "lucide-react";
-import { builtInAssessments } from "@/data/assessments/catalog";
 
 import type { ReferenceChartItem } from "@/data/reference-chart-audit";
 import type {
@@ -61,7 +60,11 @@ export function AdminConsoleClient({
   >("flagged_obscured");
 
   // Simulator state
-  const [simSlug, setSimSlug] = useState("intimacy-partner-preferences");
+  const [simulationAssessments, setSimulationAssessments] = useState<
+    Array<{ slug: string; title: string }>
+  >([]);
+  const [simSlug, setSimSlug] = useState("");
+  const [simError, setSimError] = useState<string | null>(null);
   const [simPreset, setSimPreset] = useState<
     "balanced" | "high_exploration" | "boundary_focused" | "reserved"
   >("balanced");
@@ -81,6 +84,13 @@ export function AdminConsoleClient({
     if (res.ok) {
       const data = await res.json();
       setAssessments(data.assessments || []);
+      const available = data.simulationAssessments || [];
+      setSimulationAssessments(available);
+      setSimSlug((current) =>
+        available.some((a: { slug: string }) => a.slug === current)
+          ? current
+          : available[0]?.slug || "",
+      );
       setAuditItems(data.editorialAudit || []);
       setTelemetry(data.telemetry || null);
       setTemplates(data.emailTemplates || null);
@@ -123,6 +133,8 @@ export function AdminConsoleClient({
 
   const handleRunSimulator = async () => {
     setSimLoading(true);
+    setSimError(null);
+    setSimResult(null);
     try {
       const res = await fetch("/api/admin/simulate", {
         method: "POST",
@@ -132,7 +144,13 @@ export function AdminConsoleClient({
       const data = await res.json();
       if (res.ok && data.simulatedResult) {
         setSimResult(data.simulatedResult);
-      }
+      } else
+        setSimError(
+          data.error ||
+            "The simulation could not run. Try another published assessment.",
+        );
+    } catch {
+      setSimError("The simulation could not connect. Try again.");
     } finally {
       setSimLoading(false);
     }
@@ -260,10 +278,9 @@ export function AdminConsoleClient({
             {heading}
           </h1>
           <p className="text-sm leading-relaxed text-[var(--ink-secondary)]">
-            Manage assessments, simulate deterministic scoring across all{" "}
-            {builtInAssessments.length} assessments, edit transactional email
-            copy, review non-PII audit telemetry, and curate the reference
-            scatterplot queue.
+            Manage assessments, simulate deterministic scoring, edit
+            transactional email copy, review non-PII audit telemetry, and curate
+            the reference scatterplot queue.
           </p>
         </div>
         <button
@@ -431,8 +448,8 @@ export function AdminConsoleClient({
             </h2>
             <p className="mt-1 text-xs text-[var(--ink-secondary)]">
               Run synthetic persona profiles across any of the{" "}
-              {builtInAssessments.length} built-in assessments without writing
-              records to storage.
+              {simulationAssessments.length} published assessments without
+              writing records to storage.
             </p>
             <div className="mt-5 flex flex-wrap items-end gap-3 text-xs">
               <label className="block flex-1 min-w-[200px]">
@@ -441,10 +458,14 @@ export function AdminConsoleClient({
                 </span>
                 <select
                   value={simSlug}
-                  onChange={(e) => setSimSlug(e.target.value)}
+                  onChange={(e) => {
+                    setSimSlug(e.target.value);
+                    setSimResult(null);
+                    setSimError(null);
+                  }}
                   className="mt-1 w-full rounded-xl border bg-[var(--bg-canvas)] px-3 py-2 text-xs text-[var(--ink-primary)]"
                 >
-                  {builtInAssessments.map((a) => (
+                  {simulationAssessments.map((a) => (
                     <option key={a.slug} value={a.slug}>
                       {a.title}
                     </option>
@@ -476,7 +497,7 @@ export function AdminConsoleClient({
 
               <button
                 type="button"
-                disabled={simLoading}
+                disabled={simLoading || !simSlug}
                 onClick={handleRunSimulator}
                 className="rounded-full px-5 py-2.5 text-xs font-medium disabled:opacity-50"
                 style={{
@@ -488,6 +509,14 @@ export function AdminConsoleClient({
               </button>
             </div>
 
+            {simError && (
+              <p
+                role="alert"
+                className="mt-4 text-sm text-[var(--accent-rose)]"
+              >
+                {simError}
+              </p>
+            )}
             {simResult && (
               <div className="mt-6 space-y-4 rounded-2xl border bg-[var(--bg-canvas)] p-5 text-xs">
                 <div className="flex flex-wrap items-baseline justify-between gap-2 border-b pb-3">

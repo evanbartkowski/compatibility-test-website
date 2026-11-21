@@ -1,7 +1,14 @@
 import { expect, test, type Page } from "@playwright/test";
 import { getAssessmentBySlug } from "../src/data/assessments/catalog";
+test.use({
+  extraHTTPHeaders: async ({}, use, info) => {
+    await use({
+      "x-forwarded-for": `platform-${info.project.name}-${info.title}`,
+    });
+  },
+});
 const intimacyPartnerPreferencesAssessment = getAssessmentBySlug(
-  "intimacy-partner-preferences",
+  "emotional-availability-reflection",
 )!;
 
 async function consent(page: Page) {
@@ -64,18 +71,22 @@ test("homepage previews, theme, navigation and test filters", async ({
   );
   await noOverflow(page);
   await page
-    .getByRole("group", { name: "Explore result previews" })
-    .getByRole("button", { name: "Compatibility", exact: true })
+    .getByRole("group", { name: "Choose graph data" })
+    .getByRole("button", { name: "Example", exact: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Where two worlds meet." }),
+    page.getByRole("heading", { name: "See the shape of a connection." }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Hide partner", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Hide comparison", exact: true })
+    .click();
   await expect(
-    page.getByRole("button", { name: "Compatibility", exact: true }),
+    page.getByRole("button", { name: "Example", exact: true }),
   ).toBeVisible();
   await page.getByRole("slider", { name: "Example category score" }).fill("40");
-  await expect(page.locator(".orbit-score-control output")).toHaveText("40%");
+  await expect(page.locator(".orbit-score-control output")).toHaveText(
+    "40 / 100",
+  );
   await page.getByRole("button", { name: "Switch to light theme" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await page.reload();
@@ -113,8 +124,16 @@ test("homepage previews, theme, navigation and test filters", async ({
   );
   const search = page.getByRole("searchbox", { name: "Search assessments" });
   await search.fill("attachment");
-  await expect(page.locator(".test-card")).toHaveCount(1);
-  await expect(page.locator(".test-card")).toContainText("Attachment");
+  const attachmentMatches = [
+    "attachment-style-discovery",
+  ];
+  await expect(page.locator(".test-card")).toHaveCount(
+    attachmentMatches.length,
+  );
+  for (const slug of attachmentMatches)
+    await expect(
+      page.locator(`.test-card a[href^="/assess/${slug}?"]`).first(),
+    ).toBeVisible();
   await search.fill("zz-no-matching-test");
   await expect(
     page.getByRole("button", { name: "Reset filters" }),
@@ -183,7 +202,7 @@ test("answer progress, page navigation, upgrade and complete-mode draft resume",
     page
       .getByRole("article")
       .first()
-      .getByText(/Think about your usual pattern/),
+      .getByText(/Choose how closely this describes you/),
   ).toBeVisible();
   await page.reload();
   await page.getByRole("button", { name: "Resume Draft", exact: true }).click();
@@ -210,7 +229,7 @@ test("guest results, score explanations, exports, community and partner comparis
   test.setTimeout(120000);
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("/assess/intimacy-partner-preferences?mode=quick");
+  await page.goto("/assess/emotional-availability-reflection?mode=quick");
   await consent(page);
   await completeIntimacy(page);
   await expect(page).toHaveURL(/\/results\/sub_/);
@@ -345,7 +364,7 @@ test("prior results comparison and email form validation", async ({ page }) => {
     );
     const response = await page.request.post("/api/assessments/submit", {
       data: {
-        assessmentSlug: "intimacy-partner-preferences",
+        assessmentSlug: "emotional-availability-reflection",
         mode: "quick",
         perspective: "primary",
         consent: {

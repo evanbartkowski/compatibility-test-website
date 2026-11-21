@@ -1,6 +1,20 @@
 # Verification evidence
 
-Verified locally on November 20, 2026 after the personalized advice expansion. No public website deployment or real-user performance claim is made.
+Verified locally on November 21, 2026. No public website deployment or real-user performance claim is made.
+
+## Focused library and 3D profile verification ? November 21, 2026
+
+- **151 unit/integration checks passed**, with seven Firestore cases skipped in the ordinary unit command. A separate Firestore emulator run passed those **seven rules cases**. Coverage includes all 16 definitions, complementary IDs, score signal, archives, independent limits, graph projection, missing values, compatible retakes, owner-only responses and all 16 scoring-simulator scales.
+- **123 full production-browser cases passed**, including all 32 short/full assessment journeys. Three additional scoring-tester cases and three complete account lifecycles passed across desktop, tablet and mobile. Account checks used the local Authentication and Firestore emulators; the separate live-cloud account suite was intentionally skipped.
+- After the final admin and coaching corrections, a normal production rebuild passed **33 focused browser checks** across Firefox, wide desktop, desktop Chrome, tablet and mobile. These cover graph rotation, shapes responding to data, all six owned axes, compatible historical comparison, isolation from another visitor, compact catalog responses, guide tabs, themes, motion controls, registration entry and scoring simulation.
+- Fixed a reproducible homepage hydration failure caused by multiple text children inside an SVG title. Community defaults now resolve a current assessment. The simulator starts with a published assessment and maps five-position presets to the actual seven-position scales, including reverse scoring. It displays request failures rather than failing silently.
+- The graph uses actual 3D vertices, depth-sorted faces and reference grids. Unmeasured axes remain gaps. Screenshots of example and owned profiles were reviewed at desktop and mobile sizes. Scoped automated accessibility checks pass; the previously documented Firefox advice-audit injection limitation remains unchanged.
+- TypeScript, ESLint, the final production build and the Functions build passed. The former decorative mesh and unused draft banks were removed from this implementation. Catalog responses contain summaries; the admin browser no longer imports the full current and archived question catalog.
+- Browser fixtures use isolated data. The original private repository's SHA-256 stayed unchanged. The local preview uses a separate private copy, keeping one writer for that copy. No cloud site, Function or Firestore-rule deployment was performed.
+
+Earlier evidence follows and describes earlier versions of the product.
+
+
 
 ## Personalized advice verification
 

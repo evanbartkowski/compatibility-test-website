@@ -31,9 +31,7 @@ describe("Expanded library measurement contracts", () => {
       expect(assessment.purpose).toBeTruthy();
       expect(assessment.scoringNotes?.length).toBeGreaterThan(0);
       if (majorAssessmentSlugs.has(assessment.slug)) {
-        expect(assessment.supportsQuickMode).toBe(
-          assessment.questions.length > 50,
-        );
+        expect(assessment.supportsQuickMode).toBe(true);
         expect(assessment.estimatedMinutesQuick).toBeGreaterThanOrEqual(3);
         expect(assessment.estimatedMinutesQuick).toBeLessThanOrEqual(15);
         expect(assessment.estimatedMinutesComplete).toBeGreaterThanOrEqual(10);
@@ -92,7 +90,7 @@ describe("Expanded library measurement contracts", () => {
     expect(versionTwoAssessments.every((a) => a.version === "2.0.0")).toBe(
       true,
     );
-    expect(coreAssessments.every((a) => a.version === "4.0.0")).toBe(true);
+    expect(coreAssessments.every((a) => a.version === "6.0.0")).toBe(true);
   });
   it("rejects forged scales and unknown choices", () => {
     const a = builtInAssessments.find(

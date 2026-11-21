@@ -4,18 +4,10 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { ArrowUpRight, LockKeyhole } from "lucide-react";
 import { useOptionalAuth } from "@/components/auth/AuthProvider";
-import { HomeResultPreview, type ProfileExample } from "./HomeResultPreview";
+import { HomeStatsPreview } from "./HomeStatsPreview";
 import { LivingBackdrop } from "./LivingBackdrop";
 
-export function HomeExperience({
-  example,
-  partner,
-  children,
-}: {
-  example: ProfileExample;
-  partner: ProfileExample;
-  children: ReactNode;
-}) {
+export function HomeExperience({ children }: { children: ReactNode }) {
   const [moving, setMoving] = useState(false);
   const pointer = useRef({ x: 0, y: 0 });
   const { user, openAuthModal } = useOptionalAuth();
@@ -72,12 +64,7 @@ export function HomeExperience({
               Private by default. Start as a guest.
             </p>
           </div>
-          <HomeResultPreview
-            example={example}
-            partner={partner}
-            moving={moving}
-            onMotionChange={setMoving}
-          />
+          <HomeStatsPreview moving={moving} onMotionChange={setMoving} />
         </section>
         {children}
       </div>

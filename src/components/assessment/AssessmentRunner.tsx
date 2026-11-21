@@ -82,7 +82,7 @@ export function AssessmentRunner({
   const reducedMotion = useReducedMotion();
   const isIntimacySuite = assessment.collection === "intimacy-suite";
   const questionHeading = useRef<HTMLHeadingElement>(null);
-  const draftStorageKey = `between_us_draft_${onPreviewSubmit ? "studio_" : ""}${assessment.slug}_${perspective}_${inviteToken || "self"}`;
+  const draftStorageKey = `between_us_draft_${onPreviewSubmit ? "studio_" : ""}${assessment.slug}_${perspective}_${inviteToken || "self"}${assessment.editorialRevision ? `_${assessment.version}` : ""}`;
 
   const effectiveDefaultMode: AssessmentMode =
     assessment.supportsQuickMode === false ? "complete" : initialMode;
@@ -191,10 +191,7 @@ export function AssessmentRunner({
 
   useEffect(() => {
     if (step !== "questions") return;
-    const heading =
-      currentIndex === pageStart
-        ? questionHeading.current
-        : document.getElementById(`assessment-question-${currentQuestion?.id}`);
+    const heading = document.getElementById(`assessment-question-${currentQuestion?.id}`);
     const target = heading || questionHeading.current;
     const frame =
       currentIndex === pageStart
@@ -1183,11 +1180,9 @@ export function AssessmentRunner({
                   currentQuestion.sectionId === section.id ? "step" : undefined
                 }
                 onClick={() => {
-                  setCurrentIndex(
-                    activeQuestions.findIndex(
-                      (q) => q.sectionId === section.id,
-                    ),
-                  );
+                  const index = activeQuestions.findIndex((q) => q.sectionId === section.id);
+                  setCurrentIndex(index);
+                  if (index === currentIndex) document.getElementById(`assessment-question-${activeQuestions[index].id}`)?.focus();
                 }}
               >
                 <span>{section.title}</span>

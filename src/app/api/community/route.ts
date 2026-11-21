@@ -9,7 +9,7 @@ import {
 
 export async function GET(req: NextRequest) {
   const slug =
-    req.nextUrl.searchParams.get("slug") || "intimacy-partner-preferences";
+    req.nextUrl.searchParams.get("slug") || "big-five-personality-profile";
   const includeSyntheticDemo = req.nextUrl.searchParams.get("demo") === "true";
 
   const ageGroup = (req.nextUrl.searchParams.get("ageGroup") ||

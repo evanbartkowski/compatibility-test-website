@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, expect, it, vi } from "vitest";
-import { getAssessmentBySlug } from "@/data/assessments/catalog";
+import { getAssessmentBySlug, getArchivedAssessmentBySlug } from "@/data/assessments/catalog";
 import { attachIntimacyBlueprint } from "@/lib/assessment/intimacy-profile";
 import { scoreAssessmentSubmission } from "@/lib/assessment/scoring";
 const directory = fs.mkdtempSync(
@@ -35,11 +35,13 @@ function save(
   rating: 1 | 5 = 5,
   perspective: "primary" | "partner" = "primary",
 ) {
-  const a = getAssessmentBySlug(slug)!;
+  const a = getAssessmentBySlug(slug) || getArchivedAssessmentBySlug(slug, "2.0.0")!;
   return store.saveAssessmentSubmission({
     sessionKey,
     ownerUid,
     assessmentSlug: slug,
+    assessmentVersion: a.version,
+    allowArchivedVersion: !getAssessmentBySlug(slug),
     mode: "complete",
     perspective,
     consent,
@@ -69,7 +71,7 @@ it("synthesizes only owned primary results, never another account or partner att
   expect(guest.result.intimacyBlueprint?.sources).toEqual([]);
 });
 it("uses latest current-version evidence once per assessment", () => {
-  const blueprintDefinition = getAssessmentBySlug("personal-erotic-blueprint")!;
+  const blueprintDefinition = getArchivedAssessmentBySlug("personal-erotic-blueprint", "2.0.0")!;
   const make = (id: string, rating: 1 | 5, createdAt: string) =>
     scoreAssessmentSubmission({
       assessment: source,

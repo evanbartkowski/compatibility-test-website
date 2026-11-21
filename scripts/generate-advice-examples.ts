@@ -245,7 +245,7 @@ fs.writeFileSync(path.join(directory, "ADVICE_EXAMPLES.md"), md.join("\n"));
 const overview = [
   "# Truth Desire: assessments and personalized advice",
   "",
-  `${builtInAssessments.length} published assessments contain ${builtInAssessments.reduce((sum, a) => sum + a.questions.length, 0)} full-form questions. Every published test has an authored advice profile. The adult collection has ${builtInAssessments.filter((a) => a.collection).length} tests; its new five-style inventory adds 10 teaser and 50 deep questions.`,
+  `${builtInAssessments.length} published assessments contain ${builtInAssessments.reduce((sum, a) => sum + a.questions.length, 0)} full-form questions. Every published test has an authored advice profile. The adult collection has ${builtInAssessments.filter((a) => a.collection).length} focused tests, each with a short and full form. Earlier versions remain available for saved results and invitations.`,
   "",
   "## Every test",
   "",

@@ -31,7 +31,7 @@ const descriptions: Record<string, string> = {
   "love-affection-preferences":
     "Understand which forms of appreciation, attention, practical help and emotional comfort matter to you.",
   "big-five-personality-profile":
-    "Explore the five dimensions behind your everyday choices and natural tendencies.",
+    "Explore your everyday patterns and how you weigh evidence, intuition and decisions.",
   "intimacy-partner-preferences":
     "Understand how desire emerges, the pace you enjoy and what helps you communicate and reconnect.",
   "couples-bucket-list-matcher":
