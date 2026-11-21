@@ -3,13 +3,6 @@ import { OptionalSyncBanner } from "@/components/auth/OptionalSyncBanner";
 import { CouplesHubClient } from "@/components/couples/CouplesHubClient";
 import { brandConfig } from "@/config/brand";
 import { builtInAssessments, getCategoryMeta } from "@/data/assessments/catalog";
-import { getReadOnlyVerifiedUid } from "@/lib/server/firebase-auth";
-import { getReadOnlySessionKey } from "@/lib/server/session";
-import {
-  getCompatibilityReport,
-  listInvitationsForSession,
-  listSubmissionsForSession,
-} from "@/lib/server/store";
 
 export const metadata: Metadata = {
   title: `Couple & Partner Compatibility Test | ${brandConfig.name}`,
@@ -36,35 +29,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function CouplesPage() {
-  const sessionKey = await getReadOnlySessionKey();
-  const uid = await getReadOnlyVerifiedUid();
-  const invitations = sessionKey || uid ? listInvitationsForSession(sessionKey, uid) : [];
-  const submissions = sessionKey || uid ? listSubmissionsForSession(sessionKey, uid) : [];
-
-  const reports = invitations
-    .filter((i) => i.status === "completed" && i.compatibilityId)
-    .map((i) => getCompatibilityReport(i.compatibilityId!))
-    .filter((r): r is NonNullable<typeof r> => Boolean(r))
-    .map((r) => ({
-      compatibilityId: r.compatibilityId,
-      inviteId: r.inviteId,
-      assessmentSlug: r.assessmentSlug,
-      assessmentTitle: r.assessmentTitle ?? r.assessmentSlug,
-      overallScore: r.overallScore,
-      label: r.label,
-      createdAt: r.createdAt,
-      bothAnsweredCount: r.bothAnsweredCount,
-      totalEligibleCount: r.totalEligibleCount,
-    }));
-
-  const latestBySlug = new Map<string, string>();
-  for (const s of submissions) {
-    if (!latestBySlug.has(s.assessmentSlug)) {
-      latestBySlug.set(s.assessmentSlug, s.submissionId);
-    }
-  }
-
+export default function CouplesPage() {
   const partnerPriority = builtInAssessments.filter(
     (a) =>
       a.category === "compatibility" ||
@@ -74,7 +39,7 @@ export default async function CouplesPage() {
       a.slug === "intimacy-partner-preferences" ||
       a.slug === "love-affection-preferences" ||
       a.slug === "relationship-dealbreakers-boundaries" ||
-      a.slug === "desire-frequency-initiation"
+      a.slug === "desire-frequency-initiation",
   );
 
   const couplesAssessments = partnerPriority.map((a) => ({
@@ -84,7 +49,7 @@ export default async function CouplesPage() {
     description: a.audienceNote,
     estimatedMinutesQuick: a.estimatedMinutesQuick,
     adultsOnly: Boolean(a.adultsOnly),
-    latestSubmissionId: latestBySlug.get(a.slug) ?? null,
+    latestSubmissionId: null,
   }));
 
   return (
@@ -93,8 +58,8 @@ export default async function CouplesPage() {
         <OptionalSyncBanner compact />
       </div>
       <CouplesHubClient
-        initialInvitations={invitations}
-        initialReports={reports}
+        initialInvitations={[]}
+        initialReports={[]}
         couplesAssessments={couplesAssessments}
       />
     </>

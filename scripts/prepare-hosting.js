@@ -45,7 +45,34 @@ copyDirRecursive(nextStaticSrc, nextStaticDest);
 
 // 3. Copy top-level prerendered pages
 const appServerDir = path.join(NEXT_DIR, 'server', 'app');
-const topLevelPages = ['index', 'explore', 'assessments', 'community', 'dashboard', 'privacy', '_not-found'];
+const topLevelPages = [
+  'index',
+  'explore',
+  'assessments',
+  'community',
+  'dashboard',
+  'privacy',
+  'results',
+  'history',
+  'compare',
+  'couples',
+  'profile',
+  'settings',
+  '_not-found',
+];
+
+// Discover any extra top-level .html files
+if (fs.existsSync(appServerDir)) {
+  const serverFiles = fs.readdirSync(appServerDir);
+  for (const f of serverFiles) {
+    if (f.endsWith('.html') && !f.startsWith('_')) {
+      const base = path.basename(f, '.html');
+      if (!topLevelPages.includes(base)) {
+        topLevelPages.push(base);
+      }
+    }
+  }
+}
 
 for (const page of topLevelPages) {
   const htmlSrc = path.join(appServerDir, `${page}.html`);

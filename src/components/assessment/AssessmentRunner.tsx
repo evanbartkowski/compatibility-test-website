@@ -28,6 +28,11 @@ import {
   Users,
 } from "lucide-react";
 import { brandConfig } from "@/config/brand";
+import { scoreAssessmentSubmission } from "@/lib/assessment/scoring";
+import {
+  generateGuestSubmissionId,
+  saveGuestSubmission,
+} from "@/lib/assessment/guest-storage";
 import type {
   AssessmentDefinition,
   AssessmentDraft,
@@ -370,51 +375,104 @@ export function AssessmentRunner({
         setStep("review");
         return;
       }
-      const endpoint =
-        perspective === "partner" && inviteToken
-          ? `/api/invitations/${inviteToken}`
-          : "/api/assessments/submit";
 
-      const payload =
-        perspective === "partner" && inviteToken
-          ? {
-              consent: {
-                confirmedAdult18Plus: consent.confirmedAdult18Plus,
-                acceptedPrivacyTerms: consent.acceptedPrivacyTerms,
-                optInCommunityStats: consent.optInCommunityStats,
-                consentedAt: consent.consentedAt || new Date().toISOString(),
-              },
-              partnerSharing,
-              answers,
-            }
-          : {
-              assessmentSlug: assessment.slug,
-              assessmentVersion: assessment.version,
-              mode,
-              perspective,
-              consent: {
-                ...consent,
-                consentedAt: consent.consentedAt || new Date().toISOString(),
-              },
-              answers,
-            };
-
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+      // Compute scored result locally so it is guaranteed to succeed offline or without login
+      const localSubmissionId = generateGuestSubmissionId();
+      const createdAt = new Date().toISOString();
+      const scored = scoreAssessmentSubmission({
+        resultId: localSubmissionId,
+        assessment,
+        mode,
+        perspective,
+        answers,
+        createdAt,
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Unable to complete submission.");
+      // Save locally to localStorage immediately
+      saveGuestSubmission({
+        submissionId: localSubmissionId,
+        assessmentSlug: assessment.slug,
+        assessmentVersion: assessment.version,
+        mode,
+        perspective,
+        optInCommunityStats: consent.optInCommunityStats,
+        createdAt,
+        result: scored,
+        answers,
+      });
+
+      // Try server endpoint if available
+      let finalSubmissionId = localSubmissionId;
+      let finalCompatibilityId: string | undefined;
+
+      try {
+        const endpoint =
+          perspective === "partner" && inviteToken
+            ? `/api/invitations/${inviteToken}`
+            : "/api/assessments/submit";
+
+        const payload =
+          perspective === "partner" && inviteToken
+            ? {
+                consent: {
+                  confirmedAdult18Plus: consent.confirmedAdult18Plus,
+                  acceptedPrivacyTerms: consent.acceptedPrivacyTerms,
+                  optInCommunityStats: consent.optInCommunityStats,
+                  consentedAt: consent.consentedAt || createdAt,
+                },
+                partnerSharing,
+                answers,
+              }
+            : {
+                assessmentSlug: assessment.slug,
+                assessmentVersion: assessment.version,
+                mode,
+                perspective,
+                consent: {
+                  ...consent,
+                  consentedAt: consent.consentedAt || createdAt,
+                },
+                answers,
+              };
+
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          const contentType = res.headers.get("content-type") || "";
+          if (contentType.includes("application/json")) {
+            const data = await res.json();
+            if (data.submissionId) {
+              finalSubmissionId = data.submissionId;
+              saveGuestSubmission({
+                submissionId: data.submissionId,
+                assessmentSlug: assessment.slug,
+                assessmentVersion: assessment.version,
+                mode,
+                perspective,
+                optInCommunityStats: consent.optInCommunityStats,
+                createdAt,
+                result: data.result || scored,
+                answers,
+              });
+            }
+            if (data.compatibilityId) {
+              finalCompatibilityId = data.compatibilityId;
+            }
+          }
+        }
+      } catch {
+        // Offline / static hosting / network: local result is already safely saved!
       }
 
       window.localStorage.removeItem(draftStorageKey);
-      if (perspective === "partner" && data.compatibilityId) {
-        router.push(`/compatibility/${data.compatibilityId}`);
+      if (perspective === "partner" && finalCompatibilityId) {
+        router.push(`/compatibility/${finalCompatibilityId}`);
       } else {
-        router.push(`/results/${data.submissionId}`);
+        router.push(`/results?id=${encodeURIComponent(finalSubmissionId)}`);
       }
     } catch (err) {
       setStep("review");

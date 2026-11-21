@@ -54,8 +54,8 @@ export function BrandMark() {
 const links = [
   { href: "/explore", label: "Discover tests" },
   { href: "/profile", label: "My profile" },
-  { href: "/couples", label: "Compare" },
-  { href: "/results", label: "History" },
+  { href: "/compare", label: "Compare" },
+  { href: "/history", label: "History" },
 ];
 export function SiteHeader() {
   const pathname = usePathname();

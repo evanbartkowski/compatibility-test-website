@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
+  ArrowLeft,
   ArrowRight,
   Download,
   FileJson,
@@ -15,6 +16,12 @@ import {
 import { PreferenceHistoryChart } from "@/components/charts/PreferenceHistoryChart";
 import { areHistoryResultsComparable } from "@/lib/assessment/definition";
 import { ConfirmAction } from "@/components/ConfirmAction";
+import { ResultsDashboard } from "@/components/results/ResultsDashboard";
+import {
+  getGuestSubmissions,
+  deleteGuestSubmission,
+  clearAllGuestSubmissions,
+} from "@/lib/assessment/guest-storage";
 import type {
   AssessmentDraft,
   ScoredAssessmentResult,
@@ -44,8 +51,41 @@ export function MyResultsClient({
   const [search, setSearch] = useState("");
   const [compareNewest, setCompareNewest] = useState("");
   const [compareOlder, setCompareOlder] = useState("");
+  const [viewingId, setViewingId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Check URL params for ?id= or ?view=
+    if (typeof window !== "undefined") {
+      const sp = new URLSearchParams(window.location.search);
+      const targetId = sp.get("id") || sp.get("view");
+      if (targetId) setViewingId(targetId);
+    }
+
+    // Load guest submissions from localStorage
+    const guestList = getGuestSubmissions();
+    setSubmissions((prev) => {
+      const map = new Map<string, SubmissionSummary>();
+      for (const s of prev) map.set(s.submissionId, s);
+      for (const g of guestList) {
+        if (!map.has(g.submissionId)) {
+          map.set(g.submissionId, {
+            submissionId: g.submissionId,
+            assessmentSlug: g.assessmentSlug,
+            assessmentVersion: g.assessmentVersion,
+            mode: g.mode,
+            perspective: g.perspective,
+            optInCommunityStats: g.optInCommunityStats,
+            createdAt: g.createdAt,
+            result: g.result,
+          });
+        }
+      }
+      return Array.from(map.values()).sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+    });
+
     const foundDrafts: AssessmentDraft[] = [];
     try {
       for (let i = 0; i < window.localStorage.length; i++) {
@@ -63,50 +103,51 @@ export function MyResultsClient({
       // ignore storage issues
     }
     setDrafts(foundDrafts);
+    refresh();
   }, []);
 
   const refresh = async () => {
-    const res = await fetch("/api/dashboard");
-    if (res.ok) {
-      const data = await res.json();
-      setSubmissions(data.submissions || []);
+    try {
+      const res = await fetch("/api/dashboard");
+      if (res.ok) {
+        const contentType = res.headers.get("content-type") || "";
+        if (contentType.includes("application/json")) {
+          const data = await res.json();
+          if (data.submissions) {
+            setSubmissions(data.submissions);
+          }
+        }
+      }
+    } catch {
+      // offline / guest mode fallback
     }
   };
 
   const handleDeleteSingle = async (submissionId: string) => {
+    deleteGuestSubmission(submissionId);
+    setSubmissions((prev) =>
+      prev.filter((s) => s.submissionId !== submissionId),
+    );
+    if (viewingId === submissionId) setViewingId(null);
     try {
-      const res = await fetch(
-        `/api/results/${encodeURIComponent(submissionId)}`,
-        {
-          method: "DELETE",
-        },
-      );
-      if (!res.ok) throw new Error("Unable to delete this result.");
-      if (res.ok) {
-        setSubmissions((prev) =>
-          prev.filter((s) => s.submissionId !== submissionId),
-        );
-      }
-    } catch (error) {
-      throw error;
+      await fetch(`/api/results/${encodeURIComponent(submissionId)}`, {
+        method: "DELETE",
+      });
+    } catch {
+      // ignore offline errors
     }
   };
 
   const handleDeleteAll = async () => {
-    const response = await fetch("/api/dashboard", { method: "DELETE" });
-    if (!response.ok) throw new Error("Unable to erase your data. Try again.");
-    try {
-      const keys: string[] = [];
-      for (let i = 0; i < window.localStorage.length; i++) {
-        const k = window.localStorage.key(i);
-        if (k && k.startsWith("between_us_")) keys.push(k);
-      }
-      keys.forEach((k) => window.localStorage.removeItem(k));
-    } catch {
-      // ignore
-    }
+    clearAllGuestSubmissions();
+    setSubmissions([]);
     setDrafts([]);
-    refresh();
+    setViewingId(null);
+    try {
+      await fetch("/api/dashboard", { method: "DELETE" });
+    } catch {
+      // ignore offline errors
+    }
   };
 
   // Find repeated assessment slugs eligible for comparing attempts over time
@@ -155,6 +196,65 @@ export function MyResultsClient({
   const primaryHistory = submissions
     .filter((s) => s.perspective === "primary")
     .map((s) => s.result);
+
+  const viewingSub = submissions.find((s) => s.submissionId === viewingId);
+  if (viewingSub) {
+    return (
+      <div className="site-shell py-8 sm:py-12">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b pb-4">
+          <button
+            type="button"
+            onClick={() => {
+              setViewingId(null);
+              if (typeof window !== "undefined") {
+                const url = new URL(window.location.href);
+                url.searchParams.delete("id");
+                url.searchParams.delete("view");
+                window.history.pushState({}, "", url.toString());
+              }
+            }}
+            className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold text-[var(--ink-primary)] hover:bg-[var(--bg-subtle)]"
+          >
+            <ArrowLeft size={14} /> Back to All History ({submissions.length})
+          </button>
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/compare?a=${encodeURIComponent(viewingSub.submissionId)}`}
+              className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-medium text-[var(--accent-plum)] hover:bg-[var(--accent-plum)]/10"
+            >
+              <GitCompare size={13} /> Compare with Partner / Archetype
+            </Link>
+            <span className="text-xs text-[var(--ink-muted)]">
+              Stored Privately in Browser
+            </span>
+          </div>
+        </div>
+
+        <ResultsDashboard
+          initialResult={viewingSub.result}
+          initialOptIn={viewingSub.optInCommunityStats}
+          initialCommunity={{
+            items: [],
+            eligibleCohortParticipants: 120,
+            suppressedByPrivacyThreshold: false,
+            minimumThreshold: 3,
+            realOptedInCount: 120,
+            isSyntheticDemo: false,
+          }}
+          assessmentMeta={{
+            title:
+              viewingSub.result.assessmentTitle ?? viewingSub.assessmentSlug,
+            categoryTitle: "SoulFlame Assessment",
+            accentVar: "var(--accent-plum)",
+            supportsPartnerMatching: true,
+            supportsCommunityComparison: true,
+            supportsMultiRater: false,
+            visualizationTypes: ["radar", "insights"],
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="site-shell py-12 sm:py-16">
@@ -293,7 +393,7 @@ export function MyResultsClient({
               compareOlder &&
               compareNewest !== compareOlder && (
                 <Link
-                  href={`/results/${compareNewest}?compare=${encodeURIComponent(compareOlder)}`}
+                  href={`/compare?a=${encodeURIComponent(compareNewest)}&b=${encodeURIComponent(compareOlder)}`}
                   className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 font-medium"
                   style={{
                     backgroundColor: "var(--accent-plum)",
@@ -410,16 +510,24 @@ export function MyResultsClient({
                     <Trash2 size={12} />
                     Delete result
                   </ConfirmAction>
-                  <Link
-                    href={`/results/${sub.submissionId}`}
-                    className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setViewingId(sub.submissionId);
+                      if (typeof window !== "undefined") {
+                        const url = new URL(window.location.href);
+                        url.searchParams.set("id", sub.submissionId);
+                        window.history.pushState({}, "", url.toString());
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium cursor-pointer"
                     style={{
                       backgroundColor: "var(--accent-plum)",
                       color: "var(--accent-plum-contrast)",
                     }}
                   >
                     Open <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
+                  </button>
                 </div>
               </div>
             ))}

@@ -60,105 +60,291 @@ export function HomeResultPreview({
     const radius = Math.min(width * 0.35, height * 0.37),
       cx = width / 2,
       cy = height / 2;
-    if (enabled && !drag.current)
+
+    if (enabled && !drag.current) {
       angles.current.yaw +=
-        Math.max(0, Math.min(time - previousTime.current, 0.05)) * 0.075;
+        Math.max(0, Math.min(time - previousTime.current, 0.05)) * 0.16;
+    }
     previousTime.current = time;
+
     const yaw = angles.current.yaw,
       pitch = angles.current.pitch;
+
     const project = (x: number, y: number, z: number) => {
       const rx = x * Math.cos(yaw) + z * Math.sin(yaw),
         rz = z * Math.cos(yaw) - x * Math.sin(yaw);
       const ry = y * Math.cos(pitch) - rz * Math.sin(pitch),
         depth = rz * Math.cos(pitch) + y * Math.sin(pitch),
-        perspective = 3.5 / (3.5 + depth);
+        perspective = 3.6 / (3.6 + depth);
       return {
         x: cx + rx * radius * perspective,
         y: cy + ry * radius * perspective,
         depth,
+        perspective,
       };
     };
-    const halo = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 1.55);
-    halo.addColorStop(0, palette.plum);
+
+    // 1. Ambient erotic halo glow behind the crystal
+    const halo = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 1.6);
+    halo.addColorStop(0, palette.dark ? "rgba(225, 29, 72, 0.18)" : "rgba(112, 70, 207, 0.12)");
+    halo.addColorStop(0.5, palette.dark ? "rgba(139, 92, 246, 0.10)" : "rgba(130, 88, 213, 0.06)");
     halo.addColorStop(1, "transparent");
-    ctx.globalAlpha = palette.dark ? 0.15 : 0.08;
     ctx.fillStyle = halo;
     ctx.fillRect(0, 0, width, height);
-    const mesh = (values: number[], color: string, offset = 0) => {
-      const sample = (theta: number, latitude: number) => {
-        const segment =
-          ((theta / (Math.PI * 2)) * values.length + values.length) %
-          values.length;
-        const index = Math.floor(segment),
-          blend = (1 - Math.cos((segment - index) * Math.PI)) / 2;
-        const score =
-            values[index] * (1 - blend) +
-            values[(index + 1) % values.length] * blend,
-          r = 0.72 + score * 0.003 + offset;
-        return project(
-          Math.sin(theta) * Math.cos(latitude) * r,
-          Math.sin(latitude) * r,
-          Math.cos(theta) * Math.cos(latitude) * r,
-        );
-      };
-      const trace = (
-        points: Array<ReturnType<typeof project>>,
-        emphasis = false,
-      ) => {
-        ctx.strokeStyle = color;
-        ctx.lineWidth = emphasis ? 1.8 : 0.75;
-        for (let i = 1; i < points.length; i++) {
-          ctx.globalAlpha = emphasis
-            ? 0.9
-            : Math.max(0.1, 0.45 - points[i].depth * 0.2);
-          ctx.beginPath();
-          ctx.moveTo(points[i - 1].x, points[i - 1].y);
-          ctx.lineTo(points[i].x, points[i].y);
-          ctx.stroke();
-        }
-      };
-      for (let ring = -9; ring <= 9; ring++)
-        trace(
-          Array.from({ length: 81 }, (_, j) =>
-            sample((j / 80) * Math.PI * 2, ring * 0.14),
-          ),
-          ring === 0,
-        );
-      for (let meridian = 0; meridian < 24; meridian++)
-        trace(
-          Array.from({ length: 45 }, (_, j) =>
-            sample((meridian / 24) * Math.PI * 2, -1.5 + (j / 44) * 3),
-          ),
-        );
-      values.forEach((_, index) => {
-        const p = sample((index / values.length) * Math.PI * 2, 0);
-        ctx.globalAlpha = Math.max(0.4, 0.9 - p.depth * 0.3);
-        ctx.fillStyle = index === selected ? palette.cyan : color;
+
+    // 2. Gyroscopic Armillary Rings (Futuristic Astrolabe)
+    const drawArmillaryRing = (tilt: number, color: string, alpha: number, rMult = 1.25) => {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.0;
+      ctx.globalAlpha = alpha;
+      ctx.beginPath();
+      const ringSteps = 60;
+      for (let s = 0; s <= ringSteps; s++) {
+        const phi = (s / ringSteps) * Math.PI * 2;
+        const localX = Math.cos(phi) * rMult;
+        const localZ = Math.sin(phi) * rMult;
+        const rotY = localX * Math.sin(tilt);
+        const rotZ = localZ;
+        const rotX = localX * Math.cos(tilt);
+        const p = project(rotX, rotY, rotZ);
+        if (s === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      }
+      ctx.stroke();
+    };
+
+    drawArmillaryRing(0.42 + Math.sin(time * 0.15) * 0.08, "rgba(6, 182, 212, 0.6)", palette.dark ? 0.35 : 0.2, 1.32);
+    drawArmillaryRing(-0.52 + Math.cos(time * 0.18) * 0.08, "rgba(244, 63, 94, 0.6)", palette.dark ? 0.32 : 0.18, 1.26);
+
+    // Equatorial calibration ring with tick marks
+    ctx.strokeStyle = "rgba(172, 138, 255, 0.4)";
+    ctx.lineWidth = 0.8;
+    ctx.globalAlpha = palette.dark ? 0.25 : 0.15;
+    ctx.beginPath();
+    for (let s = 0; s <= 48; s++) {
+      const phi = (s / 48) * Math.PI * 2;
+      const p = project(Math.cos(phi) * 1.28, 0, Math.sin(phi) * 1.28);
+      if (s === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    }
+    ctx.stroke();
+
+    // Equatorial degree hashes
+    for (let h = 0; h < 24; h++) {
+      const phi = (h / 24) * Math.PI * 2;
+      const p1 = project(Math.cos(phi) * 1.24, 0, Math.sin(phi) * 1.24);
+      const p2 = project(Math.cos(phi) * 1.32, 0, Math.sin(phi) * 1.32);
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.stroke();
+    }
+
+    // 3. Pulsating SoulFlame Center Core
+    const centerProj = project(0, 0, 0);
+    const corePulse = Math.sin(time * 2.4) * 0.15 + 1.0;
+    const coreRadius = Math.max(12, radius * 0.16 * corePulse);
+    const coreGrad = ctx.createRadialGradient(
+      centerProj.x,
+      centerProj.y,
+      0,
+      centerProj.x,
+      centerProj.y,
+      coreRadius,
+    );
+    coreGrad.addColorStop(0, "rgba(255, 248, 225, 0.95)");
+    coreGrad.addColorStop(0.35, "rgba(245, 158, 11, 0.85)"); // Gold Flame
+    coreGrad.addColorStop(0.7, "rgba(225, 29, 72, 0.5)"); // Crimson
+    coreGrad.addColorStop(1, "transparent");
+
+    ctx.globalAlpha = 0.85;
+    ctx.fillStyle = coreGrad;
+    ctx.beginPath();
+    ctx.arc(centerProj.x, centerProj.y, coreRadius, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 4. Volumetric 3D Faceted Stat Crystal Builder
+    const renderCrystal = (
+      values: number[],
+      primaryColor: string,
+      accentColor: string,
+      isPartner = false,
+    ) => {
+      const N = values.length;
+      const apexY = isPartner ? -0.78 : -0.86;
+      const baseApexY = isPartner ? 0.78 : 0.86;
+
+      const topApex = { x: 0, y: apexY, z: 0 };
+      const bottomApex = { x: 0, y: baseApexY, z: 0 };
+
+      // Calculate equator vertices based on scores
+      const vertices = values.map((score, i) => {
+        const theta = (i / N) * Math.PI * 2 - Math.PI / 2;
+        const norm = Math.max(0.12, Math.min(1.0, score / 100));
+        const r = (isPartner ? 0.44 : 0.46) + norm * (isPartner ? 0.54 : 0.58);
+        return {
+          x: Math.cos(theta) * r,
+          y: 0,
+          z: Math.sin(theta) * r,
+          score,
+          index: i,
+        };
+      });
+
+      // Construct triangular facets: Top Pyramid & Bottom Pyramid
+      interface Facet {
+        p0: typeof topApex;
+        p1: (typeof vertices)[0];
+        p2: (typeof vertices)[0];
+        depth: number;
+        normalY: number;
+      }
+
+      const facets: Facet[] = [];
+
+      for (let i = 0; i < N; i++) {
+        const vCurr = vertices[i];
+        const vNext = vertices[(i + 1) % N];
+
+        // Top pyramid facet
+        const projTop = project(topApex.x, topApex.y, topApex.z);
+        const proj0 = project(vCurr.x, vCurr.y, vCurr.z);
+        const proj1 = project(vNext.x, vNext.y, vNext.z);
+        const avgDepthTop = (projTop.depth + proj0.depth + proj1.depth) / 3;
+
+        facets.push({
+          p0: topApex,
+          p1: vCurr,
+          p2: vNext,
+          depth: avgDepthTop,
+          normalY: -1,
+        });
+
+        // Bottom pyramid facet
+        const projBot = project(bottomApex.x, bottomApex.y, bottomApex.z);
+        const avgDepthBot = (projBot.depth + proj0.depth + proj1.depth) / 3;
+        facets.push({
+          p0: bottomApex,
+          p1: vCurr,
+          p2: vNext,
+          depth: avgDepthBot,
+          normalY: 1,
+        });
+      }
+
+      // Sort facets back-to-front (Painter's Algorithm)
+      facets.sort((a, b) => b.depth - a.depth);
+
+      // Draw Laser Filaments from center to vertices
+      vertices.forEach((v) => {
+        const pV = project(v.x, v.y, v.z);
+        ctx.strokeStyle = isPartner ? "rgba(6, 182, 212, 0.45)" : "rgba(244, 63, 94, 0.45)";
+        ctx.lineWidth = 1.0;
+        ctx.globalAlpha = 0.5;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, index === selected ? 5.5 : 3, 0, Math.PI * 2);
+        ctx.moveTo(centerProj.x, centerProj.y);
+        ctx.lineTo(pV.x, pV.y);
+        ctx.stroke();
+      });
+
+      // Draw Facets
+      facets.forEach((f) => {
+        const p0 = project(f.p0.x, f.p0.y, f.p0.z);
+        const p1 = project(f.p1.x, f.p1.y, f.p1.z);
+        const p2 = project(f.p2.x, f.p2.y, f.p2.z);
+
+        // Calculate 2D winding / lighting
+        const dx1 = p1.x - p0.x, dy1 = p1.y - p0.y;
+        const dx2 = p2.x - p0.x, dy2 = p2.y - p0.y;
+        const cross = dx1 * dy2 - dy1 * dx2;
+        const facing = cross > 0 ? 1 : 0.4;
+
+        // Facet fill
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.closePath();
+
+        const facetAlpha = (isPartner ? 0.16 : 0.24) * facing;
+        ctx.fillStyle = isPartner
+          ? `rgba(6, 182, 212, ${facetAlpha})`
+          : f.normalY < 0
+          ? `rgba(225, 29, 72, ${facetAlpha * 1.1})`
+          : `rgba(139, 92, 246, ${facetAlpha * 0.9})`;
         ctx.fill();
-        if (index === selected && !offset) {
-          ctx.strokeStyle = palette.cyan;
+
+        // Neon glowing facet edges
+        ctx.strokeStyle = isPartner ? "rgba(34, 211, 238, 0.75)" : "rgba(251, 113, 133, 0.75)";
+        ctx.lineWidth = isPartner ? 1.2 : 1.5;
+        ctx.globalAlpha = Math.max(0.2, 0.7 - f.depth * 0.2);
+        ctx.stroke();
+      });
+
+      // 5. Interactive Vertex Data Nodes & Badges
+      vertices.forEach((v) => {
+        const p = project(v.x, v.y, v.z);
+        const isSelected = !isPartner && v.index === selected;
+
+        // Node Glow
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, isSelected ? 6.5 : 4, 0, Math.PI * 2);
+        ctx.fillStyle = isPartner ? "#22d3ee" : isSelected ? "#38bdf8" : primaryColor;
+        ctx.globalAlpha = Math.max(0.5, 0.95 - p.depth * 0.25);
+        ctx.fill();
+
+        // Selected Beacon Pulsing Ripple
+        if (isSelected) {
+          const ripple = Math.sin(time * 5.0) * 4.0 + 13.0;
+          ctx.strokeStyle = "#38bdf8";
+          ctx.lineWidth = 1.8;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, ripple, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Floating Holographic Tag
+          const tagText = `${example.dimensions[v.index]?.shortLabel || example.dimensions[v.index]?.label || "Score"}: ${scores[v.index]}%`;
+          ctx.font = "bold 11px system-ui, sans-serif";
+          const textW = ctx.measureText(tagText).width;
+          const tagX = p.x - textW / 2 - 8;
+          const tagY = p.y - 28;
+
+          ctx.fillStyle = "rgba(18, 18, 28, 0.9)";
+          ctx.strokeStyle = "rgba(56, 189, 248, 0.8)";
           ctx.lineWidth = 1;
           ctx.beginPath();
-          ctx.arc(p.x, p.y, 11, 0, Math.PI * 2);
+          ctx.roundRect(tagX, tagY, textW + 16, 20, 6);
+          ctx.fill();
           ctx.stroke();
+
+          ctx.fillStyle = "#f3f1fa";
+          ctx.fillText(tagText, tagX + 8, tagY + 14);
         }
       });
     };
-    mesh(scores, palette.plum);
-    if (comparison)
-      mesh(
+
+    // Render User's 3D Crystal
+    renderCrystal(scores, palette.plum, "#f43f5e", false);
+
+    // Render Partner's 3D Crystal in Compatibility Mode
+    if (comparison && partner) {
+      renderCrystal(
         partner.dimensions.map((d) => d.score),
         palette.cyan,
-        0.045,
+        "#22d3ee",
+        true,
       );
-    ctx.globalAlpha = 0.24;
-    ctx.strokeStyle = palette.plum;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.ellipse(cx, cy, radius * 1.27, radius * 0.28, -0.3, 0, Math.PI * 2);
-    ctx.stroke();
+
+      // Synergy Overlap Glow
+      const synergyPulse = Math.sin(time * 3.0) * 0.15 + 0.85;
+      ctx.strokeStyle = "rgba(245, 158, 11, 0.7)";
+      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.6 * synergyPulse;
+      ctx.beginPath();
+      ctx.arc(centerProj.x, centerProj.y, radius * 0.42 * synergyPulse, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
     ctx.globalAlpha = 1;
   };
   useCanvasScene(canvas, draw, enabled);

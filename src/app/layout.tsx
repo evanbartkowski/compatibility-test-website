@@ -6,6 +6,7 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { LivingBackdrop } from "@/components/home/LivingBackdrop";
 import "./globals.css";
 
 const figtree = Figtree({
@@ -234,6 +235,7 @@ export default function RootLayout({
           {THEME_INIT_SCRIPT}
         </Script>
         <ThemeProvider>
+          <LivingBackdrop className="global-living-backdrop" moving={true} />
           <AuthProvider>
             <a href="#main-content" className="skip-link">
               Skip to content
