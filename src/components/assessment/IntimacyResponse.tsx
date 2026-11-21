@@ -12,6 +12,14 @@ const desireLabels = [
   "Appealing",
   "Very appealing",
 ];
+
+const INTIMACY_SCALE_COLORS = [
+  { color: "#f43f5e", border: "rgba(244, 63, 94, 0.4)", bg: "rgba(244, 63, 94, 0.08)", activeBg: "#f43f5e" },
+  { color: "#fb923c", border: "rgba(251, 146, 60, 0.4)", bg: "rgba(251, 146, 60, 0.08)", activeBg: "#fb923c" },
+  { color: "#8b5cf6", border: "rgba(139, 92, 246, 0.4)", bg: "rgba(139, 92, 246, 0.08)", activeBg: "#8b5cf6" },
+  { color: "#14b8a6", border: "rgba(20, 184, 166, 0.4)", bg: "rgba(20, 184, 166, 0.08)", activeBg: "#14b8a6" },
+  { color: "#22c55e", border: "rgba(34, 197, 94, 0.4)", bg: "rgba(34, 197, 94, 0.08)", activeBg: "#22c55e" },
+];
 const willingnessOptions: Array<[PartnerWillingnessState, string]> = [
   ["enthusiastically_enjoy", "Freely interested"],
   ["willing_if_partner_enjoys", "Willing for a partner"],
@@ -67,23 +75,42 @@ export function IntimacyResponse({
             : "How appealing is this to you?"}
         </legend>
         <div className="intimacy-desire-scale">
-          {desireLabels.map((label, i) => (
-            <label key={label}>
-              <input
-                type="radio"
-                name={`${prefix}-desire`}
-                value={i + 1}
-                checked={answer?.enjoyment === i + 1}
-                onChange={() =>
-                  onAnswer({ enjoyment: (i + 1) as 1 | 2 | 3 | 4 | 5 })
-                }
-              />
-              <span className="intimacy-scale-number" aria-hidden="true">
-                {i + 1}
-              </span>
-              <span>{label}</span>
-            </label>
-          ))}
+          {desireLabels.map((label, i) => {
+            const isSelected = answer?.enjoyment === i + 1;
+            const stepColor = INTIMACY_SCALE_COLORS[i];
+            return (
+              <label
+                key={label}
+                style={{
+                  borderColor: isSelected ? stepColor.color : stepColor.border,
+                  backgroundColor: isSelected ? stepColor.activeBg : stepColor.bg,
+                  color: isSelected ? "#ffffff" : "var(--ink-primary)",
+                  boxShadow: isSelected ? `0 0 14px ${stepColor.color}40` : "none",
+                }}
+              >
+                <input
+                  type="radio"
+                  name={`${prefix}-desire`}
+                  value={i + 1}
+                  checked={isSelected}
+                  onChange={() =>
+                    onAnswer({ enjoyment: (i + 1) as 1 | 2 | 3 | 4 | 5 })
+                  }
+                />
+                <span
+                  className="intimacy-scale-number"
+                  aria-hidden="true"
+                  style={{
+                    backgroundColor: isSelected ? "rgba(255, 255, 255, 0.25)" : stepColor.color,
+                    color: "#ffffff",
+                  }}
+                >
+                  {i + 1}
+                </span>
+                <span>{label}</span>
+              </label>
+            );
+          })}
         </div>
       </fieldset>
       <label className="intimacy-limit">

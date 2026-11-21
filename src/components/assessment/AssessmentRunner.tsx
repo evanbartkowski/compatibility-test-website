@@ -19,7 +19,6 @@ import {
   ArrowLeft,
   ArrowRight,
   BookmarkCheck,
-  Check,
   CheckCircle2,
   Clock,
   Edit3,
@@ -71,7 +70,7 @@ interface AssessmentRunnerProps {
   ) => Promise<void>;
 }
 
-const QUESTIONS_PER_PAGE = 5;
+const QUESTIONS_PER_PAGE = 10;
 
 export function AssessmentRunner({
   assessment,
@@ -500,74 +499,14 @@ export function AssessmentRunner({
       (q) => q.quickDiscovery,
     ).length;
     return (
-      <div className="site-shell assessment-consent py-12 sm:py-16">
-        <aside className="assessment-introduction">
-          <Link href="/explore" className="text-link">
-            <ArrowLeft size={15} /> Back to assessments
+      <div className="site-shell assessment-consent py-10 sm:py-14">
+        <div className="mx-auto w-full max-w-2xl">
+          <Link
+            href="/explore"
+            className="text-link mb-6 inline-flex items-center gap-1.5 text-xs text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
+          >
+            <ArrowLeft size={14} /> Back to assessments
           </Link>
-          <h2 className="font-display">
-            {assessment.sections.length === 5
-              ? "Five"
-              : assessment.sections.length}{" "}
-            categories.
-            <br />
-            Your own pace.
-          </h2>
-          <p>
-            Consider how you actually respond in everyday life, including when
-            things feel difficult. There is no ideal score to aim for.
-          </p>
-          <div>
-            <strong>{quickCount}</strong>
-            <span>
-              questions in the {isIntimacySuite ? "teaser" : "standard version"}
-            </span>
-          </div>
-          <div>
-            <strong>{assessment.questions.length}</strong>
-            <span>statements for the full picture</span>
-          </div>
-          <p>
-            {isIntimacySuite
-              ? "Rate the appeal for yourself. Add willingness, experience and limits separately when you want. Receiving and offering are different preferences."
-              : "Choose an answer from strongly disagree to strongly agree. Your report explains each category separately, with the answers behind it and a practical next step."}
-          </p>
-        </aside>
-        <div className="min-w-0">
-          {assessment.scoringNotes?.length && (
-            <details className="measurement-explainer mb-6">
-              <summary>What this reflection measures & how scores work</summary>
-              <p>{assessment.purpose || assessment.audienceNote}</p>
-              <p>
-                <strong>{isIntimacySuite ? "Teaser:" : "Standard:"}</strong>{" "}
-                {assessment.quickDescription || "Core selected questions."}
-              </p>
-              <p>
-                <strong>Deep:</strong>{" "}
-                {assessment.deepDescription || "All relevant questions."}
-              </p>
-              <ul>
-                {assessment.scoringNotes.map((note) => (
-                  <li key={note}>{note}</li>
-                ))}
-              </ul>
-              <p>
-                Estimates include time to reflect and choose optional importance
-                ratings. Skip anything you do not wish to answer.
-              </p>
-            </details>
-          )}
-          {assessment.contentNote && (
-            <div className="intimacy-content-note mb-6">
-              <strong>Before you begin</strong>
-              <p>{assessment.contentNote}</p>
-            </div>
-          )}
-          {assessment.marketingBlurb && (
-            <p className="mb-6 text-sm leading-relaxed text-[var(--ink-secondary)]">
-              {assessment.marketingBlurb}
-            </p>
-          )}
           {savedDraftPrompt && (
             <div
               className="mb-8 flex flex-col justify-between gap-4 rounded-2xl border p-5 sm:flex-row sm:items-center"
@@ -647,7 +586,7 @@ export function AssessmentRunner({
               )}
             </div>
 
-            <h1 className="mt-3 font-display text-4xl text-[var(--ink-primary)] sm:text-5xl">
+            <h1 className="mt-3 font-display text-3xl font-bold text-[var(--ink-primary)] sm:text-4xl">
               {perspective === "partner"
                 ? `Complementary Assessment for ${creatorDisplayName || "Your Partner"}`
                 : assessment.title}
@@ -655,38 +594,8 @@ export function AssessmentRunner({
             <p className="mt-3 text-sm leading-relaxed text-[var(--ink-secondary)]">
               {perspective === "partner"
                 ? `You have been privately invited to complete the complementary partner version of ${assessment.title}. Neither of your private individual answers will ever be exposed without your consent.`
-                : assessment.audienceNote}
+                : assessment.audienceNote || assessment.purpose || assessment.marketingBlurb}
             </p>
-
-            {perspective === "primary" &&
-              assessment.discoverPoints &&
-              assessment.discoverPoints.length > 0 && (
-                <div
-                  className="mt-6 rounded-2xl border p-4"
-                  style={{
-                    backgroundColor: "var(--bg-subtle)",
-                    borderColor: "var(--border-hairline)",
-                  }}
-                >
-                  <p className="text-xs font-semibold text-[var(--ink-primary)]">
-                    What your report reveals
-                  </p>
-                  <ul className="mt-2 space-y-1.5 text-xs leading-relaxed text-[var(--ink-secondary)]">
-                    {assessment.discoverPoints.map((pt) => (
-                      <li key={pt} className="flex items-start gap-2">
-                        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--accent-sage)]" />
-                        <span>{pt}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-            {assessment.scientificDisclaimer && (
-              <p className="mt-4 text-[11px] leading-relaxed text-[var(--ink-muted)]">
-                {assessment.scientificDisclaimer}
-              </p>
-            )}
 
             {/* Mode Choice (hidden for partner invites or single-depth modules) */}
             {perspective === "primary" &&
@@ -819,16 +728,8 @@ export function AssessmentRunner({
                       }
                       className="mt-1 h-4 w-4 accent-[var(--accent-plum)]"
                     />
-                    <span className="text-xs leading-relaxed text-[var(--ink-secondary)]">
-                      <strong className="text-[var(--ink-primary)]">
-                        Optional: Contribute anonymized ratings to community
-                        comparisons
-                      </strong>
-                      <br />
-                      Only aggregate averages where at least{" "}
-                      {brandConfig.communityMinimumThreshold} opted-in
-                      respondents participated are ever shown. Leaving this
-                      unchecked still gives you your full personal report.
+                    <span className="text-sm font-medium text-[var(--ink-primary)]">
+                      Optional: Contribute anonymized ratings to community comparisons
                     </span>
                   </label>
 
@@ -1012,13 +913,13 @@ export function AssessmentRunner({
               <button
                 type="button"
                 onClick={handleStartFresh}
-                className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-transform active:scale-[0.98]"
+                className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-transform active:scale-[0.98] shadow-md"
                 style={{
                   backgroundColor: "var(--accent-plum)",
                   color: "var(--accent-plum-contrast)",
                 }}
               >
-                Begin Questions <ArrowRight className="h-4 w-4" />
+                Begin Test <ArrowRight className="h-4 w-4" />
               </button>
             </div>
           </div>
@@ -1223,59 +1124,47 @@ export function AssessmentRunner({
   if (!currentQuestion) return null;
   return (
     <div className="site-shell assessment-workspace py-8 sm:py-12">
-      <aside className="assessment-outline" aria-label="Assessment categories">
-        <Link href="/explore" className="text-link text-sm">
-          <ArrowLeft size={14} /> All assessments
-        </Link>
-        <h1 className="font-display">{assessment.title}</h1>
-        <p>
-          {mode === "quick"
-            ? isIntimacySuite
-              ? "Teaser reflection"
-              : "Standard reflection"
-            : "In-depth reflection"}{" "}
-          · {activeQuestions.length} statements
-        </p>
-        <nav aria-label="Jump to a category">
+      <div className="assessment-main mx-auto w-full max-w-3xl">
+        <nav aria-label="Jump to a category" className="sr-only">
           {assessment.sections.map((section) => {
             const questions = activeQuestions.filter(
               (q) => q.sectionId === section.id,
             );
             if (!questions.length) return null;
-            const answered = questions.filter((q) =>
-              hasMeaningfulAnswer(answers[q.id]),
-            ).length;
             return (
               <button
                 key={section.id}
                 type="button"
-                aria-current={
-                  currentQuestion.sectionId === section.id ? "step" : undefined
-                }
                 onClick={() => {
                   const index = activeQuestions.findIndex((q) => q.sectionId === section.id);
-                  setCurrentIndex(index);
-                  if (index === currentIndex) document.getElementById(`assessment-question-${activeQuestions[index].id}`)?.focus();
+                  if (index >= 0) {
+                    setCurrentIndex(index);
+                    if (index === currentIndex) {
+                      document.getElementById(`assessment-question-${activeQuestions[index].id}`)?.focus();
+                    }
+                  }
                 }}
               >
                 <span>{section.title}</span>
-                <small>
-                  {answered}/{questions.length}
-                </small>
               </button>
             );
           })}
         </nav>
-        <div className="assessment-outline-note">
-          <Lock size={15} />
-          <p>
-            Your answers save in this browser. Take your time and skip anything
-            you do not want to answer.
-          </p>
-        </div>
-      </aside>
-      <div className="assessment-main">
         <header className="assessment-page-heading">
+          <div
+            className="mb-4 flex items-center justify-between border-b pb-3"
+            style={{ borderColor: "var(--border-hairline)" }}
+          >
+            <Link
+              href="/explore"
+              className="text-link inline-flex items-center gap-1.5 text-xs text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
+            >
+              <ArrowLeft size={14} /> Back to assessments
+            </Link>
+            <span className="text-xs font-medium text-[var(--ink-muted)]">
+              {assessment.title}
+            </span>
+          </div>
           <div>
             <p className="assessment-page-kicker">
               Your reflection, at your pace
@@ -1365,7 +1254,7 @@ export function AssessmentRunner({
             assessment.supportsQuickMode !== false && (
               <div className="assessment-depth-switch">
                 <span>
-                  {isIntimacySuite ? "Teaser" : "Standard version"} · 5
+                  {isIntimacySuite ? "Teaser" : "Standard version"} · 10
                   questions per page
                 </span>
                 <button

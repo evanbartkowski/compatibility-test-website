@@ -2,14 +2,72 @@
 
 import { Check } from "lucide-react";
 
-const labels = [
-  "Strongly disagree",
-  "Disagree",
-  "Somewhat disagree",
-  "Neither agree nor disagree",
-  "Somewhat agree",
-  "Agree",
-  "Strongly agree",
+interface ScaleLevel {
+  label: string;
+  color: string;
+  borderColor: string;
+  bgColor: string;
+  activeBg: string;
+  activeText: string;
+}
+
+const SCALE_LEVELS: ScaleLevel[] = [
+  {
+    label: "Strongly disagree",
+    color: "#f43f5e",
+    borderColor: "rgba(244, 63, 94, 0.45)",
+    bgColor: "rgba(244, 63, 94, 0.08)",
+    activeBg: "#f43f5e",
+    activeText: "#ffffff",
+  },
+  {
+    label: "Disagree",
+    color: "#fb923c",
+    borderColor: "rgba(251, 146, 60, 0.45)",
+    bgColor: "rgba(251, 146, 60, 0.08)",
+    activeBg: "#fb923c",
+    activeText: "#ffffff",
+  },
+  {
+    label: "Somewhat disagree",
+    color: "#f59e0b",
+    borderColor: "rgba(245, 158, 11, 0.45)",
+    bgColor: "rgba(245, 158, 11, 0.08)",
+    activeBg: "#f59e0b",
+    activeText: "#18181b",
+  },
+  {
+    label: "Neither agree nor disagree",
+    color: "#8b5cf6",
+    borderColor: "rgba(139, 92, 246, 0.45)",
+    bgColor: "rgba(139, 92, 246, 0.08)",
+    activeBg: "#8b5cf6",
+    activeText: "#ffffff",
+  },
+  {
+    label: "Somewhat agree",
+    color: "#0ea5e9",
+    borderColor: "rgba(14, 165, 233, 0.45)",
+    bgColor: "rgba(14, 165, 233, 0.08)",
+    activeBg: "#0ea5e9",
+    activeText: "#ffffff",
+  },
+  {
+    label: "Agree",
+    color: "#14b8a6",
+    borderColor: "rgba(20, 184, 166, 0.45)",
+    bgColor: "rgba(20, 184, 166, 0.08)",
+    activeBg: "#14b8a6",
+    activeText: "#ffffff",
+  },
+  {
+    label: "Strongly agree",
+    color: "#22c55e",
+    borderColor: "rgba(34, 197, 94, 0.45)",
+    bgColor: "rgba(34, 197, 94, 0.08)",
+    activeBg: "#22c55e",
+    activeText: "#ffffff",
+  },
 ];
 
 export function AgreementScale({
@@ -40,39 +98,66 @@ export function AgreementScale({
           ?.focus();
       }}
     >
-      <legend>How much do you agree?</legend>
+      <legend className="sr-only">How much do you agree?</legend>
       <div className="agreement-options">
-        {labels.map((label, index) => (
-          <label
-            key={label}
-            className="agreement-option"
-            data-selected={selected === index + 1}
-            title={label}
-          >
-            <input
-              type="radio"
-              name={`agreement-${questionId}`}
-              value={index + 1}
-              checked={selected === index + 1}
-              onChange={() => onChange(index + 1)}
-            />
-            <span
-              className="agreement-choice"
-              data-distance={Math.abs(index - 3)}
+        {SCALE_LEVELS.map((level, index) => {
+          const isSelected = selected === index + 1;
+          return (
+            <label
+              key={level.label}
+              className="agreement-option"
+              data-selected={isSelected}
+              data-value={index + 1}
+              title={level.label}
             >
-              <span className="agreement-indicator" aria-hidden="true">
-                {selected === index + 1 ? <Check size={14} /> : index + 1}
+              <input
+                type="radio"
+                name={`agreement-${questionId}`}
+                value={index + 1}
+                checked={isSelected}
+                onChange={() => onChange(index + 1)}
+                aria-label={level.label}
+              />
+              <span
+                className="agreement-choice"
+                style={{
+                  borderColor: isSelected
+                    ? level.color
+                    : level.borderColor,
+                  backgroundColor: isSelected
+                    ? level.activeBg
+                    : level.bgColor,
+                  color: isSelected
+                    ? level.activeText
+                    : "var(--ink-primary)",
+                  boxShadow: isSelected
+                    ? `0 0 16px ${level.color}40`
+                    : "none",
+                }}
+              >
+                <span
+                  className="agreement-indicator"
+                  aria-hidden="true"
+                  style={{
+                    backgroundColor: isSelected
+                      ? "rgba(255, 255, 255, 0.25)"
+                      : level.color,
+                    color: isSelected ? level.activeText : "#ffffff",
+                  }}
+                >
+                  {isSelected ? <Check size={13} strokeWidth={3} /> : index + 1}
+                </span>
+                <span className="agreement-label">{level.label}</span>
               </span>
-              <span className="agreement-label">{label}</span>
-            </span>
-          </label>
-        ))}
+            </label>
+          );
+        })}
       </div>
-      <p className="agreement-selection" role="status">
-        {selected
-          ? `Your answer: ${labels[selected - 1]}`
-          : "Choose one answer above."}
-      </p>
+      {selected ? (
+        <p className="agreement-selection" role="status">
+          Your answer: {SCALE_LEVELS[selected - 1].label}
+        </p>
+      ) : null}
     </fieldset>
   );
 }

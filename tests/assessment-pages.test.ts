@@ -25,7 +25,7 @@ function begin() {
   fireEvent.click(
     screen.getByLabelText(/understand my responses are private/i),
   );
-  fireEvent.click(screen.getByRole("button", { name: /Begin Questions/ }));
+  fireEvent.click(screen.getByRole("button", { name: /Begin Test|Begin Questions/ }));
 }
 
 function card(index: number) {
@@ -130,10 +130,10 @@ describe("Questionnaire pages", () => {
       screen.getByRole("heading", { name: quick[7].prompt }),
     );
   });
-  it("shows five independently answerable statements without a preselected response", () => {
+  it("shows ten independently answerable statements without a preselected response", () => {
     begin();
-    expect(screen.getAllByRole("radio")).toHaveLength(35);
-    for (const q of questions.slice(0, 5)) {
+    expect(screen.getAllByRole("radio")).toHaveLength(70);
+    for (const q of questions.slice(0, 10)) {
       expect(screen.getByRole("heading", { name: q.prompt })).toBeTruthy();
     }
     expect(
@@ -160,7 +160,7 @@ describe("Questionnaire pages", () => {
         name: "Skip question 3",
       }).disabled,
     ).toBe(true);
-    expect(screen.getByRole("heading", { name: "Questions 1–5" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Questions 1–10" })).toBeTruthy();
     expect(screen.getByRole("progressbar").getAttribute("aria-valuetext")).toBe(
       `2 of ${questions.length} questions answered`,
     );
@@ -174,33 +174,42 @@ describe("Questionnaire pages", () => {
 
   it("allows unanswered pages and preserves choices when navigating back", () => {
     begin();
+    fireEvent.click(
+      screen.getByRole("button", { name: /Switch to Complete/i }),
+    );
+    const completeQuestions = assessment.questions;
     fireEvent.click(card(0).getByRole("radio", { name: "Agree" }));
     fireEvent.click(screen.getByRole("button", { name: "Next page" }));
     expect(
-      screen.getByRole("heading", { name: "Questions 6–10" }),
+      screen.getByRole("heading", { name: "Questions 11–20" }),
     ).toBeTruthy();
-    fireEvent.click(card(6).getByRole("radio", { name: "Disagree" }));
+    const card11 = within(screen.getByRole("article", { name: completeQuestions[11].prompt }));
+    fireEvent.click(card11.getByRole("radio", { name: "Disagree" }));
     fireEvent.click(screen.getByRole("button", { name: "Previous page" }));
     expect(
       card(0).getByRole<HTMLInputElement>("radio", { name: "Agree" }).checked,
     ).toBe(true);
     fireEvent.click(screen.getByRole("button", { name: "Next page" }));
+    const card11Next = within(screen.getByRole("article", { name: completeQuestions[11].prompt }));
     expect(
-      card(6).getByRole<HTMLInputElement>("radio", { name: "Disagree" })
+      card11Next.getByRole<HTMLInputElement>("radio", { name: "Disagree" })
         .checked,
     ).toBe(true);
   });
 
   it("opens the correct page and focuses the requested question when editing a review", () => {
     begin();
+    fireEvent.click(
+      screen.getByRole("button", { name: /Switch to Complete/i }),
+    );
     fireEvent.click(screen.getByRole("button", { name: "Next page" }));
     fireEvent.click(screen.getByRole("button", { name: /Review answers/ }));
-    fireEvent.click(screen.getAllByRole("button", { name: "Edit" })[7]);
+    fireEvent.click(screen.getAllByRole("button", { name: "Edit" })[14]);
     expect(
-      screen.getByRole("heading", { name: "Questions 6–10" }),
+      screen.getByRole("heading", { name: "Questions 11–20" }),
     ).toBeTruthy();
     expect(document.activeElement).toBe(
-      screen.getByRole("heading", { name: questions[7].prompt }),
+      screen.getByRole("heading", { name: assessment.questions[14].prompt }),
     );
   });
 
@@ -224,12 +233,12 @@ describe("Questionnaire pages", () => {
     render(React.createElement(AssessmentRunner, { assessment }));
     fireEvent.click(screen.getByRole("button", { name: "Resume Draft" }));
     expect(
-      screen.getByRole("heading", { name: "Questions 6–10" }),
+      screen.getByRole("heading", { name: "Questions 1–10" }),
     ).toBeTruthy();
     expect(
       card(7).getByRole<HTMLInputElement>("radio", { name: "Agree" }).checked,
     ).toBe(true);
-    expect(screen.getAllByRole("article")).toHaveLength(5);
+    expect(screen.getAllByRole("article")).toHaveLength(10);
   });
 
   it("keeps answers when switching to the full assessment", () => {

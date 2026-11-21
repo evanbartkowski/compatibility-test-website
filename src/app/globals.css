@@ -14,60 +14,24 @@ main {
   width: 100%;
 }
 .assessment-consent {
-  display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-  gap: clamp(32px, 6vw, 120px);
-  align-items: start;
+  display: block;
+  max-width: 760px;
+  margin: 0 auto;
 }
 .assessment-introduction {
-  position: sticky;
-  top: 120px;
-  padding-top: 16px;
-}
-.assessment-introduction h2 {
-  font-size: clamp(36px, 4vw, 68px);
-  line-height: 1.1;
-  margin: 44px 0 28px;
-}
-.assessment-introduction p {
-  color: var(--ink-secondary);
-  max-width: 48ch;
-  font-size: 15px;
-  line-height: 1.9;
-  margin: 24px 0;
-}
-.assessment-introduction > div {
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  padding: 20px 0;
-  border-bottom: 1px solid var(--border-hairline);
-  color: var(--ink-muted);
-  font-size: 14px;
-}
-.assessment-introduction strong {
-  font-family: var(--font-display), sans-serif;
-  font-size: 36px;
-  font-weight: 500;
-  color: var(--accent-plum);
-  min-width: 2ch;
+  display: none;
 }
 .assessment-workspace {
-  display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
-  gap: clamp(32px, 4vw, 80px);
-  align-items: start;
+  display: block;
+  max-width: 860px;
+  margin: 0 auto;
   min-height: calc(100dvh - 180px);
 }
 .assessment-main {
   min-width: 0;
 }
 .assessment-outline {
-  position: sticky;
-  top: 112px;
-  max-height: calc(100dvh - 142px);
-  overflow: auto;
-  scrollbar-width: thin;
+  display: none;
 }
 .assessment-outline h1 {
   font-size: 26px;
@@ -340,29 +304,33 @@ main {
   flex: 1;
   flex-direction: column;
   align-items: center;
-  justify-content: start;
-  gap: 10px;
-  padding: 14px 6px;
-  min-height: 108px;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 4px;
+  min-height: 58px;
   border: 1px solid var(--border-strong);
-  border-radius: 11px;
+  border-radius: 12px;
   background: var(--bg-canvas);
   color: var(--ink-secondary);
-  transition:
-    background-color 150ms,
-    border-color 150ms;
+  transition: all 150ms ease;
 }
 .agreement-indicator {
   display: grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  border: 1px solid var(--ink-muted);
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
+}
+.agreement-label {
+  font-size: 11px;
+  line-height: 1.2;
+  text-align: center;
+  font-weight: 500;
 }
 .agreement-label {
   font-size: 13px;
@@ -3951,13 +3919,12 @@ input[type="checkbox"] {
 .intimacy-response fieldset { min-width: 0; border: 0; padding: 0; margin: 0; }
 .intimacy-response legend { margin-bottom: .75rem; font-size: .85rem; font-weight: 600; color: var(--ink-primary); }
 .intimacy-role { display: inline-block; margin-bottom: 1rem; border-radius: 999px; background: color-mix(in srgb, var(--accent-plum) 10%, transparent); padding: .35rem .7rem; font-size: .7rem; color: var(--accent-plum); }
-.intimacy-desire-scale { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .5rem; }
-.intimacy-desire-scale label, .intimacy-choice label, .intimacy-willingness label { position: relative; display: flex; align-items: center; gap: .6rem; min-height: 48px; border: 1px solid var(--border-strong); border-radius: 14px; background: var(--bg-canvas); padding: .8rem; cursor: pointer; color: var(--ink-secondary); transition: border-color .15s, background .15s; }
-.intimacy-desire-scale label { flex-direction: column; justify-content: center; gap: .4rem; text-align: center; font-size: .7rem; line-height: 1.35; }
+.intimacy-desire-scale { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .4rem; }
+.intimacy-desire-scale label { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3rem; min-height: 44px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-canvas); padding: .5rem .3rem; cursor: pointer; color: var(--ink-secondary); transition: all .15s ease; text-align: center; font-size: .68rem; line-height: 1.2; }
 .intimacy-desire-scale input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; z-index: 1; cursor: pointer; }
-.intimacy-scale-number { display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid var(--border-hairline); border-radius: 50%; font-size: .85rem; }
-.intimacy-desire-scale label:has(:checked), .intimacy-choice label:has(:checked), .intimacy-willingness label:has(:checked) { border-color: var(--accent-plum); background: color-mix(in srgb, var(--accent-plum) 12%, var(--bg-canvas)); color: var(--ink-primary); box-shadow: inset 0 0 0 1px var(--accent-plum); }
-.intimacy-desire-scale label:has(:checked) .intimacy-scale-number { background: var(--accent-plum); border-color: var(--accent-plum); color: var(--accent-plum-contrast); }
+.intimacy-scale-number { display: grid; place-items: center; width: 22px; height: 22px; border: 1px solid var(--border-hairline); border-radius: 50%; font-size: .75rem; font-weight: 700; }
+.intimacy-choice label, .intimacy-willingness label { position: relative; display: flex; align-items: center; gap: .6rem; min-height: 48px; border: 1px solid var(--border-strong); border-radius: 14px; background: var(--bg-canvas); padding: .8rem; cursor: pointer; color: var(--ink-secondary); transition: border-color .15s, background .15s; }
+.intimacy-choice label:has(:checked), .intimacy-willingness label:has(:checked) { border-color: var(--accent-plum); background: color-mix(in srgb, var(--accent-plum) 12%, var(--bg-canvas)); color: var(--ink-primary); box-shadow: inset 0 0 0 1px var(--accent-plum); }
 .intimacy-response label:has(input:focus-visible) { outline: 3px solid var(--accent-plum); outline-offset: 3px; }
 .intimacy-response input { accent-color: var(--accent-plum); flex-shrink: 0; }
 .intimacy-response input[type=checkbox], .intimacy-willingness input, .intimacy-choice input { width: 18px; height: 18px; }
