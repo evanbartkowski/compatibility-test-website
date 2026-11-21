@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/lib/server/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getReadOnlyVerifiedUid } from "@/lib/server/firebase-auth";
@@ -36,7 +37,7 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const { sessionKey, isNew } = await getOrCreateSessionKey(req.headers.get("x-between-us-sid"));
   const uid = await getReadOnlyVerifiedUid(req);
-  const json = await req.json().catch(() => null);
+  const json = await readJsonBody(req).catch(() => null);
   const parsed = patchPrefsSchema.safeParse(json);
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid preferences payload." }, { status: 400 });

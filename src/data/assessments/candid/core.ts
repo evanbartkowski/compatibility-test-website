@@ -562,7 +562,7 @@ export const candidCore: Record<string, Record<string, string[]>> = {
       "The role question is who I want to be for an hour, and who I refuse to be.",
     ],
     boundary_clarity: [
-      "I can name the kink that makes me come and the kink that is a hard no, including fluids, pain, and other people.",
+      "I can name the kink that i love the most and the kink that is a hard no",
       "A maybe is not a yes. I stop using maybe when I already know I do not want it.",
       "!I say maybe so I do not have to watch their face when I say no.",
       "Scat, blood, or a kink I have already named as a no does not get reopened because someone is disappointed.",

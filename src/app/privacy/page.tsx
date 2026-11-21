@@ -24,7 +24,9 @@ export default function PrivacyPage() {
           <p>
             Completed attempts include your answers, consent choices, scores,
             test version, scoring version and completion date. The server stores
-            these privately on this deployment. Unfinished drafts stay in your
+            these on this deployment when its saving service is available.
+            A complete copy is also saved in this browser, so results can work offline.
+            Unfinished drafts and optional population-comparison choices stay in your
             browser’s local storage, including on a shared device, until you
             remove them. No account is required.
           </p>

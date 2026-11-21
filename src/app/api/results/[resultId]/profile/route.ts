@@ -1,14 +1,21 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { rankingsFromRadar } from "@/lib/assessment/role-rankings";
-import { getSubmissionResult } from "@/lib/server/store";
+import { canAccessResult, getSubmissionResult } from "@/lib/server/store";
+import { getReadOnlySessionKey } from "@/lib/server/session";
+import { getReadOnlyVerifiedUid } from "@/lib/server/firebase-auth";
 
 export async function GET(
-  _req: Request,
+  req: NextRequest,
   context: { params: Promise<{ resultId: string }> },
 ) {
   const { resultId } = await context.params;
   if (!/^sub_[A-Za-z0-9_-]{8,80}$/.test(resultId)) {
     return NextResponse.json({ error: "Result not found." }, { status: 404 });
+  }
+  const sessionKey = await getReadOnlySessionKey(req.headers.get("x-between-us-sid"));
+  const uid = await getReadOnlyVerifiedUid(req);
+  if (!canAccessResult({ resultId, sessionKey, uid })) {
+    return NextResponse.json({ error: "Result not found or unauthorized." }, { status: 404 });
   }
   const sub = getSubmissionResult(resultId);
   if (!sub) return NextResponse.json({ error: "Result not found." }, { status: 404 });

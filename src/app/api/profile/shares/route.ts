@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/lib/server/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getReadOnlySessionKey } from "@/lib/server/session";
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
       { error: "Too many links created. Try again later." },
       { status: 429 },
     );
-  const data = schema.safeParse(await req.json().catch(() => null));
+  const data = schema.safeParse(await readJsonBody(req).catch(() => null));
   if (!data.success)
     return NextResponse.json(
       { error: "Choose valid result fields and an expiration." },

@@ -1,5 +1,5 @@
 import React from "react";
-import type { CSSProperties } from "react";
+import { useId, type CSSProperties } from "react";
 
 export interface AssessmentArtworkProps {
   slug: string;
@@ -22,9 +22,10 @@ export function AssessmentArtwork({
   style,
   variant = "card",
 }: AssessmentArtworkProps) {
-  const pfx = `sf-art-${slug.replace(/[^a-z0-9]/gi, "-")}`;
+  const instanceId = useId().replace(/[^a-zA-Z0-9_-]/g, "");
+  const pfx = `sf-art-${slug.replace(/[^a-z0-9]/gi, "-")}-${instanceId}`;
   const isBanner = variant === "banner";
-  const viewBox = isBanner ? "0 0 360 120" : "0 0 240 120";
+  const viewBox = isBanner ? "0 0 360 120" : variant === "thumb" ? "68 8 104 104" : "0 0 240 120";
   const cx = isBanner ? 180 : 120;
   const cy = 60;
 
@@ -813,7 +814,8 @@ export function AssessmentArtwork({
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
-      className={`test-card-illustration ${className}`}
+      focusable="false"
+      className={`${variant === "thumb" ? "assessment-art-thumb" : "test-card-illustration"} ${className}`}
       style={style}
     >
       {renderContent()}

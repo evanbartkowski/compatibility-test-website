@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/lib/server/request-body";
 import { checkRateLimit } from "@/lib/server/rate-limit";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
       },
       { status: 503 },
     );
-  const json = await req.json().catch(() => null);
+  const json = await readJsonBody(req).catch(() => null);
   const parsed = sessionSchema.safeParse(json);
   if (!parsed.success) {
     return NextResponse.json(

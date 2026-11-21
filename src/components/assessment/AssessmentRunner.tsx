@@ -19,9 +19,7 @@ import {
   ArrowLeft,
   ArrowRight,
   BookmarkCheck,
-  CheckCircle2,
   Clock,
-  Edit3,
   Lock,
   Sparkles,
   Users,
@@ -42,16 +40,8 @@ import type {
   QuestionDefinition,
   SharingPreferences,
 } from "@/lib/assessment/types";
-import {
-  formatAnswerDisplayLabel,
-  formatImportanceLabel,
-} from "@/lib/assessment/scoring";
 import { cn } from "@/lib/utils";
-import {
-  AssessmentQuestionCard,
-  DESIRE_DELTA_OPTIONS,
-  REVEAL_RULE_OPTIONS,
-} from "./AssessmentQuestionCard";
+import { AssessmentQuestionCard } from "./AssessmentQuestionCard";
 
 interface AssessmentRunnerProps {
   assessment: AssessmentDefinition;
@@ -202,9 +192,6 @@ export function AssessmentRunner({
   );
   const pageCount = Math.ceil(activeQuestions.length / QUESTIONS_PER_PAGE);
   const currentQuestion = activeQuestions[safeIndex];
-  const pageAnsweredCount = pageQuestions.filter((q) =>
-    hasMeaningfulAnswer(answers[q.id]),
-  ).length;
   const pageRemainingCount = pageQuestions.filter(
     (q) => !hasMeaningfulAnswer(answers[q.id]) && !answers[q.id]?.skipped,
   ).length;
@@ -287,21 +274,23 @@ export function AssessmentRunner({
     [],
   );
 
-  const skipQuestion = (questionId: string) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: {
-        questionId,
-        skipped: true,
-        updatedAt: new Date().toISOString(),
-      },
-    }));
+  const skipUnanswered = (questions: QuestionDefinition[]) => {
+    setAnswers((prev) => {
+      const next = { ...prev };
+      const now = new Date().toISOString();
+      for (const question of questions) {
+        if (hasMeaningfulAnswer(next[question.id]) || next[question.id]?.skipped) continue;
+        next[question.id] = { questionId: question.id, skipped: true, updatedAt: now };
+      }
+      return next;
+    });
   };
   const goNext = () => {
     setPauseNotice(false);
+    skipUnanswered(pageQuestions);
     if (pageStart + QUESTIONS_PER_PAGE < activeQuestions.length)
       setCurrentIndex(pageStart + QUESTIONS_PER_PAGE);
-    else setStep("review");
+    else handleSubmit();
   };
   const goPrev = () => {
     setPauseNotice(false);
@@ -358,12 +347,6 @@ export function AssessmentRunner({
       );
     }
     setMode("complete");
-    if (step === "review") {
-      const completeList = assessment.questions;
-      const firstUnanswered = completeList.findIndex((q) => !answers[q.id]);
-      setCurrentIndex(firstUnanswered >= 0 ? firstUnanswered : 0);
-      setStep("questions");
-    }
   };
 
   const handleSubmit = async () => {
@@ -372,7 +355,7 @@ export function AssessmentRunner({
     try {
       if (onPreviewSubmit) {
         await onPreviewSubmit(answers, mode);
-        setStep("review");
+        setStep("questions");
         return;
       }
 
@@ -457,7 +440,7 @@ export function AssessmentRunner({
                 createdAt,
                 result: data.result || scored,
                 answers,
-              });
+              }, localSubmissionId);
             }
             if (data?.compatibilityId) {
               finalCompatibilityId = data.compatibilityId;
@@ -475,7 +458,7 @@ export function AssessmentRunner({
         router.push(`/results?id=${encodeURIComponent(finalSubmissionId)}`);
       }
     } catch (err) {
-      setStep("review");
+      setStep("questions");
       setErrorMsg(
         err instanceof Error ? err.message : "Failed to submit assessment.",
       );
@@ -917,8 +900,7 @@ export function AssessmentRunner({
 
             <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
               <span className="inline-flex items-center gap-1.5 text-xs text-[var(--ink-muted)]">
-                <Lock className="h-3.5 w-3.5" /> Autosaves locally · Skip any
-                item
+                <Lock className="h-3.5 w-3.5" /> Autosaves locally
               </span>
               <button
                 type="button"
@@ -964,177 +946,12 @@ export function AssessmentRunner({
   }
 
   // -------------------------------------------------------------------------
-  // STEP 3: REVIEW & EDIT ANSWERS SCREEN
-  // -------------------------------------------------------------------------
-  if (step === "review") {
-    return (
-      <div className="site-shell py-12 sm:py-16">
-        <div className="flex flex-col justify-between gap-4 border-b pb-6 sm:flex-row sm:items-end">
-          <div>
-            <h1 className="font-display text-4xl text-[var(--ink-primary)]">
-              Review &amp; Refine Your Answers
-            </h1>
-            <p className="mt-2 text-sm text-[var(--ink-secondary)]">
-              You answered{" "}
-              <span className="font-mono-tabular font-semibold">
-                {answeredCount}
-              </span>{" "}
-              of{" "}
-              <span className="font-mono-tabular font-semibold">
-                {activeQuestions.length}
-              </span>{" "}
-              questions in{" "}
-              {mode === "quick" && assessment.supportsQuickMode !== false
-                ? isIntimacySuite
-                  ? "Teaser"
-                  : "Standard Assessment"
-                : isIntimacySuite
-                  ? "Deep dive"
-                  : "Complete Assessment"}{" "}
-              mode.
-            </p>
-          </div>
-
-          {perspective === "primary" &&
-            mode === "quick" &&
-            assessment.supportsQuickMode !== false && (
-              <button
-                type="button"
-                onClick={handleUpgradeToComplete}
-                className="rounded-full border px-4 py-2 text-xs font-medium text-[var(--accent-plum)] hover:bg-[var(--bg-subtle)]"
-                style={{ borderColor: "var(--accent-plum)" }}
-              >
-                Expand to Full {assessment.questions.length} Questions (Keep
-                Answers)
-              </button>
-            )}
-        </div>
-
-        {errorMsg && (
-          <div
-            role="alert"
-            className="mt-6 rounded-xl border p-4 text-sm text-[var(--accent-rose)]"
-            style={{
-              backgroundColor: "var(--bg-subtle)",
-              borderColor: "var(--accent-rose)",
-            }}
-          >
-            {errorMsg}
-          </div>
-        )}
-
-        <div className="mt-8 space-y-3">
-          {activeQuestions.map((q, idx) => {
-            const ans = answers[q.id];
-            const promptText =
-              perspective === "partner" ? q.partnerPrompt : q.prompt;
-            const formatted = formatAnswerDisplayLabel(q, ans);
-            return (
-              <div
-                key={q.id}
-                className="flex flex-col justify-between gap-3 rounded-2xl border p-4 sm:flex-row sm:items-center"
-                style={{
-                  backgroundColor: "var(--bg-elevated)",
-                  borderColor: "var(--border-hairline)",
-                }}
-              >
-                <div className="space-y-1">
-                  <span className="text-[11px] text-[var(--ink-muted)]">
-                    {q.sectionTitle}
-                  </span>
-                  <p className="text-sm font-medium text-[var(--ink-primary)]">
-                    {promptText}
-                  </p>
-                  <div className="flex flex-wrap gap-3 text-xs text-[var(--ink-secondary)]">
-                    <span>
-                      Response:{" "}
-                      <strong className="text-[var(--ink-primary)]">
-                        {formatted}
-                      </strong>
-                    </span>
-                    {ans?.importance &&
-                      q.inputType !== "partner_prediction" && (
-                        <span>
-                          Importance: {formatImportanceLabel(ans.importance)}
-                        </span>
-                      )}
-                    {typeof ans?.experienceFrequency === "number" && (
-                      <span>Experienced: {ans.experienceFrequency}/5</span>
-                    )}
-                    {ans?.desireDelta && (
-                      <span>
-                        Pacing:{" "}
-                        {
-                          DESIRE_DELTA_OPTIONS.find(
-                            (d) => d.value === ans.desireDelta,
-                          )?.label
-                        }
-                      </span>
-                    )}
-                    {ans?.revealRule && (
-                      <span>
-                        Visibility:{" "}
-                        {
-                          REVEAL_RULE_OPTIONS.find(
-                            (r) => r.value === ans.revealRule,
-                          )?.label
-                        }
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCurrentIndex(idx);
-                    setStep("questions");
-                  }}
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-medium text-[var(--ink-primary)] hover:bg-[var(--bg-subtle)]"
-                >
-                  <Edit3 className="h-3.5 w-3.5" /> Edit
-                </button>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t pt-6">
-          <button
-            type="button"
-            onClick={() => setStep("questions")}
-            className="inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-medium text-[var(--ink-primary)] hover:bg-[var(--bg-subtle)]"
-          >
-            <ArrowLeft className="h-4 w-4" /> Back to Questions
-          </button>
-
-          <button
-            type="button"
-            onClick={handleSubmit}
-            className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-medium"
-            style={{
-              backgroundColor: "var(--accent-plum)",
-              color: "var(--accent-plum-contrast)",
-              boxShadow: "var(--shadow-soft)",
-            }}
-          >
-            <CheckCircle2 className="h-4 w-4" />
-            {perspective === "partner"
-              ? "Generate Compatibility Report"
-              : "Complete & View Results"}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // -------------------------------------------------------------------------
   // STEP 2: FIVE-QUESTION PAGES
   // -------------------------------------------------------------------------
   if (!currentQuestion) return null;
   return (
     <div className="site-shell assessment-workspace py-8 sm:py-12">
-      <div className="assessment-main mx-auto w-full max-w-3xl">
+      <div className="assessment-main w-full">
         <nav aria-label="Jump to a category" className="sr-only">
           {assessment.sections.map((section) => {
             const questions = activeQuestions.filter(
@@ -1175,22 +992,9 @@ export function AssessmentRunner({
               {assessment.title}
             </span>
           </div>
-          <div>
-            <p className="assessment-page-kicker">
-              Your reflection, at your pace
-            </p>
-            <h2 ref={questionHeading} tabIndex={-1} className="font-display">
-              Questions {pageStart + 1}–{pageStart + pageQuestions.length}
-            </h2>
-          </div>
-          <span className="assessment-page-badge">
-            <CheckCircle2 size={16} aria-hidden="true" />
-            {pageAnsweredCount} of {pageQuestions.length} answered
-          </span>
-          <p>
-            Read each statement and choose how well it fits you. There are no
-            right or wrong answers. Skip anything you prefer.
-          </p>
+          <h2 ref={questionHeading} tabIndex={-1} className="font-display">
+            {progressPercent}% complete
+          </h2>
         </header>
         {/* Answer progress */}
         <div className="space-y-3">
@@ -1290,7 +1094,6 @@ export function AssessmentRunner({
               number={pageStart + index + 1}
               perspective={perspective}
               onAnswer={(patch) => updateAnswer(question.id, patch)}
-              onSkip={() => skipQuestion(question.id)}
             />
           ))}
         </section>
@@ -1298,7 +1101,7 @@ export function AssessmentRunner({
         <footer className="assessment-page-footer">
           <p className="assessment-page-note" role="status">
             {pageRemainingCount
-              ? `${pageRemainingCount} unanswered on this page. You can come back to them.`
+              ? `${pageRemainingCount} unanswered. Continuing skips them.`
               : "All set on this page. Continue when you're ready."}
           </p>
           <div className="assessment-controls">
@@ -1314,8 +1117,16 @@ export function AssessmentRunner({
             <span className="assessment-page-position">
               Page {pageIndex + 1} of {pageCount}
             </span>
-            <button type="button" onClick={goNext} className="assessment-next">
-              {pageIndex === pageCount - 1 ? "Review & Finish" : "Next page"}
+            <button
+              type="button"
+              onClick={goNext}
+              className="assessment-next"
+            >
+              {pageIndex === pageCount - 1
+                  ? (perspective === "partner"
+                      ? "Generate Compatibility Report"
+                      : "Complete & View Results")
+                  : "Next page"}
               <ArrowRight size={17} aria-hidden="true" />
             </button>
           </div>
@@ -1326,9 +1137,6 @@ export function AssessmentRunner({
                 ? "Progress saved in this browser"
                 : "Keep this tab open to keep your progress"}
             </span>
-            <button type="button" onClick={() => setStep("review")}>
-              Review answers ({answeredCount})
-            </button>
           </div>
         </footer>
       </div>

@@ -67,7 +67,8 @@ test("measured profile, selective public sharing, revocation, PNG export and del
   await expect(page.locator(".profile-main")).not.toContainText(
     "Not enough answers yet",
   );
-  await expect(page.locator(".profile-radar svg")).toBeVisible();
+  if ((page.viewportSize()?.width || 1440) > 600) await expect(page.locator(".profile-radar svg")).toBeVisible();
+  await page.locator(".profile-history > summary").click();
   await expect(page.locator(".history-empty")).toBeVisible();
   await page.screenshot({
     path: info.outputPath("measured-profile.png"),
@@ -80,9 +81,10 @@ test("measured profile, selective public sharing, revocation, PNG export and del
   await page.getByLabel("Include test title", { exact: true }).check();
   await page
     .locator(".share-selection-fields label")
-    .filter({ hasText: "Sharing your inner world" })
+    .filter({ hasText: assessment.dimensions![0].label })
     .getByRole("checkbox")
     .check();
+  if (assessment.adultsOnly || assessment.category === "sexuality-intimacy") await page.getByLabel("I choose to share the selected sensitive result fields.", { exact: true }).check();
   await page.getByRole("button", { name: /Create.*link/i }).click();
   const link = page.getByLabel("Your private profile link", { exact: true });
   await expect(link).toBeVisible();
@@ -98,7 +100,7 @@ test("measured profile, selective public sharing, revocation, PNG export and del
       publicPage.getByRole("heading", { name: "My discovery profile" }),
     ).toBeVisible();
     await expect(publicPage.locator("main")).toContainText(
-      "Sharing your inner world",
+      assessment.dimensions![0].label,
     );
     await expect(publicPage.locator("main")).not.toContainText(
       "Attentive presence",
@@ -128,6 +130,7 @@ test("measured profile, selective public sharing, revocation, PNG export and del
   ).not.toBeChecked();
   await page.getByLabel("Include archetype & description").check();
   await page.getByLabel("Include test title").check();
+  if (assessment.adultsOnly || assessment.category === "sexuality-intimacy") await page.getByLabel(/I choose to include the selected sensitive result fields/).check();
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Download PNG", exact: true }).click();
   const download = await downloadPromise;

@@ -20,6 +20,7 @@ test("browser profile opens its saved report when API routes return static fallb
   await expect(page.getByRole("link", { name: "Open full result" })).toHaveAttribute("href", "/results?id=sub_guest_profile_qa");
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: info.outputPath("profile.png"), fullPage: true });
   await page.getByRole("link", { name: "Read your full advice" }).click();
   await expect(page.locator("#advice-guide-title")).toBeVisible();
@@ -38,6 +39,7 @@ test("population interests persist, clear, and expose their research source", as
   await expect(page.getByRole("link", { name: /Herbenick/ })).toHaveAttribute("href", /journals.plos.org/);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: info.outputPath("population.png"), fullPage: true });
   await page.getByRole("button", { name: "Clear my choices" }).click();
   await page.reload();

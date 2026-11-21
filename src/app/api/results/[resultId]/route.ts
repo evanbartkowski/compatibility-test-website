@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/lib/server/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import type { CohortFilter } from "@/lib/assessment/community";
 import { getReadOnlyVerifiedUid } from "@/lib/server/firebase-auth";
@@ -63,7 +64,7 @@ export async function PATCH(
   const { resultId } = await context.params;
   const { sessionKey } = await getOrCreateSessionKey(req.headers.get("x-between-us-sid"));
   const uid = await getReadOnlyVerifiedUid(req);
-  const body = await req.json().catch(() => ({}));
+  const body = await readJsonBody(req).catch((): Record<string, unknown> => ({}));
   if (typeof body.optInCommunityStats !== "boolean") {
     return NextResponse.json({ error: "optInCommunityStats boolean required." }, { status: 400 });
   }

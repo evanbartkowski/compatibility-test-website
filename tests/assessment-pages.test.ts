@@ -147,7 +147,6 @@ describe("Questionnaire pages", () => {
     begin();
     fireEvent.click(card(0).getByRole("radio", { name: "Agree" }));
     fireEvent.click(card(1).getByRole("radio", { name: "Disagree" }));
-    fireEvent.click(card(2).getByRole("button", { name: "Skip question 3" }));
     expect(
       card(0).getByRole<HTMLInputElement>("radio", { name: "Agree" }).checked,
     ).toBe(true);
@@ -155,21 +154,14 @@ describe("Questionnaire pages", () => {
       card(1).getByRole<HTMLInputElement>("radio", { name: "Disagree" })
         .checked,
     ).toBe(true);
-    expect(
-      card(2).getByRole<HTMLButtonElement>("button", {
-        name: "Skip question 3",
-      }).disabled,
-    ).toBe(true);
-    expect(screen.getByRole("heading", { name: "Questions 1–10" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: `${Math.round((2 / questions.length) * 100)}% complete` })).toBeTruthy();
     expect(screen.getByRole("progressbar").getAttribute("aria-valuetext")).toBe(
       `2 of ${questions.length} questions answered`,
     );
     fireEvent.click(card(2).getByRole("radio", { name: "Agree" }));
     expect(
-      card(2).getByRole<HTMLButtonElement>("button", {
-        name: "Skip question 3",
-      }).disabled,
-    ).toBe(false);
+      card(2).getByRole<HTMLInputElement>("radio", { name: "Agree" }).checked,
+    ).toBe(true);
   });
 
   it("allows unanswered pages and preserves choices when navigating back", () => {
@@ -180,9 +172,7 @@ describe("Questionnaire pages", () => {
     const completeQuestions = assessment.questions;
     fireEvent.click(card(0).getByRole("radio", { name: "Agree" }));
     fireEvent.click(screen.getByRole("button", { name: "Next page" }));
-    expect(
-      screen.getByRole("heading", { name: "Questions 11–20" }),
-    ).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /% complete$/ })).toBeTruthy();
     const card11 = within(screen.getByRole("article", { name: completeQuestions[11].prompt }));
     fireEvent.click(card11.getByRole("radio", { name: "Disagree" }));
     fireEvent.click(screen.getByRole("button", { name: "Previous page" }));
@@ -197,20 +187,15 @@ describe("Questionnaire pages", () => {
     ).toBe(true);
   });
 
-  it("opens the correct page and focuses the requested question when editing a review", () => {
+  it("submits directly from the final question page without a review screen", () => {
     begin();
-    fireEvent.click(
-      screen.getByRole("button", { name: /Switch to Complete/i }),
-    );
-    fireEvent.click(screen.getByRole("button", { name: "Next page" }));
-    fireEvent.click(screen.getByRole("button", { name: /Review answers/ }));
-    fireEvent.click(screen.getAllByRole("button", { name: "Edit" })[14]);
-    expect(
-      screen.getByRole("heading", { name: "Questions 11–20" }),
-    ).toBeTruthy();
-    expect(document.activeElement).toBe(
-      screen.getByRole("heading", { name: assessment.questions[14].prompt }),
-    );
+    expect(screen.queryByText(/Review & Refine Your Answers/i)).toBeNull();
+    const submitBtn = screen.getByRole("button", {
+      name: /Complete & View Results/i,
+    });
+    expect(submitBtn).toBeTruthy();
+    fireEvent.click(submitBtn);
+    expect(screen.queryByText(/Review & Refine Your Answers/i)).toBeNull();
   });
 
   it("resumes an existing question-index draft on its matching page", () => {
@@ -232,9 +217,7 @@ describe("Questionnaire pages", () => {
     );
     render(React.createElement(AssessmentRunner, { assessment }));
     fireEvent.click(screen.getByRole("button", { name: "Resume Draft" }));
-    expect(
-      screen.getByRole("heading", { name: "Questions 1–10" }),
-    ).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /% complete$/ })).toBeTruthy();
     expect(
       card(7).getByRole<HTMLInputElement>("radio", { name: "Agree" }).checked,
     ).toBe(true);

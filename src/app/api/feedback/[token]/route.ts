@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/lib/server/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import {
   getPublicMultiRaterInviteByToken,
@@ -45,7 +46,7 @@ export async function POST(
   context: { params: Promise<{ token: string }> }
 ) {
   const { token } = await context.params;
-  const json = await req.json().catch(() => null);
+  const json = await readJsonBody(req).catch(() => null);
   const parsed = multiRaterBodySchema.safeParse(json);
   if (!parsed.success) {
     return NextResponse.json(

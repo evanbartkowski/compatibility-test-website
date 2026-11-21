@@ -20,6 +20,7 @@ The server repository stores results in .between-us-data/store.json. Browser dra
 - A two-section homepage includes a draggable 3D profile, keyboard rotation, adjustable example scores, partner overlay and a pausable living background. Reduced motion is respected.
 - Five questions per page with labeled agreement buttons, individual skip controls, page navigation and saved drafts. Native radios support keyboard arrows and 1–7 shortcuts, with no preselected response.
 - Measured profiles, per-category explanations, compatible retake history and explicit sharing selections.
+- My profile combines browser and session results, account information, a short advice preview and recent attempts. Compare separates population research, opted-in community averages and matching retakes. Population interest percentages cite Herbenick et al. (2017), Tables 2 and 5, with the U.S. sample and 2014–2015 fieldwork visible; optional comparison choices stay on the device and can be cleared.
 - Private partner comparisons, ownership-checked saved-result reuse, independent disclosure controls and revocation.
 - Actual participant histograms, midrank percentiles, strict-below percentages and archetype frequencies, suppressed below cohort thresholds.
 - Draft authoring, validation, scoring previews, immutable published revisions and an independent live publication pointer.

@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/lib/server/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { isAdminRequest } from "@/lib/server/admin-auth";
 import { scoreAssessmentSubmission } from "@/lib/assessment/scoring";
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Administrator access required." }, { status: 401 });
   }
 
-  const json = await req.json().catch(() => null);
+  const json = await readJsonBody(req).catch(() => null);
   const parsed = simulateSchema.safeParse(json);
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid simulation request." }, { status: 400 });

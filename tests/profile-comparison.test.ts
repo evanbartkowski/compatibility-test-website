@@ -8,7 +8,7 @@ import { MyResultsClient } from "@/components/results/MyResultsClient";
 import { CommunityAverages } from "@/components/compare/CommunityAverages";
 import { getAssessmentBySlug } from "@/data/assessments/catalog";
 import { scoreAssessmentSubmission } from "@/lib/assessment/scoring";
-import { saveGuestSubmission } from "@/lib/assessment/guest-storage";
+import { saveGuestSubmission, getGuestSubmissions, getGuestSubmission } from "@/lib/assessment/guest-storage";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
@@ -35,6 +35,27 @@ beforeEach(() => {
   vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ submissions: [] }), { headers: { "Content-Type": "application/json" } })));
 });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+
+it("replaces a temporary browser attempt after the server saves that same attempt", () => {
+  saveGuestSubmission(entry("temporary"));
+  saveGuestSubmission(entry("server-copy"), "temporary");
+  expect(getGuestSubmissions().map(s => s.submissionId)).toEqual(["server-copy"]);
+  expect(getGuestSubmission("temporary")).toBeNull();
+});
+
+it("retains the temporary result when saving its replacement fails", () => {
+  saveGuestSubmission(entry("temporary"));
+  const original = Storage.prototype.setItem;
+  const failing = vi.spyOn(Storage.prototype, "setItem").mockImplementation(function(this: Storage, key, value) {
+    if (key === "between_us_guest_submissions") throw new Error("Storage full");
+    original.call(this, key, value);
+  });
+  try {
+    saveGuestSubmission(entry("server-copy"), "temporary");
+    expect(getGuestSubmissions().map(s => s.submissionId)).toEqual(["temporary"]);
+    expect(getGuestSubmission("temporary")?.result.resultId).toBe("temporary");
+  } finally { failing.mockRestore(); }
+});
 
 it("keeps browser-only results visible after an empty server refresh and opens their local report", async () => {
   saveGuestSubmission(entry("browser-only"));
@@ -78,7 +99,7 @@ it("offers only matching versions and depths for retake comparisons", async () =
   const self = entry("self"), matching = entry("matching", "2026-11-20T12:00:00Z");
   const different = entry("different", "2026-11-19T12:00:00Z");
   different.result = { ...different.result, assessmentVersion: "0.0.1" };
-  [self, matching, different].forEach(saveGuestSubmission);
+  [self, matching, different].forEach(s => saveGuestSubmission(s));
   window.history.replaceState({}, "", "/compare?view=history&a=self");
   render(React.createElement(CompareClient));
   const select = await screen.findByLabelText("Earlier attempt");

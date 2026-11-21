@@ -6,6 +6,22 @@ import { AssessmentArtwork } from "@/components/assessment/AssessmentArtwork";
 import { builtInAssessments } from "@/data/assessments/catalog";
 
 describe("AssessmentArtwork", () => {
+  it("gives repeated thumbnails independent gradient and filter targets", () => {
+    const { container } = render(React.createElement("div", null,
+      React.createElement(AssessmentArtwork, { slug: "bdsm-power-dynamics-test" }),
+      React.createElement(AssessmentArtwork, { slug: "bdsm-power-dynamics-test" }),
+    ));
+    const ids = Array.from(container.querySelectorAll("[id]")).map(node => node.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const svg of container.querySelectorAll("svg")) {
+      for (const node of svg.querySelectorAll("[fill], [stroke], [filter]")) {
+        for (const attr of ["fill", "stroke", "filter"]) {
+          const target = node.getAttribute(attr)?.match(/^url\(#(.+)\)$/)?.[1];
+          if (target) expect(Array.from(svg.querySelectorAll("[id]")).some(element => element.id === target)).toBe(true);
+        }
+      }
+    }
+  });
   it("renders distinct thematic artwork for all 20 active assessments", () => {
     expect(builtInAssessments).toHaveLength(20);
 

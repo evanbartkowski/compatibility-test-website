@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/lib/server/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import {
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
       idToken: z.string().min(32).max(8192),
       confirmation: z.literal("DELETE"),
     })
-    .safeParse(await req.json().catch(() => null));
+    .safeParse(await readJsonBody(req).catch(() => null));
   if (!body.success)
     return NextResponse.json(
       {

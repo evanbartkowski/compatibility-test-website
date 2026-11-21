@@ -1,3 +1,5 @@
+import { readJsonBody } from "@/lib/server/request-body";
+import { checkRateLimit } from "@/lib/server/rate-limit";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { brandConfig } from "@/config/brand";
@@ -29,7 +31,10 @@ const sendReportSchema = z.object({
 export async function POST(req: NextRequest) {
   const sessionKey = await getReadOnlySessionKey(req.headers.get("x-between-us-sid"));
   const uid = await getReadOnlyVerifiedUid(req);
-  const json = await req.json().catch(() => null);
+  if (!checkRateLimit(`email-report:${uid || sessionKey || req.headers.get("x-forwarded-for") || "local"}`, 10, 60 * 60_000).allowed) return NextResponse.json({ error: "Too many report emails. Try again later." }, { status: 429, headers: { "Retry-After": "3600" } });
+  const limit = checkRateLimit(`report-email:${uid || sessionKey || req.headers.get("x-forwarded-for") || "local"}`, 10, 60 * 60_000);
+  if (!limit.allowed) return NextResponse.json({ error: "Too many report emails. Try again later." }, { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } });
+  const json = await readJsonBody(req).catch(() => null);
   const parsed = sendReportSchema.safeParse(json);
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid email request parameters." }, { status: 400 });

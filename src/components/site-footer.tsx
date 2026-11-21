@@ -22,6 +22,7 @@ export function SiteFooter() {
             <Link href="/community">Community</Link>
             <Link href="/settings">Privacy & account</Link>
             <Link href="/privacy">Privacy notice</Link>
+            <Link href="/terms">Terms of use</Link>
           </nav>
         </div>
         <div className="footer-bottom">

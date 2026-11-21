@@ -23,6 +23,7 @@ import { useSavedResults } from "@/lib/assessment/use-saved-results";
 import { useOptionalAuth } from "@/components/auth/AuthProvider";
 import { PopulationComparison } from "@/components/compare/PopulationComparison";
 import { areHistoryResultsComparable } from "@/lib/assessment/definition";
+import { AssessmentArtwork } from "@/components/assessment/AssessmentArtwork";
 const Radar = dynamic(
   () =>
     import("@/components/charts/PreferenceRadarChart").then(
@@ -30,7 +31,7 @@ const Radar = dynamic(
     ),
   {
     loading: () => (
-      <div className="chart-placeholder" aria-label="Loading profile chart" />
+      <div className="chart-placeholder" role="img" aria-label="Loading profile chart" />
     ),
     ssr: false,
   },
@@ -500,6 +501,7 @@ export function ProfileDashboard({
                   onClick={() => setSelectedId(entry.submissionId)}
                 >
                   <span>
+                    <AssessmentArtwork slug={entry.assessmentSlug} variant="thumb" />
                     {entry.result.assessmentTitle || entry.assessmentSlug}
                   </span>
                   <small>
@@ -598,7 +600,7 @@ export function ProfileDashboard({
                     </h3>
                     {advice?.status === "ready" ? <div className="profile-advice-preview">
                       {advice.optimizations.slice(0, 1).map(item => <div key={item.id}><h4>{item.title}</h4><p>{item.body}</p></div>)}
-                      {advice.partnerTraits.slice(0, 1).map(item => <div key={item.id}><h4>A partner who fits you</h4><p>{item.body}</p></div>)}
+                      {advice.partnerTraits.slice(0, 1).map(item => <details key={item.id}><summary>What to look for in a partner</summary><p>{item.body}</p></details>)}
                       {advice.experiments.slice(0, 1).map(item => <details key={item.id}><summary>One thing to try: {item.title}</summary><p>{item.steps[0] || item.body}</p><p>{item.stopRule}</p></details>)}
                     </div> : <p className="mt-4">{advice?.status === "needs-more-answers" ? "Answer more questions to get advice based on your preferences." : selectedResult.groundedInsights[0] || selectedResult.profile.summaryParagraph}</p>}
                     <Link
@@ -630,16 +632,14 @@ export function ProfileDashboard({
                 <section className="profile-past-results comparison-panel mt-6" aria-labelledby="past-results-heading">
                   <div className="section-heading !mb-4"><h3 id="past-results-heading" className="font-display text-2xl">Past results</h3><Link href="/results" className="text-link">View all attempts</Link></div>
                   <ul>{submissions.slice(0, 5).map(entry => <li key={entry.submissionId}>
-                    <div><Link className="text-link" href={resultHref(entry)}>{entry.result.assessmentTitle || entry.assessmentSlug}</Link><p>{entry.result.profile.archetypeName} · {entry.result.mode === "quick" ? "Quick" : "Full"} · {formatShortDate(entry.createdAt)}</p></div>
+                    <div className="profile-attempt-art"><AssessmentArtwork slug={entry.assessmentSlug} variant="thumb" /><div><Link className="text-link" href={resultHref(entry)}>{entry.result.assessmentTitle || entry.assessmentSlug}</Link><p>{entry.result.profile.archetypeName} · {entry.result.mode === "quick" ? "Quick" : "Full"} · {formatShortDate(entry.createdAt)}</p></div></div>
                     <Link href={`/compare?view=history&a=${encodeURIComponent(entry.submissionId)}`} className="text-link">Compare attempt<span className="sr-only"> from {formatShortDate(entry.createdAt)}</span></Link>
                   </li>)}</ul>
                 </section>
-                <section className="comparison-panel mt-6">
+                <details className="profile-history comparison-panel mt-6" open={submissions.filter(s => areHistoryResultsComparable(s.result, selectedResult)).length > 1}>
+                  <summary className="font-display text-2xl">Your profile over time</summary>
                   <div className="section-heading !mb-4">
                     <div>
-                      <h3 className="font-display text-2xl">
-                        Your profile over time
-                      </h3>
                       <p>
                         Matching test version, scoring version, and question
                         depth only. Small changes can reflect ordinary
@@ -661,7 +661,7 @@ export function ProfileDashboard({
                           areHistoryResultsComparable(r, selectedResult),
                       )}
                   />
-                </section>
+                </details>
               </>
             )}
           </div>

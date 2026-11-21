@@ -1,6 +1,6 @@
 "use client";
 
-import { Check } from "lucide-react";
+
 
 interface ScaleLevel {
   label: string;
@@ -135,29 +135,13 @@ export function AgreementScale({
                     : "none",
                 }}
               >
-                <span
-                  className="agreement-indicator"
-                  aria-hidden="true"
-                  style={{
-                    backgroundColor: isSelected
-                      ? "rgba(255, 255, 255, 0.25)"
-                      : level.color,
-                    color: isSelected ? level.activeText : "#ffffff",
-                  }}
-                >
-                  {isSelected ? <Check size={13} strokeWidth={3} /> : index + 1}
-                </span>
                 <span className="agreement-label">{level.label}</span>
               </span>
             </label>
           );
         })}
       </div>
-      {selected ? (
-        <p className="agreement-selection" role="status">
-          Your answer: {SCALE_LEVELS[selected - 1].label}
-        </p>
-      ) : null}
+
     </fieldset>
   );
 }

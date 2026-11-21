@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/lib/server/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import {
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
   const { sessionKey, isNew } = await getOrCreateSessionKey(
     req.headers.get("x-between-us-sid"),
   );
-  const json = await req.json().catch(() => ({}));
+  const json = await readJsonBody(req).catch((): Record<string, unknown> => ({}));
   const parsed = claimSchema.safeParse(json);
   if (!parsed.success) {
     return NextResponse.json(

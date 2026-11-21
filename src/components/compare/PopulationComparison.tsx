@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { populationInterests, populationStudy } from "@/data/population-research";
+import { InterestArtwork } from "@/components/art/InterestArtwork";
 
 const STORAGE_KEY = "between_us_population_views_v1";
 type View = "appealing" | "not-appealing";
@@ -44,7 +45,7 @@ export function PopulationComparison({ compact = false }: { compact?: boolean })
       <div className="population-stat-grid">
         {populationInterests.slice(0, compact ? 3 : undefined).map(topic => (
           <article key={topic.id} aria-label={topic.label} className="population-stat">
-            <div className="population-stat-top"><h3>{topic.label}</h3><strong>{topic.appealing}%</strong></div>
+            <div className="population-stat-top"><div className="population-stat-topic"><InterestArtwork topic={topic.id} /><h3>{topic.label}</h3></div><strong>{topic.appealing}%</strong></div>
             <p>Found it somewhat or very appealing.</p>
             <div className="research-bar" aria-hidden="true"><i style={{ width: `${topic.appealing}%` }} /></div>
             {!compact && <>

@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import securityHeaders from "./security-headers.json";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
@@ -10,17 +11,9 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/:path*",
-        headers: [
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "Referrer-Policy", value: "no-referrer" },
-          { key: "X-Frame-Options", value: "DENY" },
-          {
-            key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=()",
-          },
-        ],
+        headers: Object.entries(securityHeaders).map(([key, value]) => ({ key, value: process.env.NODE_ENV === "development" && key === "Content-Security-Policy" ? value.replace("script-src 'self'", "script-src 'self' 'unsafe-eval'").replace("connect-src 'self'", "connect-src 'self' ws://localhost:* ws://127.0.0.1:*") : value })),
       },
-      ...["api", "profile", "settings", "shared", "studio", "admin"].map(
+      ...["api", "profile", "settings", "shared", "studio", "admin", "results", "compatibility", "invite", "feedback", "dashboard"].map(
         (path) => ({
           source: `/${path}/:path*`,
           headers: [

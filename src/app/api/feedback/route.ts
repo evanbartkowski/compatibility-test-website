@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/lib/server/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { getReadOnlyVerifiedUid } from "@/lib/server/firebase-auth";
 import { attachSessionCookie, getOrCreateSessionKey, getReadOnlySessionKey } from "@/lib/server/session";
@@ -24,7 +25,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const { sessionKey, isNew } = await getOrCreateSessionKey(req.headers.get("x-between-us-sid"));
   const uid = await getReadOnlyVerifiedUid(req);
-  const body = await req.json().catch(() => ({}));
+  const body = await readJsonBody(req).catch((): Record<string, unknown> => ({}));
   const submissionId = typeof body.submissionId === "string" ? body.submissionId : "";
   const displayName = typeof body.displayName === "string" ? body.displayName : "Someone close to you";
 

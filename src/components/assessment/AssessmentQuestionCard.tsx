@@ -192,14 +192,12 @@ export function AssessmentQuestionCard({
   number,
   perspective,
   onAnswer,
-  onSkip,
 }: {
   question: QuestionDefinition;
   answer?: QuestionAnswer;
   number: number;
   perspective: "primary" | "partner";
   onAnswer: (patch: Partial<QuestionAnswer>) => void;
-  onSkip: () => void;
 }) {
   const [showOptionalDetails, setShowOptionalDetails] = useState(false);
   const updateCurrentAnswer = onAnswer;
@@ -989,16 +987,6 @@ export function AssessmentQuestionCard({
         </div>
       )}
 
-      <div className="assessment-question-footer">
-        <button
-          type="button"
-          onClick={onSkip}
-          disabled={!!currentAnswer?.skipped}
-          aria-label={`Skip question ${number}`}
-        >
-          {currentAnswer?.skipped ? "Skipped" : "Skip question"}
-        </button>
-      </div>
     </article>
   );
 }

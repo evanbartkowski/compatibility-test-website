@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/lib/server/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { isAdminRequest } from "@/lib/server/admin-auth";
 import {
@@ -41,7 +42,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const body = await req.json();
+    const body = await readJsonBody(req);
     if (body.type === "unpublish_assessment") {
       if (typeof body.slug !== "string" || body.slug.length > 100)
         throw new Error("A valid assessment slug is required.");
@@ -49,6 +50,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ unpublished: true });
     }
     if (body.type === "editorial_update") {
+      if (body.editorialStatus !== "verified_readable" && body.editorialStatus !== "flagged_obscured") throw new Error("A valid editorial status is required.");
       const updated = updateEditorialAuditItem(
         String(body.chartId),
         body.editorialStatus,

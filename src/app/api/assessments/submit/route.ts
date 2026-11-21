@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/lib/server/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import {
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const body = await req.json();
+    const body = await readJsonBody(req);
     const parsed = submissionSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(

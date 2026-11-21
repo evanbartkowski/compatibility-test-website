@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     template: `%s · ${brandConfig.name}`,
   },
   description:
-    "Take the viral tests on SoulFlame: The BDSM Test, The Kink Test, The Sex Toy Test, The Love Compatibility Test, The IQ Test, The Friendship Test, Love Language, Sexual Desire, and 20 deep personality & relationship assessments. 100% free and private.",
+    "Explore 20 free personality, intimacy, and relationship reflections. Save your results privately and choose what to share.",
   keywords: [
     "SoulFlame",
     "soulflame",
@@ -79,7 +79,7 @@ export const metadata: Metadata = {
     siteName: "SoulFlame",
     title: "SoulFlame | Viral Tests: BDSM, Kink, IQ, Love & Compatibility",
     description:
-      "Take the viral tests on SoulFlame: BDSM, Kink, Love Compatibility, IQ, Friendship, Love Language, and 40 deep assessments.",
+      "Explore 20 personality, intimacy, and relationship reflections, with private results and optional sharing.",
     images: [
       {
         url: "/og-image.png",
@@ -93,7 +93,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "SoulFlame | Viral Tests: BDSM, Kink, IQ, Love & Compatibility",
     description:
-      "Take the viral tests on SoulFlame: BDSM, Kink, Love Compatibility, IQ, Friendship, and 40 relationship assessments.",
+      "Explore 20 personality, intimacy, and relationship reflections, with private results and optional sharing.",
     images: ["/og-image.png"],
   },
   icons: {

@@ -218,7 +218,7 @@ export function CompareClient({ initialSubmissions }: { initialSubmissions?: Sav
       {/* Header */}
       <div className="flex flex-col justify-between gap-4 border-b pb-6 sm:flex-row sm:items-end">
         <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-[var(--accent-plum)]/30 bg-[var(--accent-plum)]/10 px-3 py-1 text-xs font-medium text-[var(--accent-plum-contrast)]">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-[var(--accent-plum)]/30 bg-[var(--accent-plum)]/10 px-3 py-1 text-xs font-medium text-[var(--accent-plum)]">
             <GitCompare size={12} className="text-[var(--accent-plum)]" />
             <span>Your results in context</span>
           </div>
@@ -402,7 +402,7 @@ export function CompareClient({ initialSubmissions }: { initialSubmissions?: Sav
                   <ul className="mt-3 space-y-2 text-xs leading-relaxed text-[var(--ink-secondary)]">
                     {archetype.strengths.map((str) => (
                       <li key={str} className="flex gap-2">
-                        <span className="text-emerald-400">✓</span> {str}
+                        <Check size={14} className="shrink-0 text-emerald-400" aria-hidden="true" /> {str}
                       </li>
                     ))}
                   </ul>

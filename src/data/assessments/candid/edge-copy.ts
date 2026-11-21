@@ -4,7 +4,7 @@ export const liveNames: Record<string, { title: string; short: string; hook: str
   "big-five-personality-profile": {
     title: "The IQ Test",
     short: "The IQ Test",
-    hook: "Patterns, spatial reasoning, verbal logic, and processing speed under pressure.",
+    hook: "Explore your approach to patterns and reasoning. A reflection exercise, without a validated IQ score.",
   },
   "emotional-availability-reflection": {
     title: "The Friendship Test",

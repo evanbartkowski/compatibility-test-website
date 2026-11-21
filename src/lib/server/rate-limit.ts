@@ -3,6 +3,7 @@ interface RateEntry {
 }
 
 const buckets = new Map<string, RateEntry>();
+const MAX_BUCKETS = 5000;
 
 export function checkRateLimit(
   key: string,
@@ -10,7 +11,16 @@ export function checkRateLimit(
   windowMs = 60_000
 ): { allowed: boolean; remaining: number; retryAfterSeconds: number } {
   const now = Date.now();
+  key = key.slice(0, 512);
+  if (!buckets.has(key) && buckets.size >= MAX_BUCKETS) {
+    const oldestKey = buckets.keys().next().value;
+    if (oldestKey !== undefined) buckets.delete(oldestKey);
+  }
   const cutoff = now - windowMs;
+  if (!buckets.has(key) && buckets.size >= MAX_BUCKETS) {
+    const oldestKey = buckets.keys().next().value;
+    if (oldestKey !== undefined) buckets.delete(oldestKey);
+  }
   const entry = buckets.get(key) || { timestamps: [] };
   entry.timestamps = entry.timestamps.filter((t) => t > cutoff);
 

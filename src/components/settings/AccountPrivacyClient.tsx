@@ -11,12 +11,7 @@ import {
 import { useOptionalAuth } from "@/components/auth/AuthProvider";
 import { ConfirmAction } from "@/components/ConfirmAction";
 import type { UserPrivacyPreferences } from "@/lib/assessment/types";
-function clearDrafts() {
-  try {
-    for (const key of Object.keys(localStorage))
-      if (key.startsWith("between_us_draft_")) localStorage.removeItem(key);
-  } catch {}
-}
+import { clearPrivateBrowserData } from "@/lib/assessment/private-browser-data";
 export function AccountPrivacyClient({
   initialPrefs,
   initialSubmissionCount,
@@ -38,13 +33,11 @@ export function AccountPrivacyClient({
   const eraseData = async () => {
     const response = await fetch("/api/account/privacy", { method: "DELETE" });
     const ct = response.headers.get("content-type") || "";
-    if (ct.includes("application/json")) {
-      const data = await response.json().catch(() => null);
-      if (!response.ok && data)
-        throw new Error(data.error || "Unable to erase the data.");
-    }
-    clearDrafts();
+    if (!ct.includes("application/json")) throw new Error("Server deletion could not be confirmed. Reconnect and try again.");
+    const data = await response.json().catch(() => null);
+    if (!response.ok || data?.deleted !== true) throw new Error(data?.error || "Server deletion could not be confirmed.");
     setCounts({ submissions: 0, invitations: 0 });
+    if (!clearPrivateBrowserData()) throw new Error("Server data was erased, but local copies could not be removed. Clear this browser’s site data.");
     setStatus(
       "Saved results, private reports, related shared links and local drafts have been erased.",
     );
@@ -58,14 +51,13 @@ export function AccountPrivacyClient({
       body: JSON.stringify({ idToken, confirmation: "DELETE" }),
     });
     const ct = response.headers.get("content-type") || "";
-    if (ct.includes("application/json")) {
-      const data = await response.json().catch(() => null);
-      if (!response.ok && data)
-        throw new Error(data.error || "Unable to delete the account.");
-    }
-    clearDrafts();
+    if (!ct.includes("application/json")) throw new Error("Account deletion could not be confirmed. Reconnect and try again.");
+    const data = await response.json().catch(() => null);
+    if (!response.ok || data?.accountDeleted !== true) throw new Error(data?.error || "Account deletion could not be confirmed.");
+    const browserCleared = clearPrivateBrowserData();
     await auth.signOut();
     setCounts({ submissions: 0, invitations: 0 });
+    if (!browserCleared) throw new Error("Your account was deleted, but local copies could not be removed. Clear this browser’s site data.");
     setStatus(
       "Your account and saved app data were deleted. Existing account sessions have been revoked.",
     );
@@ -167,17 +159,17 @@ export function AccountPrivacyClient({
           </label>
           <button className="button button-primary mt-7" disabled={busy}>
             <Save size={15} />
-            {busy ? "Saving?" : "Save preferences"}
+            {busy ? "Saving…" : "Save preferences"}
           </button>
         </form>
         <section className="comparison-panel">
           <h2 className="font-display text-2xl">Your saved information</h2>
           <p className="mt-3">
-            {counts.submissions} saved attempts ? {counts.invitations}{" "}
+            {counts.submissions} saved attempts · {counts.invitations}{" "}
             invitations
           </p>
           <p className="!text-sm mt-4">
-            Guest results belong to this browser?s private cookie. An optional
+            Guest results belong to this browser’s private cookie. An optional
             account links them to your verified identity on this deployment.
             Drafts stay in this browser.
           </p>

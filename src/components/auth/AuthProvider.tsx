@@ -13,6 +13,7 @@ import dynamic from "next/dynamic";
 import type { User } from "firebase/auth";
 import type { AuthModalMode } from "./SignInModal";
 import { isFirebaseConfigured } from "@/lib/firebase/config";
+import { clearPrivateBrowserData } from "@/lib/assessment/private-browser-data";
 const SignInModal = dynamic(
   () => import("./SignInModal").then((module) => module.SignInModal),
   { ssr: false },
@@ -128,14 +129,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     pending.current?.abort();
     const response = await fetch("/api/account/session", { method: "DELETE" });
-    if (!response.ok) throw new Error("Sign-out could not finish. Try again.");
+    const data = response.headers.get("content-type")?.includes("application/json") ? await response.json().catch(() => null) : null;
+    if (!response.ok || data?.signedOut !== true) throw new Error("Sign-out could not be confirmed. Reconnect and try again.");
     const firebase = await import("@/lib/firebase/client");
     await firebase.signOutFirebase();
     synced.current = null;
     setUser(null);
     setSessionReady(false);
     setSessionError(null);
+    const cleared = clearPrivateBrowserData();
     router.refresh();
+    if (!cleared) throw new Error("Signed out. This browser could not remove private local copies; clear its site data.");
   }, [router]);
   return (
     <AuthContext.Provider

@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/lib/server/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { isAdminRequest } from "@/lib/server/admin-auth";
 import {
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
       { status: 429 },
     );
   try {
-    const body = await req.json(),
+    const body = await readJsonBody(req),
       assessment = parseAssessmentDefinition(body.assessment),
       answers = answersMapSchema.parse(body.answers);
     validateAssessmentAnswers(assessment, answers);

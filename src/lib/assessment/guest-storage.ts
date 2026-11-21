@@ -72,7 +72,7 @@ export function getGuestSubmission(submissionId: string): GuestSubmission | null
   return null;
 }
 
-export function saveGuestSubmission(submission: GuestSubmission): void {
+export function saveGuestSubmission(submission: GuestSubmission, replacesId?: string): void {
   if (typeof window === "undefined" || !submission) return;
   try {
     // Save individual key for fast O(1) lookup
@@ -82,7 +82,7 @@ export function saveGuestSubmission(submission: GuestSubmission): void {
     );
 
     // Save into aggregated list
-    const current = getGuestSubmissions();
+    const current = getGuestSubmissions().filter(s => !replacesId || replacesId === submission.submissionId || s.submissionId !== replacesId);
     const existingIndex = current.findIndex(
       (s) => s.submissionId === submission.submissionId,
     );
@@ -92,6 +92,9 @@ export function saveGuestSubmission(submission: GuestSubmission): void {
       current.unshift(submission);
     }
     window.localStorage.setItem(GUEST_SUBMISSIONS_KEY, JSON.stringify(current));
+    if (replacesId && replacesId !== submission.submissionId) {
+      window.localStorage.removeItem(`${SUBMISSION_PREFIX}${replacesId}`);
+    }
   } catch {
     // Storage quota or disabled
   }

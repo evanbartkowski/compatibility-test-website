@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/lib/server/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import {
   attachAdminCookie,
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Too many login attempts." }, { status: 429 });
   }
 
-  const body = await req.json().catch(() => ({}));
+  const body = await readJsonBody(req).catch((): Record<string, unknown> => ({}));
   const passphrase = typeof body.passphrase === "string" ? body.passphrase : "";
   if (!isAdminKeyConfigured()) {
     return NextResponse.json(
