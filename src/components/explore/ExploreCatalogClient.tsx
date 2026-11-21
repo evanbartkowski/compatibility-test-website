@@ -34,7 +34,12 @@ export function ExploreCatalogClient({
   useEffect(() => {
     const controller = new AbortController();
     fetch("/api/dashboard", { signal: controller.signal })
-      .then((r) => (r.ok ? r.json() : null))
+      .then(async (r) => {
+        const ct = r.headers.get("content-type") || "";
+        return r.ok && ct.includes("application/json")
+          ? r.json().catch(() => null)
+          : null;
+      })
       .then((d) => {
         const map: Record<string, string> = {};
         for (const sub of d?.submissions || [])

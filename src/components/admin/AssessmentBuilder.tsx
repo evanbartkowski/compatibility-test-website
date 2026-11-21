@@ -8,6 +8,7 @@ import type {
   QuestionDefinition,
   ScoredAssessmentResult,
 } from "@/lib/assessment/types";
+import { scoreAssessmentSubmission } from "@/lib/assessment/scoring";
 import { ConfirmAction } from "@/components/ConfirmAction";
 const Runner = dynamic(() =>
   import("@/components/assessment/AssessmentRunner").then(
@@ -931,19 +932,36 @@ export function AssessmentBuilder({
                     key={draft.slug + draft.version}
                     assessment={draft}
                     onPreviewSubmit={async (answers, mode) => {
-                      const response = await fetch("/api/studio/preview", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          assessment: draft,
-                          answers,
-                          mode,
-                        }),
+                      try {
+                        const response = await fetch("/api/studio/preview", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            assessment: draft,
+                            answers,
+                            mode,
+                          }),
+                        });
+                        const ct = response.headers.get("content-type") || "";
+                        if (ct.includes("application/json")) {
+                          const data = await response.json().catch(() => null);
+                          if (data?.result) {
+                            setPreviewResult(data.result);
+                            return;
+                          }
+                        }
+                      } catch {
+                        // Offline or static fallback
+                      }
+                      const scored = scoreAssessmentSubmission({
+                        resultId: "preview",
+                        assessment: draft,
+                        mode,
+                        perspective: "primary",
+                        answers,
+                        createdAt: new Date().toISOString(),
                       });
-                      const data = await response.json();
-                      if (!response.ok)
-                        throw new Error(data.error || "Preview failed.");
-                      setPreviewResult(data.result);
+                      setPreviewResult(scored);
                     }}
                   />
                 )}

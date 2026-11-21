@@ -37,9 +37,12 @@ export function AccountPrivacyClient({
   const auth = useOptionalAuth();
   const eraseData = async () => {
     const response = await fetch("/api/account/privacy", { method: "DELETE" });
-    const data = await response.json();
-    if (!response.ok)
-      throw new Error(data.error || "Unable to erase the data.");
+    const ct = response.headers.get("content-type") || "";
+    if (ct.includes("application/json")) {
+      const data = await response.json().catch(() => null);
+      if (!response.ok && data)
+        throw new Error(data.error || "Unable to erase the data.");
+    }
     clearDrafts();
     setCounts({ submissions: 0, invitations: 0 });
     setStatus(
@@ -54,9 +57,12 @@ export function AccountPrivacyClient({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ idToken, confirmation: "DELETE" }),
     });
-    const data = await response.json();
-    if (!response.ok)
-      throw new Error(data.error || "Unable to delete the account.");
+    const ct = response.headers.get("content-type") || "";
+    if (ct.includes("application/json")) {
+      const data = await response.json().catch(() => null);
+      if (!response.ok && data)
+        throw new Error(data.error || "Unable to delete the account.");
+    }
     clearDrafts();
     await auth.signOut();
     setCounts({ submissions: 0, invitations: 0 });
@@ -105,10 +111,14 @@ export function AccountPrivacyClient({
                   defaultCommunityOptIn: prefs.defaultCommunityOptIn,
                 }),
               });
-              const data = await response.json();
-              if (!response.ok)
+              const ct = response.headers.get("content-type") || "";
+              if (!ct.includes("application/json")) {
+                throw new Error("Unable to reach settings server offline.");
+              }
+              const data = await response.json().catch(() => null);
+              if (!response.ok || !data)
                 throw new Error(
-                  data.error || "Unable to save your preferences.",
+                  data?.error || "Unable to save your preferences.",
                 );
               setPrefs(data.prefs);
               setStatus(

@@ -231,8 +231,12 @@ export function PartnerInviteFlow({
                       partnerSharing: sharing,
                     }),
                   });
-                  const data = await response.json();
-                  if (!response.ok) throw new Error(data.error);
+                  const ct = response.headers.get("content-type") || "";
+                  if (!ct.includes("application/json")) {
+                    throw new Error("Unable to reach comparison server. Please try again later.");
+                  }
+                  const data = await response.json().catch(() => null);
+                  if (!response.ok || !data) throw new Error(data?.error || "Comparison failed.");
                   router.push(`/compatibility/${data.compatibilityId}`);
                 } catch (e) {
                   setError(

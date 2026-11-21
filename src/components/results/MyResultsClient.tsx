@@ -112,8 +112,8 @@ export function MyResultsClient({
       if (res.ok) {
         const contentType = res.headers.get("content-type") || "";
         if (contentType.includes("application/json")) {
-          const data = await res.json();
-          if (data.submissions) {
+          const data = await res.json().catch(() => null);
+          if (data?.submissions) {
             setSubmissions(data.submissions);
           }
         }

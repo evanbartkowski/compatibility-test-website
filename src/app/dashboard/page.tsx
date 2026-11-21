@@ -45,10 +45,13 @@ export default function PersonalDashboardPage() {
     setLoading(true);
     try {
       const res = await fetch("/api/dashboard");
-      if (res.ok) {
-        const data = await res.json();
-        setSubmissions(data.submissions || []);
-        setInvitations(data.invitations || []);
+      const ct = res.headers.get("content-type") || "";
+      if (res.ok && ct.includes("application/json")) {
+        const data = await res.json().catch(() => null);
+        if (data) {
+          setSubmissions(data.submissions || []);
+          setInvitations(data.invitations || []);
+        }
       }
     } finally {
       setLoading(false);

@@ -78,13 +78,16 @@ export function AdminConsoleClient({
       setAuthenticated(false);
       return;
     }
-    if (res.ok) {
-      const data = await res.json();
-      setAssessments(data.assessments || []);
-      setAuditItems(data.editorialAudit || []);
-      setTelemetry(data.telemetry || null);
-      setTemplates(data.emailTemplates || null);
-      setAuthenticated(true);
+    const ct = res.headers.get("content-type") || "";
+    if (res.ok && ct.includes("application/json")) {
+      const data = await res.json().catch(() => null);
+      if (data) {
+        setAssessments(data.assessments || []);
+        setAuditItems(data.editorialAudit || []);
+        setTelemetry(data.telemetry || null);
+        setTemplates(data.emailTemplates || null);
+        setAuthenticated(true);
+      }
     }
   };
 
@@ -104,12 +107,17 @@ export function AdminConsoleClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ passphrase }),
       });
-      const data = await res.json();
-      if (!res.ok) {
-        setAuthError(data.error || "Sign in failed.");
+      const ct = res.headers.get("content-type") || "";
+      if (!ct.includes("application/json")) {
+        setAuthError("Admin service is unavailable.");
       } else {
-        setPassphrase("");
-        setAuthenticated(true);
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data) {
+          setAuthError(data?.error || "Sign in failed.");
+        } else {
+          setPassphrase("");
+          setAuthenticated(true);
+        }
       }
     } finally {
       setSigningIn(false);
@@ -129,9 +137,12 @@ export function AdminConsoleClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ assessmentSlug: simSlug, preset: simPreset }),
       });
-      const data = await res.json();
-      if (res.ok && data.simulatedResult) {
-        setSimResult(data.simulatedResult);
+      const ct = res.headers.get("content-type") || "";
+      if (res.ok && ct.includes("application/json")) {
+        const data = await res.json().catch(() => null);
+        if (data?.simulatedResult) {
+          setSimResult(data.simulatedResult);
+        }
       }
     } finally {
       setSimLoading(false);

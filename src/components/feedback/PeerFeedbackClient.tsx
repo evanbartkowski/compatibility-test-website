@@ -65,9 +65,14 @@ export function PeerFeedbackClient({
           answers,
         }),
       });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Unable to submit feedback.");
+      const ct = res.headers.get("content-type") || "";
+      if (!ct.includes("application/json")) {
+        setError("Feedback service is temporarily offline.");
+        return;
+      }
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data) {
+        setError(data?.error || "Unable to submit feedback.");
       } else {
         setSubmittedState({
           respondentCount: data.respondentCount,

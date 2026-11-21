@@ -330,7 +330,13 @@ export function ResultsDashboard({
     fetch(`/api/results/${result.resultId}?${params.toString()}`, {
       signal: controller.signal,
     })
-      .then((r) => (r.ok ? r.json() : null))
+      .then(async (r) => {
+        const ct = r.headers.get("content-type") || "";
+        if (r.ok && ct.includes("application/json")) {
+          return r.json().catch(() => null);
+        }
+        return null;
+      })
       .then((data) => {
         if (data?.community && !controller.signal.aborted)
           setCommunity(data.community);
@@ -371,24 +377,30 @@ export function ResultsDashboard({
             peerDisplayName.trim() || "Someone who values your honesty",
         }),
       });
-      const data = await res.json();
+      const ct = res.headers.get("content-type") || "";
+      if (!res.ok || !ct.includes("application/json")) {
+        return;
+      }
+      const data = await res.json().catch(() => null);
+      if (!data) return;
       const resolvedUrl =
         typeof data.inviteUrl === "string"
           ? data.inviteUrl
           : typeof data.feedbackUrl === "string"
             ? `${typeof window !== "undefined" ? window.location.origin : ""}${data.feedbackUrl}`
             : null;
-      if (res.ok && resolvedUrl) {
+      if (resolvedUrl) {
         setPeerInviteUrl(resolvedUrl);
         // Refresh summary count
         const sumRes = await fetch(
           `/api/feedback?submissionId=${encodeURIComponent(result.resultId)}`,
         );
-        if (sumRes.ok) {
-          const sumJson = await sumRes.json();
+        const sumCt = sumRes.headers.get("content-type") || "";
+        if (sumRes.ok && sumCt.includes("application/json")) {
+          const sumJson = await sumRes.json().catch(() => null);
           if (sumJson?.summary) {
             setMultiRaterSummary(sumJson.summary);
-          } else {
+          } else if (sumJson) {
             setMultiRaterSummary(sumJson);
           }
         }

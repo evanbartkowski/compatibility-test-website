@@ -69,12 +69,12 @@ export function CommunityInsightsClient({
       datingPreference,
     });
     fetch(`/api/community?${params.toString()}`, { signal: controller.signal })
-      .then((r) => {
-        if (!r.ok)
-          throw new Error(
-            "Unable to load this cohort. Try another test or try again shortly.",
-          );
-        return r.json();
+      .then(async (r) => {
+        const ct = r.headers.get("content-type") || "";
+        if (!r.ok || !ct.includes("application/json")) {
+          return null;
+        }
+        return r.json().catch(() => null);
       })
       .then((data) => {
         if (data?.questions && !controller.signal.aborted) setPayload(data);

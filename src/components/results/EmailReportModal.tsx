@@ -36,7 +36,16 @@ export function EmailReportModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "request", email }),
       });
-      const data = await res.json();
+      const ct = res.headers.get("content-type") || "";
+      if (!ct.includes("application/json")) {
+        setStatusMsg("Email service is temporarily unavailable.");
+        return;
+      }
+      const data = await res.json().catch(() => null);
+      if (!data) {
+        setStatusMsg("Unable to process verification request.");
+        return;
+      }
       if (data.notConfigured) {
         setIsNotConfigured(true);
         setStatusMsg(data.error);
@@ -62,9 +71,14 @@ export function EmailReportModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "confirm", email, code }),
       });
-      const data = await res.json();
-      if (!res.ok) {
-        setStatusMsg(data.error || "Verification code did not match.");
+      const ct = res.headers.get("content-type") || "";
+      if (!ct.includes("application/json")) {
+        setStatusMsg("Email verification is temporarily unavailable.");
+        return;
+      }
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data) {
+        setStatusMsg(data?.error || "Verification code did not match.");
       } else {
         setStep("verified");
         setStatusMsg("Email verified! Choose your delivery mode and send.");
@@ -95,7 +109,16 @@ export function EmailReportModal({
           acknowledgePermanentAttachment: ackPermanent,
         }),
       });
-      const data = await res.json();
+      const ct = res.headers.get("content-type") || "";
+      if (!ct.includes("application/json")) {
+        setStatusMsg("Email service is temporarily unavailable.");
+        return;
+      }
+      const data = await res.json().catch(() => null);
+      if (!data) {
+        setStatusMsg("Failed to dispatch email.");
+        return;
+      }
       if (data.notConfigured) {
         setIsNotConfigured(true);
         setStatusMsg(data.error);

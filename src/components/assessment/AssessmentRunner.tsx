@@ -443,8 +443,8 @@ export function AssessmentRunner({
         if (res.ok) {
           const contentType = res.headers.get("content-type") || "";
           if (contentType.includes("application/json")) {
-            const data = await res.json();
-            if (data.submissionId) {
+            const data = await res.json().catch(() => null);
+            if (data?.submissionId) {
               finalSubmissionId = data.submissionId;
               saveGuestSubmission({
                 submissionId: data.submissionId,
@@ -458,7 +458,7 @@ export function AssessmentRunner({
                 answers,
               });
             }
-            if (data.compatibilityId) {
+            if (data?.compatibilityId) {
               finalCompatibilityId = data.compatibilityId;
             }
           }

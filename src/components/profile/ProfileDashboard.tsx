@@ -128,11 +128,19 @@ export function ProfileDashboard({
           selections: activeSelections,
         }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
+      const ct = response.headers.get("content-type") || "";
+      if (!ct.includes("application/json")) {
+        throw new Error("Profile sharing is unavailable offline.");
+      }
+      const data = await response.json().catch(() => null);
+      if (!response.ok || !data) throw new Error(data?.error || "Unable to create profile share.");
       setShareLink(`${location.origin}${data.path}`);
       const list = await fetch("/api/profile/shares");
-      if (list.ok) setShares((await list.json()).shares);
+      const listCt = list.headers.get("content-type") || "";
+      if (list.ok && listCt.includes("application/json")) {
+        const listData = await list.json().catch(() => null);
+        if (listData?.shares) setShares(listData.shares);
+      }
     } catch (e) {
       setError(
         e instanceof Error ? e.message : "Unable to create a shared profile.",

@@ -42,9 +42,13 @@ export function PartnerInviteModal({ resultId }: PartnerInviteModalProps) {
           creatorSharing: sharing,
         }),
       });
-      const data = await res.json();
-      if (!res.ok)
-        throw new Error(data.error || "Unable to create invitation.");
+      const ct = res.headers.get("content-type") || "";
+      if (!ct.includes("application/json")) {
+        throw new Error("Invitation service is currently offline or unreachable.");
+      }
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data)
+        throw new Error(data?.error || "Unable to create invitation.");
       const origin =
         typeof window !== "undefined" ? window.location.origin : "";
       setInviteUrl(`${origin}/invite/${data.token}`);

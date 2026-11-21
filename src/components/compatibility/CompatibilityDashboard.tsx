@@ -143,9 +143,10 @@ export function CompatibilityDashboard({
           ...payload,
         }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.report) setReport(data.report);
+      const ct = res.headers.get("content-type") || "";
+      if (res.ok && ct.includes("application/json")) {
+        const data = await res.json().catch(() => null);
+        if (data?.report) setReport(data.report);
       }
     } finally {
       setUpdatingBucket(false);
