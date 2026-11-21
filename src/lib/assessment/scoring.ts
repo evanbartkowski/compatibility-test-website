@@ -1,4 +1,5 @@
 import { brandConfig } from "@/config/brand";
+import { attachRoleRankings } from "./role-rankings";
 import { selectAssessmentQuestions } from "./definition";
 import { formatIntimacyAnswer, scoreIntimacyProfile } from "./intimacy-profile";
 import { attachPersonalizedAdvice } from "./advice";
@@ -2777,6 +2778,7 @@ export function scoreAssessmentSubmission(params: {
   if (strategy === "intimacy_profile") {
     const result = scoreIntimacyProfile({ ...params, createdAt });
     attachPersonalizedAdvice(result, params.assessment, params.answers);
+    attachRoleRankings(result, params.assessment, params.answers);
     return result;
   }
 
@@ -2911,6 +2913,7 @@ export function scoreAssessmentSubmission(params: {
     };
   }
   attachPersonalizedAdvice(result, params.assessment, params.answers);
+  attachRoleRankings(result, params.assessment, params.answers);
   return result;
 }
 

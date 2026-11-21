@@ -5,7 +5,7 @@ import { brandConfig } from "@/config/brand";
 export const metadata: Metadata = {
   title: `Compare Profiles & Relationship Compatibility | ${brandConfig.name}`,
   description:
-    "Compare past test attempts, measure erotic synergy with a partner, or simulate compatibility with archetypes. 100% private, no login required.",
+    "Compare your interests with sourced population research, see community averages, and review past test attempts.",
   keywords: [
     "compatibility test",
     "compare tests",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: `Compare Profiles & Relationship Compatibility | ${brandConfig.name}`,
     description:
-      "Compare past test attempts, measure erotic synergy with a partner, or simulate compatibility with archetypes. 100% private, no login required.",
+      "Explore population research, community averages, and your result history.",
     url: "https://truth-desire.web.app/compare",
     siteName: brandConfig.name,
     images: ["/og-image.png"],

@@ -1,5 +1,6 @@
 "use client";
 import { ArchetypeDistribution } from "@/components/community/ArchetypeDistribution";
+import { AssessmentArtwork } from "@/components/assessment/AssessmentArtwork";
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -92,6 +93,7 @@ const ShareableSummaryCard = dynamic(() =>
 );
 import { ResultsOverview, CommunityBenchmarks } from "./ResultsOverview";
 import { IntimacyInsights } from "./IntimacyInsights";
+import { RoleRankingList } from "./RoleRankingList";
 import { AdviceGuide } from "./AdviceGuide";
 import type { CommunityDimensionComparison } from "@/lib/assessment/community";
 import type {
@@ -626,6 +628,7 @@ export function ResultsDashboard({
       <ResultsOverview result={result} previousResult={previousResult} />
       <AdviceGuide result={result} />
       <IntimacyInsights result={result} />
+      <RoleRankingList result={result} />
       <details
         className="result-card-disclosure"
         onToggle={(event) => {
@@ -1893,6 +1896,13 @@ export function ResultsDashboard({
                       borderColor: "var(--border-hairline)",
                     }}
                   >
+                    <div className="mb-3 flex h-24 items-center justify-center overflow-hidden rounded-xl border border-[var(--border-hairline)] bg-[var(--bg-canvas)]">
+                      <AssessmentArtwork
+                        slug={rec.slug}
+                        category={rec.category}
+                        className="h-20 w-full"
+                      />
+                    </div>
                     <div className="flex items-center justify-between gap-2 text-xs text-[var(--ink-muted)]">
                       <span>{rec.category}</span>
                       <span className="font-mono-tabular">

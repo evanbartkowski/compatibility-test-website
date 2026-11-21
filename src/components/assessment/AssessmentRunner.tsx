@@ -27,6 +27,7 @@ import {
   Users,
 } from "lucide-react";
 import { brandConfig } from "@/config/brand";
+import { AssessmentArtwork } from "./AssessmentArtwork";
 import { scoreAssessmentSubmission } from "@/lib/assessment/scoring";
 import {
   generateGuestSubmissionId,
@@ -561,6 +562,15 @@ export function AssessmentRunner({
               boxShadow: "var(--shadow-soft)",
             }}
           >
+            <div className="assessment-consent-art mb-6 flex items-center justify-center overflow-hidden rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-canvas)] py-4">
+              <AssessmentArtwork
+                slug={assessment.slug}
+                category={assessment.category}
+                variant="banner"
+                className="h-28 w-full max-w-md"
+              />
+            </div>
+
             <div className="flex flex-wrap items-center gap-2 text-xs">
               {assessment.adultsOnly && (
                 <span

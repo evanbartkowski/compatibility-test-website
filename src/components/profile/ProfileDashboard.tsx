@@ -19,6 +19,10 @@ import type { ScoredAssessmentResult } from "@/lib/assessment/types";
 import type { ResultShareSelection } from "@/lib/assessment/sharing";
 import { formatShortDate } from "@/lib/utils";
 import { ConfirmAction } from "@/components/ConfirmAction";
+import { useSavedResults } from "@/lib/assessment/use-saved-results";
+import { useOptionalAuth } from "@/components/auth/AuthProvider";
+import { PopulationComparison } from "@/components/compare/PopulationComparison";
+import { areHistoryResultsComparable } from "@/lib/assessment/definition";
 const Radar = dynamic(
   () =>
     import("@/components/charts/PreferenceRadarChart").then(
@@ -59,7 +63,7 @@ const emptySelection = (): ResultShareSelection => ({
   allowSensitive: false,
 });
 export function ProfileDashboard({
-  submissions,
+  submissions: initialSubmissions,
   initialShares,
   libraryCount,
   currentLibrary,
@@ -71,6 +75,8 @@ export function ProfileDashboard({
 }) {
   const router = useRouter(),
     search = useSearchParams();
+  const { submissions, ready, serverIds, resultHref } = useSavedResults(initialSubmissions);
+  const { user, firebaseEnabled, openAuthModal } = useOptionalAuth();
   const latest = useMemo(() => {
     const map = new Map<string, Entry>();
     for (const s of submissions)
@@ -154,6 +160,7 @@ export function ProfileDashboard({
       scroll: false,
     });
   const selectedResult = selected?.result;
+  const advice = selectedResult?.advice;
   return (
     <div className="site-shell profile-page">
       <header className="profile-heading">
@@ -162,10 +169,9 @@ export function ProfileDashboard({
             <LockKeyhole size={13} />
             Your private space
           </span>
-          <h1 className="font-display">Your discovery profile.</h1>
+          <h1 className="font-display">My profile</h1>
           <p>
-            A clearer picture, built from your answers. Choose a test to explore
-            the patterns you’ve actually measured.
+            Your information, results, and a few useful next steps.
           </p>
         </div>
         <Link href="/explore" className="button button-primary">
@@ -186,8 +192,21 @@ export function ProfileDashboard({
           <History size={15} />
           All attempts
         </Link>
+        <Link href="/compare?view=population">Population comparison</Link>
       </div>
-      {!submissions.length ? (
+      {!sharing && <section className="profile-account-strip" aria-label="Your information">
+        <div><h2>{user?.displayName || (user ? "Your account" : "Guest profile")}</h2>
+          <p>{user?.email || "Your saved results are private to this browser session and device."}</p></div>
+        <dl>
+          <div><dt>Tests explored</dt><dd>{latest.length}</dd></div>
+          <div><dt>Saved attempts</dt><dd>{submissions.length}</dd></div>
+          <div><dt>Latest result</dt><dd>{submissions[0] ? formatShortDate(submissions[0].createdAt) : "No results yet"}</dd></div>
+        </dl>
+        {user ? <Link href="/settings" className="text-link">Account & privacy</Link>
+          : firebaseEnabled ? <button type="button" className="text-link" onClick={() => openAuthModal("register")}>Create an account</button>
+          : <Link href="/settings" className="text-link">Privacy settings</Link>}
+      </section>}
+      {!ready && !submissions.length ? <p role="status" className="py-8">Loading your saved results…</p> : !submissions.length ? (
         <section className="profile-empty">
           <div className="profile-empty-orbits" aria-hidden="true">
             <Fingerprint size={52} />
@@ -244,7 +263,7 @@ export function ProfileDashboard({
               </label>
             </div>
             <div className="share-selection-list">
-              {latest.map((entry) => {
+              {latest.filter(entry => serverIds.has(entry.submissionId)).map((entry) => {
                 const config =
                     selections[entry.submissionId] || emptySelection(),
                   sensitive =
@@ -325,12 +344,14 @@ export function ProfileDashboard({
                           I choose to share the selected sensitive result
                           fields.
                         </label>
-                      )}
-                    </div>
+      )}
+      {!sharing && <PopulationComparison compact />}
+    </div>
                   </details>
                 );
               })}
             </div>
+            {!latest.some(entry => serverIds.has(entry.submissionId)) && <p className="mt-4">Your results are saved on this device. A sharing link needs a result saved to the server.</p>}
             {error && (
               <p role="alert" className="form-error">
                 {error}
@@ -340,7 +361,7 @@ export function ProfileDashboard({
               type="button"
               className="button button-primary mt-6"
               onClick={createShare}
-              disabled={saving}
+              disabled={saving || !activeSelections.length}
             >
               {saving
                 ? "Creating private link…"
@@ -499,7 +520,7 @@ export function ProfileDashboard({
                       {selectedResult.assessmentTitle}
                     </span>
                     <Link
-                      href={`/results/${selectedResult.resultId}`}
+                      href={resultHref(selected!)}
                       className="text-link"
                     >
                       Open full result
@@ -523,7 +544,7 @@ export function ProfileDashboard({
                       />
                     </div>
                     <div className="profile-category-list">
-                      {selectedResult.radar.map((d) => (
+                      {selectedResult.radar.slice(0, 5).map((d) => (
                         <div key={d.dimension}>
                           <div className="snapshot-row-top">
                             <span>{d.label}</span>
@@ -539,7 +560,6 @@ export function ProfileDashboard({
                               }}
                             />
                           </div>
-                          {d.description && <p>{d.description}</p>}
                           {d.interpretation && (
                             <details className="profile-category-reading">
                               <summary>Read this category</summary>
@@ -565,33 +585,33 @@ export function ProfileDashboard({
                       ))}
                     </div>
                   </div>
+                  {selectedResult.radar.length > 5 && <Link href={resultHref(selected!)} className="text-link">View all {selectedResult.radar.length} categories</Link>}
                   <p className="profile-measurement-note">
-                    {selectedResult.answeredCount} answers · Assessment v
-                    {selectedResult.assessmentVersion} · Scoring v
-                    {selectedResult.scoringEngineVersion}. Scores describe
-                    tendencies, rather than a grade or a diagnosis.
+                    {selectedResult.answeredCount} answers · {selectedResult.mode === "quick" ? "Quick test" : "Full test"} · {formatShortDate(selected!.createdAt)}.
+                    {selectedResult.provisional ? " An early reading; more answers will give a clearer picture." : " Scores describe tendencies, not a grade."}
                   </p>
                 </section>
                 <div className="profile-insight-grid">
                   <section className="comparison-panel">
                     <h3 className="font-display text-2xl">
-                      What your answers suggest
+                      Advice for you
                     </h3>
-                    <p className="mt-4">
-                      {selectedResult.profile.summaryParagraph}
-                    </p>
+                    {advice?.status === "ready" ? <div className="profile-advice-preview">
+                      {advice.optimizations.slice(0, 1).map(item => <div key={item.id}><h4>{item.title}</h4><p>{item.body}</p></div>)}
+                      {advice.partnerTraits.slice(0, 1).map(item => <div key={item.id}><h4>A partner who fits you</h4><p>{item.body}</p></div>)}
+                      {advice.experiments.slice(0, 1).map(item => <details key={item.id}><summary>One thing to try: {item.title}</summary><p>{item.steps[0] || item.body}</p><p>{item.stopRule}</p></details>)}
+                    </div> : <p className="mt-4">{advice?.status === "needs-more-answers" ? "Answer more questions to get advice based on your preferences." : selectedResult.groundedInsights[0] || selectedResult.profile.summaryParagraph}</p>}
                     <Link
-                      href={`/results/${selectedResult.resultId}`}
+                      href={resultHref(selected!, "advice")}
                       className="text-link"
                     >
-                      See the answers behind your profile
+                      Read your full advice
                     </Link>
                   </section>
                   <section className="comparison-panel cyan">
-                    <h3 className="font-display text-2xl">A new perspective</h3>
+                    <h3 className="font-display text-2xl">Put your results in context</h3>
                     <p className="mt-4">
-                      Compare this measured profile with a partner or with a
-                      sufficiently large group of opted-in test takers.
+                      See how common an interest is, compare scores with test takers, or invite a partner.
                     </p>
                     <div className="flex flex-wrap gap-4 mt-6">
                       <Link className="text-link" href="/couples">
@@ -599,13 +619,21 @@ export function ProfileDashboard({
                       </Link>
                       <Link
                         className="text-link"
-                        href={`/results/${selectedResult.resultId}?tab=community`}
+                        href={`/compare?view=community&a=${encodeURIComponent(selected!.submissionId)}`}
                       >
-                        Community perspective
+                        Community averages
                       </Link>
+                      <Link className="text-link" href="/compare?view=population">Population statistics</Link>
                     </div>
                   </section>
                 </div>
+                <section className="profile-past-results comparison-panel mt-6" aria-labelledby="past-results-heading">
+                  <div className="section-heading !mb-4"><h3 id="past-results-heading" className="font-display text-2xl">Past results</h3><Link href="/results" className="text-link">View all attempts</Link></div>
+                  <ul>{submissions.slice(0, 5).map(entry => <li key={entry.submissionId}>
+                    <div><Link className="text-link" href={resultHref(entry)}>{entry.result.assessmentTitle || entry.assessmentSlug}</Link><p>{entry.result.profile.archetypeName} · {entry.result.mode === "quick" ? "Quick" : "Full"} · {formatShortDate(entry.createdAt)}</p></div>
+                    <Link href={`/compare?view=history&a=${encodeURIComponent(entry.submissionId)}`} className="text-link">Compare attempt<span className="sr-only"> from {formatShortDate(entry.createdAt)}</span></Link>
+                  </li>)}</ul>
+                </section>
                 <section className="comparison-panel mt-6">
                   <div className="section-heading !mb-4">
                     <div>
@@ -630,13 +658,7 @@ export function ProfileDashboard({
                       .map((s) => s.result)
                       .filter(
                         (r) =>
-                          r.assessmentSlug === selectedResult.assessmentSlug &&
-                          r.assessmentVersion ===
-                            selectedResult.assessmentVersion &&
-                          r.scoringEngineVersion ===
-                            selectedResult.scoringEngineVersion &&
-                          r.mode === selectedResult.mode &&
-                          r.perspective === selectedResult.perspective,
+                          areHistoryResultsComparable(r, selectedResult),
                       )}
                   />
                 </section>
@@ -645,6 +667,7 @@ export function ProfileDashboard({
           </div>
         </div>
       )}
+      {!sharing && <PopulationComparison compact />}
     </div>
   );
 }

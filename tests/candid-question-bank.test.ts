@@ -28,7 +28,9 @@ describe("Candid, specific published question banks", () => {
     expect(live.shortTitle).toBe("The BDSM Test");
     expect(previous.version).toBe("5.0.0");
     expect(previous.questions[0].id).not.toBe(live.questions[0].id);
-    expect(live.questions.filter((q) => /safeword|kneel|orgasm|scene|permission|collar/i.test(q.prompt)).length).toBeGreaterThanOrEqual(15);
+    expect(live.questions.filter((q) => /dominat|submissive|rope|CNC|sadist|impact/i.test(q.prompt)).length).toBeGreaterThanOrEqual(12);
+    expect(live.questions.some((q) => q.topicTags?.includes("role:dominant"))).toBe(true);
+    expect(live.questions.some((q) => /childlike|age-regress|ageplayer/i.test(q.prompt))).toBe(false);
     expect(getAssessmentBySlug("sexual-interests-curiosity-map")!.shortTitle).toBe("The Kink Test");
     expect(getAssessmentBySlug("relationship-dealbreakers-boundaries")!.shortTitle).toBe("The Icks Test");
     expect(getAssessmentBySlug("love-affection-preferences")!.shortTitle).toBe("The Love Language Test");

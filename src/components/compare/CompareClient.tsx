@@ -14,11 +14,12 @@ import {
   Sparkles,
   Zap,
 } from "lucide-react";
-import {
-  getGuestSubmissions,
-  type GuestSubmission,
-} from "@/lib/assessment/guest-storage";
 import { formatShortDate } from "@/lib/utils";
+import { compareRoleSets, type RoleScore } from "@/lib/assessment/role-rankings";
+import { useSavedResults, type SavedResultEntry } from "@/lib/assessment/use-saved-results";
+import { areHistoryResultsComparable } from "@/lib/assessment/definition";
+import { PopulationComparison } from "./PopulationComparison";
+import { CommunityAverages } from "./CommunityAverages";
 
 interface ArchetypePreset {
   id: string;
@@ -121,32 +122,25 @@ const ARCHETYPE_PRESETS: ArchetypePreset[] = [
   },
 ];
 
-export function CompareClient() {
-  const [submissions, setSubmissions] = useState<GuestSubmission[]>([]);
-  const [activeTab, setActiveTab] = useState<"history" | "partner" | "archetype">("archetype");
+export function CompareClient({ initialSubmissions }: { initialSubmissions?: SavedResultEntry[] } = {}) {
+  const { submissions, ready, serverIds } = useSavedResults(initialSubmissions);
+  const [activeTab, setActiveTab] = useState<"population" | "community" | "history" | "partner" | "archetype">("population");
   const [selectedSubA, setSelectedSubA] = useState<string>("");
   const [selectedSubB, setSelectedSubB] = useState<string>("");
   const [selectedArchetype, setSelectedArchetype] = useState<string>("primal-switch");
   const [partnerCodeInput, setPartnerCodeInput] = useState("");
   const [partnerComparisonResult, setPartnerComparisonResult] = useState<string | null>(null);
+  const [partnerCompare, setPartnerCompare] = useState<ReturnType<typeof compareRoleSets> | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
 
   useEffect(() => {
-    const list = getGuestSubmissions();
-    setSubmissions(list);
-    if (list.length >= 2) {
-      setSelectedSubA(list[0].submissionId);
-      setSelectedSubB(list[1].submissionId);
-      setActiveTab("history");
-    } else if (list.length === 1) {
-      setSelectedSubA(list[0].submissionId);
-    }
-
     // Check query params
     if (typeof window !== "undefined") {
       const sp = new URLSearchParams(window.location.search);
       const a = sp.get("a");
       const b = sp.get("b");
+      const view = sp.get("view");
+      if (["population", "community", "history", "partner", "archetype"].includes(view || "")) setActiveTab(view as typeof activeTab);
       if (a) setSelectedSubA(a);
       if (b) {
         setSelectedSubB(b);
@@ -160,10 +154,8 @@ export function CompareClient() {
     [submissions, selectedSubA],
   );
 
-  const subB = useMemo(
-    () => submissions.find((s) => s.submissionId === selectedSubB) || null,
-    [submissions, selectedSubB],
-  );
+  const comparable = subA ? submissions.filter(s => s.submissionId !== subA.submissionId && areHistoryResultsComparable(s.result, subA.result)) : [];
+  const historyB = comparable.find(s => s.submissionId === selectedSubB) || comparable[0] || null;
 
   const archetype = useMemo(
     () =>
@@ -179,36 +171,47 @@ export function CompareClient() {
     setTimeout(() => setCopiedLink(false), 2200);
   };
 
-  const handleParsePartnerCode = () => {
-    if (!partnerCodeInput.trim()) return;
-    try {
-      const parsed = JSON.parse(partnerCodeInput);
-      if (parsed.profile || parsed.dimensions || parsed.archetypeName) {
-        setPartnerComparisonResult("Partner report successfully imported! Compatibility score: 91%.");
-      } else {
-        setPartnerComparisonResult("Code verified: compatible submission token recognized. Compatibility score: 88%.");
-      }
-    } catch {
-      setPartnerComparisonResult("Valid partner test link verified! Shared alignment calculated at 89%.");
+  const handleParsePartnerCode = async () => {
+    const raw = partnerCodeInput.trim();
+    const id = raw.match(/sub_[A-Za-z0-9_-]{8,80}/)?.[0];
+    if (!id) {
+      setPartnerCompare(null);
+      setPartnerComparisonResult("Paste a result ID. A result ID is not a guessable score.");
+      return;
     }
+    const mine = subA?.result.roleRankings?.length
+      ? subA.result.roleRankings
+      : subA?.result.radar.map((d) => ({
+          key: d.dimension,
+          label: d.label,
+          group: "Your pattern",
+          percent: d.score,
+          answeredCount: d.answeredCount,
+          you: "",
+          try: [],
+        })) || [];
+    const res = await fetch(`/api/results/${id}/profile`);
+    if (!res.ok) {
+      setPartnerCompare(null);
+      setPartnerComparisonResult("That result ID was not found. They have to save the test first.");
+      return;
+    }
+    const data = await res.json();
+    const theirs = (data.roles || []) as RoleScore[];
+    if (mine.length === 0) {
+      setPartnerCompare(null);
+      setPartnerComparisonResult(`Found ${data.title}. Take or select your own saved result on this device to compare.`);
+      return;
+    }
+    const report = compareRoleSets(mine, theirs);
+    setPartnerCompare(report);
+    setPartnerComparisonResult(`${data.title}: fit ${report.score}%. ${report.summary}`);
   };
 
-  // Dimensions for Sub A or fallback
+  // Archetypes are authored examples, separate from personal measurements.
   const subADimensions = useMemo(() => {
-    if (!subA || !subA.result.radar || subA.result.radar.length === 0) {
-      return [
-        { label: "Sensual Touch & Intimacy", score: 86 },
-        { label: "Power & BDSM Dynamic", score: 78 },
-        { label: "Dirty Talk & Verbal Moaning", score: 82 },
-        { label: "Kink & Taboo Exploration", score: 74 },
-        { label: "Emotional Attachment", score: 88 },
-      ];
-    }
-    return subA.result.radar.map((d) => ({
-      label: d.label,
-      score: d.score,
-    }));
-  }, [subA]);
+    return Object.entries(archetype.scores).map(([label, score]) => ({ label, score }));
+  }, [archetype]);
 
   return (
     <div className="site-shell py-12 sm:py-16">
@@ -217,13 +220,13 @@ export function CompareClient() {
         <div>
           <div className="inline-flex items-center gap-1.5 rounded-full border border-[var(--accent-plum)]/30 bg-[var(--accent-plum)]/10 px-3 py-1 text-xs font-medium text-[var(--accent-plum-contrast)]">
             <GitCompare size={12} className="text-[var(--accent-plum)]" />
-            <span>Multi-Dimensional Compatibility Engine</span>
+            <span>Your results in context</span>
           </div>
           <h1 className="mt-3 font-display text-4xl tracking-tight text-[var(--ink-primary)] sm:text-5xl">
-            Compare Profiles & Chemistry
+            Compare
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--ink-secondary)]">
-            Compare your past test attempts, measure shared desire with a partner, or simulate erotic chemistry with curated archetypes. 100% private, no login required.
+            Explore population statistics, compare your test scores, or see what has changed over time.
           </p>
         </div>
 
@@ -234,21 +237,25 @@ export function CompareClient() {
       </div>
 
       {/* Tabs */}
-      <div className="mt-8 flex flex-wrap gap-2 rounded-2xl border bg-[var(--bg-elevated)] p-1.5" style={{ borderColor: "var(--border-hairline)" }}>
+      <div className="profile-nav comparison-nav" role="group" aria-label="Comparison views">
+        <button type="button" aria-pressed={activeTab === "population"} onClick={() => setActiveTab("population")}>General population</button>
+        <button type="button" aria-pressed={activeTab === "community"} onClick={() => setActiveTab("community")}>Community averages</button>
         <button
           type="button"
           onClick={() => setActiveTab("archetype")}
+          aria-pressed={activeTab === "archetype"}
           className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold transition-all ${
             activeTab === "archetype"
               ? "bg-[var(--accent-plum)] text-[var(--accent-plum-contrast)] shadow-lg"
               : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
           }`}
         >
-          <Sparkles size={14} /> Erotic Archetype Simulator
+          <Sparkles size={14} /> Example archetypes
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("history")}
+          aria-pressed={activeTab === "history"}
           className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold transition-all ${
             activeTab === "history"
               ? "bg-[var(--accent-plum)] text-[var(--accent-plum-contrast)] shadow-lg"
@@ -260,6 +267,7 @@ export function CompareClient() {
         <button
           type="button"
           onClick={() => setActiveTab("partner")}
+          aria-pressed={activeTab === "partner"}
           className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold transition-all ${
             activeTab === "partner"
               ? "bg-[var(--accent-plum)] text-[var(--accent-plum-contrast)] shadow-lg"
@@ -270,15 +278,25 @@ export function CompareClient() {
         </button>
       </div>
 
+      {activeTab === "population" && <PopulationComparison />}
+      {(activeTab === "community" || activeTab === "history" || activeTab === "partner") && <div className="comparison-result-select">
+        {submissions.length > 0 ? <label className="form-field">Your result
+          <select value={subA?.submissionId || ""} onChange={e => { setSelectedSubA(e.target.value); setSelectedSubB(""); }}>
+            {submissions.map(s => <option key={s.submissionId} value={s.submissionId}>{s.result.assessmentTitle} · {formatShortDate(s.createdAt)} · {s.result.mode === "quick" ? "Quick" : "Full"}</option>)}
+          </select>
+        </label> : <div className="comparison-notice"><p role="status">{ready ? "Take a test to compare your scores." : "Loading your results…"}</p><Link href="/explore" className="button button-primary mt-4">Find a test</Link></div>}
+      </div>}
+      {activeTab === "community" && subA && <CommunityAverages key={subA.submissionId} entry={subA} serverSaved={serverIds.has(subA.submissionId)} />}
+
       {/* TAB 1: ARCHETYPE SIMULATOR */}
       {activeTab === "archetype" && (
         <div className="mt-8 space-y-8">
           <div className="rounded-3xl border bg-[var(--bg-elevated)] p-6 sm:p-8" style={{ borderColor: "var(--border-hairline)" }}>
             <h2 className="font-display text-2xl text-[var(--ink-primary)]">
-              Simulate Chemistry with an Archetype
+              Explore example archetypes
             </h2>
             <p className="mt-1 text-xs text-[var(--ink-secondary)]">
-              Select an erotic personality to see how SoulFlame calculates bedroom chemistry, harmony zones, and friction points against your profile.
+              Authored illustrations of different preferences. These example scores do not measure your compatibility or the general population.
             </p>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -320,24 +338,24 @@ export function CompareClient() {
                   <div className="flex items-center gap-2">
                     <Flame className="h-5 w-5 text-rose-500 animate-pulse" />
                     <span className="text-xs font-bold tracking-wider text-rose-400 uppercase">
-                      Calculated Chemistry
+                      Example profile
                     </span>
                   </div>
                   <h3 className="mt-1 font-display text-3xl text-[var(--ink-primary)]">
-                    {subA ? subA.result.profile.archetypeName : "Your Profile"} × {archetype.name}
+                    {archetype.name}
                   </h3>
                   <p className="mt-1 text-sm text-[var(--ink-secondary)]">
-                    Dynamic synergy score based on give-and-receive preferences, pacing, and boundary tolerance.
+                    An illustration of preference patterns, separate from your measured results.
                   </p>
                 </div>
 
                 <div className="flex items-center gap-4 rounded-2xl border border-rose-500/20 bg-rose-500/10 px-6 py-4">
                   <div className="text-center">
                     <span className="font-display text-4xl font-extrabold text-rose-400">
-                      92%
+                      Example
                     </span>
                     <p className="text-[10px] tracking-wider text-rose-300 uppercase">
-                      Erotic Harmony
+                      Illustrative profile
                     </p>
                   </div>
                 </div>
@@ -346,18 +364,16 @@ export function CompareClient() {
               {/* Dimensional Comparison Grid */}
               <div className="mt-8 space-y-4 border-t pt-6" style={{ borderColor: "var(--border-hairline)" }}>
                 <h4 className="text-xs font-bold tracking-wider text-[var(--ink-muted)] uppercase">
-                  Dimensional Alignment Overlay
+                  Example preferences
                 </h4>
                 <div className="space-y-3">
-                  {subADimensions.slice(0, 5).map((dim, i) => {
-                    const archKeys = Object.keys(archetype.scores);
-                    const archScore = archetype.scores[archKeys[i % archKeys.length]] || 80;
+                  {subADimensions.slice(0, 5).map((dim) => {
                     return (
                       <div key={dim.label} className="space-y-1">
                         <div className="flex justify-between text-xs font-medium">
                           <span className="text-[var(--ink-primary)]">{dim.label}</span>
                           <span className="text-[var(--ink-muted)]">
-                            You: <strong className="text-[var(--ink-primary)]">{dim.score}%</strong> · Partner: <strong className="text-rose-400">{archScore}%</strong>
+                            Example score: <strong className="text-[var(--ink-primary)]">{dim.score}/100</strong>
                           </span>
                         </div>
                         <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-[var(--bg-subtle)]">
@@ -367,10 +383,6 @@ export function CompareClient() {
                             style={{ width: `${dim.score}%` }}
                           />
                           {/* Partner Marker */}
-                          <div
-                            className="absolute top-0 bottom-0 w-1.5 bg-rose-400 shadow-sm"
-                            style={{ left: `${archScore}%` }}
-                          />
                         </div>
                       </div>
                     );
@@ -428,31 +440,32 @@ export function CompareClient() {
               Select two completed tests to analyze how your answers and desires have evolved over time.
             </p>
 
-            {submissions.length < 2 ? (
+            {!comparable.length ? (
               <div className="mt-6 rounded-2xl border border-dashed p-8 text-center" style={{ borderColor: "var(--border-strong)" }}>
                 <p className="text-sm font-medium text-[var(--ink-primary)]">
-                  You need at least 2 completed assessments to compare your history.
+                  Retake the same test to compare your history.
                 </p>
                 <p className="mt-1 text-xs text-[var(--ink-secondary)]">
-                  Currently you have {submissions.length} saved assessment{submissions.length === 1 ? "" : "s"}.
+                  Comparisons need the same test version, depth, and scoring method.
                 </p>
                 <Link
                   href="/explore"
                   className="mt-4 inline-flex items-center gap-1.5 rounded-full px-5 py-2 text-xs font-semibold text-[var(--accent-plum-contrast)]"
                   style={{ backgroundColor: "var(--accent-plum)" }}
                 >
-                  Explore Viral Tests <ArrowRight size={13} />
+                  Explore tests <ArrowRight size={13} />
                 </Link>
               </div>
             ) : (
               <div className="mt-6 space-y-6">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="text-xs font-semibold text-[var(--ink-primary)]">
-                      First Result (Attempt A)
+                    <label htmlFor="history-first" className="text-xs font-semibold text-[var(--ink-primary)]">
+                      First result
                     </label>
                     <select
-                      value={selectedSubA}
+                      id="history-first"
+                      value={subA?.submissionId || ""}
                       onChange={(e) => setSelectedSubA(e.target.value)}
                       className="mt-2 w-full rounded-xl border bg-[var(--bg-canvas)] p-3 text-xs text-[var(--ink-primary)]"
                       style={{ borderColor: "var(--border-strong)" }}
@@ -466,17 +479,17 @@ export function CompareClient() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-semibold text-[var(--ink-primary)]">
-                      Second Result (Attempt B)
+                    <label htmlFor="history-second" className="text-xs font-semibold text-[var(--ink-primary)]">
+                      Earlier attempt
                     </label>
                     <select
-                      value={selectedSubB}
+                      id="history-second"
+                      value={historyB?.submissionId || ""}
                       onChange={(e) => setSelectedSubB(e.target.value)}
                       className="mt-2 w-full rounded-xl border bg-[var(--bg-canvas)] p-3 text-xs text-[var(--ink-primary)]"
                       style={{ borderColor: "var(--border-strong)" }}
                     >
-                      {submissions
-                        .filter((s) => s.submissionId !== selectedSubA)
+                      {comparable
                         .map((s) => (
                           <option key={s.submissionId} value={s.submissionId}>
                             {s.result.assessmentTitle} · {formatShortDate(s.createdAt)} ({s.result.profile.archetypeName})
@@ -486,7 +499,7 @@ export function CompareClient() {
                   </div>
                 </div>
 
-                {subA && subB && (
+                {subA && historyB && (
                   <div className="rounded-2xl border bg-[var(--bg-canvas)] p-6" style={{ borderColor: "var(--border-hairline)" }}>
                     <div className="flex flex-wrap items-center justify-between gap-4 border-b pb-4">
                       <div>
@@ -504,10 +517,10 @@ export function CompareClient() {
                       <div className="text-right">
                         <span className="text-xs text-[var(--ink-muted)]">Attempt B</span>
                         <h4 className="font-display text-xl text-[var(--ink-primary)]">
-                          {subB.result.profile.archetypeName}
+                          {historyB.result.profile.archetypeName}
                         </h4>
                         <span className="text-[11px] text-[var(--ink-secondary)]">
-                          {formatShortDate(subB.createdAt)} · {subB.result.assessmentTitle}
+                          {formatShortDate(historyB.createdAt)} · {historyB.result.assessmentTitle}
                         </span>
                       </div>
                     </div>
@@ -518,16 +531,17 @@ export function CompareClient() {
                         Score Trajectory Breakdown
                       </h4>
                       {(subA.result.radar || []).map((dimA) => {
-                        const dimB = (subB.result.radar || []).find((d) => d.label === dimA.label) || { score: dimA.score };
-                        const diff = dimB.score - dimA.score;
+                        const dimB = historyB.result.radar.find((d) => d.dimension === dimA.dimension);
+                        const measured = dimA.answeredCount > 0 && (dimB?.answeredCount || 0) > 0;
+                        const diff = measured ? dimA.score - dimB!.score : null;
                         return (
                           <div key={dimA.label} className="space-y-1">
                             <div className="flex justify-between text-xs">
                               <span className="font-medium text-[var(--ink-primary)]">{dimA.label}</span>
                               <span className="font-mono text-[var(--ink-secondary)]">
-                                A: {dimA.score}% → B: {dimB.score}%{" "}
-                                <span className={diff > 0 ? "text-emerald-400" : diff < 0 ? "text-rose-400" : "text-[var(--ink-muted)]"}>
-                                  ({diff > 0 ? `+${diff}%` : `${diff}%`})
+                                A: {dimA.answeredCount ? `${dimA.score}/100` : "Not measured"} · B: {dimB?.answeredCount ? `${dimB.score}/100` : "Not measured"}{" "}
+                                <span>
+                                  {diff === null ? "No measured change" : `${diff > 0 ? "+" : ""}${diff} points (A minus B)`}
                                 </span>
                               </span>
                             </div>
@@ -538,7 +552,7 @@ export function CompareClient() {
                               />
                               <div
                                 className="absolute top-0 bottom-0 left-0 bg-[var(--accent-cyan)]"
-                                style={{ width: `${dimB.score}%` }}
+                                style={{ width: `${measured ? dimB!.score : 0}%` }}
                               />
                             </div>
                           </div>
@@ -620,7 +634,13 @@ export function CompareClient() {
                   </button>
                   {partnerComparisonResult && (
                     <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-300">
-                      ✓ {partnerComparisonResult}
+                      {partnerComparisonResult}
+                      {partnerCompare && (
+                        <ul className="mt-2 space-y-1">
+                          {partnerCompare.complements.map((line) => <li key={line}>{line}</li>)}
+                          {partnerCompare.friction.map((line) => <li key={line}>{line}</li>)}
+                        </ul>
+                      )}
                     </div>
                   )}
                 </div>

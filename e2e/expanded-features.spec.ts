@@ -61,7 +61,7 @@ test("measured profile, selective public sharing, revocation, PNG export and del
   const id = await seed(page);
   await page.goto("/profile");
   await expect(
-    page.getByRole("heading", { name: "Your discovery profile." }),
+    page.getByRole("heading", { name: "My profile", exact: true }),
   ).toBeVisible();
   await expect(page.locator(".profile-category-list")).toContainText("%");
   await expect(page.locator(".profile-main")).not.toContainText(

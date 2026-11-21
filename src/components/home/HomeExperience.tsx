@@ -19,6 +19,24 @@ export function HomeExperience({
   const [moving, setMoving] = useState(false);
   const pointer = useRef({ x: 0, y: 0 });
   const { user, openAuthModal } = useOptionalAuth();
+  const [stats, setStats] = useState<string | null>(null);
+  useEffect(() => {
+    if (!user) {
+      setStats(null);
+      return;
+    }
+    const controller = new AbortController();
+    fetch("/api/dashboard", { signal: controller.signal })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        const latest = data?.submissions?.[0];
+        const roles = latest?.result?.roleRankings || latest?.result?.radar || [];
+        const top = roles.slice(0, 5).map((r: { label: string; percent?: number; score?: number }) => `${r.label} ${r.percent ?? r.score}%`);
+        setStats(top.length ? top.join(" · ") : null);
+      })
+      .catch(() => setStats(null));
+    return () => controller.abort();
+  }, [user]);
   useEffect(() => {
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => setMoving(!preference.matches);
@@ -67,6 +85,7 @@ export function HomeExperience({
                 </button>
               )}
             </div>
+            {stats && <p className="home-privacy-note">Your latest pattern: {stats}</p>}
             <p className="home-privacy-note">
               <LockKeyhole size={14} aria-hidden="true" />
               Private by default. Start as a guest.

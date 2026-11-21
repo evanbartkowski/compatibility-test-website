@@ -657,6 +657,15 @@ export interface ScoredAssessmentResult {
   groundedInsights: string[];
   growthReflections?: string[];
   whatYouAreInto?: WhatYouAreIntoSummary;
+  roleRankings?: Array<{
+    key: string;
+    label: string;
+    group: string;
+    percent: number;
+    answeredCount: number;
+    you: string;
+    try: string[];
+  }>;
   dimensionInteractions?: DimensionInteractionInsight[];
   idealPartner: IdealPartnerReport;
   dualChannelScores?: DualChannelScore[];

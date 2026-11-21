@@ -116,7 +116,16 @@ export function rankAssessmentRoles(
     }
   }
   const fromTags = [...buckets.entries()].map(([key, scores]) => {
-    const meta = ROLE_COPY[key] || copy(key, "Your pattern", `You keep scoring toward ${key}.`, ["Look at the items that raised this", "Say which part you would actually do"]);
+    const section = assessment.sections.find((s) => s.id === key);
+    const meta = ROLE_COPY[key] || copy(
+      section?.title || key,
+      "Your pattern",
+      `You keep landing on ${section?.title || key}. That is a pattern in your answers, not a task for a partner.`,
+      [
+        `Pick the ${section?.title || key} item you would actually do.`,
+        "Name the condition that keeps it hot, and the one that makes it a no.",
+      ],
+    );
     return {
       key,
       ...meta,

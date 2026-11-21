@@ -11,6 +11,7 @@ import { communicationRoleBanks } from "./communication-roles";
 import { agreementBanks } from "./agreements";
 import { fantasyBlueprintBanks } from "./fantasy-blueprint";
 import { applyLiveVoice } from "./edge-copy";
+import { bdsmBank } from "./bdsm-bank";
 
 const banks = {
   ...desireSenseBanks,
@@ -39,6 +40,23 @@ export function publishCandidRevision(
     )!;
     if (!prototype)
       throw new Error(`Missing question prototype: ${a.slug}/${section.id}`);
+    if (!intimacy && a.slug === "bdsm-power-dynamics-test") {
+      const items = bdsmBank[section.id];
+      if (!items) throw new Error(`Missing BDSM bank: ${section.id}`);
+      return items.map((item, index): QuestionDefinition => ({
+        ...prototype,
+        id: `${revision}-${section.id}-${index + 1}`,
+        order: ++order,
+        prompt: item.text,
+        partnerPrompt: item.text,
+        helperText: "Rate how true this is. A high score is desire, not consent. Skip is a real answer.",
+        quickDiscovery: index < 2,
+        reverseScored: Boolean(item.reverse),
+        dimensionWeights: { [section.id]: 1 },
+        topicTags: (item.roles || []).map((role) => `role:${role}`),
+        editorialNote: "First-person BDSM role item. Role tags drive the ranked percentages.",
+      }));
+    }
     if (!intimacy) {
       const statements = candidCore[a.slug]?.[section.id];
       if (!statements)
@@ -97,7 +115,7 @@ export function publishCandidRevision(
           intimacyRole: role,
           directionality: role === "receive" ? "receive_give" : "give_receive",
           complementaryPartnerId: `${revision}-${section.id}-${index + 1}-${role === "receive" ? "offer" : "receive"}`,
-          topicTags: [a.slug, section.id, role],
+          topicTags: [a.slug, section.id, role, `role:${section.id}`],
           dimensionWeights: { [section.id]: 1 },
           editorialNote:
             "Original specific adult preference; receiving and offering are independent channels.",

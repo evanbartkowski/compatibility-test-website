@@ -27,6 +27,7 @@ import type {
   ScoredAssessmentResult,
 } from "@/lib/assessment/types";
 import { formatShortDate } from "@/lib/utils";
+import { brandConfig } from "@/config/brand";
 
 interface SubmissionSummary {
   submissionId: string;
@@ -114,7 +115,29 @@ export function MyResultsClient({
         if (contentType.includes("application/json")) {
           const data = await res.json().catch(() => null);
           if (data?.submissions) {
-            setSubmissions(data.submissions);
+            const guestList = getGuestSubmissions();
+            setSubmissions(() => {
+              const map = new Map<string, SubmissionSummary>();
+              for (const s of data.submissions) map.set(s.submissionId, s);
+              for (const g of guestList) {
+                if (!map.has(g.submissionId)) {
+                  map.set(g.submissionId, {
+                    submissionId: g.submissionId,
+                    assessmentSlug: g.assessmentSlug,
+                    assessmentVersion: g.assessmentVersion,
+                    mode: g.mode,
+                    perspective: g.perspective,
+                    optInCommunityStats: g.optInCommunityStats,
+                    createdAt: g.createdAt,
+                    result: g.result,
+                  });
+                }
+              }
+              return Array.from(map.values()).sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+              );
+            });
           }
         }
       }
@@ -222,7 +245,7 @@ export function MyResultsClient({
               href={`/compare?a=${encodeURIComponent(viewingSub.submissionId)}`}
               className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-medium text-[var(--accent-plum)] hover:bg-[var(--accent-plum)]/10"
             >
-              <GitCompare size={13} /> Compare with Partner / Archetype
+              <GitCompare size={13} /> Compare results
             </Link>
             <span className="text-xs text-[var(--ink-muted)]">
               Stored Privately in Browser
@@ -235,10 +258,10 @@ export function MyResultsClient({
           initialOptIn={viewingSub.optInCommunityStats}
           initialCommunity={{
             items: [],
-            eligibleCohortParticipants: 120,
-            suppressedByPrivacyThreshold: false,
-            minimumThreshold: 3,
-            realOptedInCount: 120,
+            eligibleCohortParticipants: 0,
+            suppressedByPrivacyThreshold: true,
+            minimumThreshold: brandConfig.communityMinimumThreshold,
+            realOptedInCount: 0,
             isSyntheticDemo: false,
           }}
           assessmentMeta={{

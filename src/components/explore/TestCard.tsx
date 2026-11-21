@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Clock, Users } from "lucide-react";
 import type { CSSProperties } from "react";
 import type { AssessmentSummary } from "@/lib/assessment/catalog-summary";
+import { AssessmentArtwork } from "@/components/assessment/AssessmentArtwork";
 
 const categories = {
   romance: {
@@ -107,7 +108,7 @@ export function TestCard({
       style={{ "--card-accent": category.color } as CSSProperties}
     >
       <div className="test-card-art">
-        <ProfileGlyph kind={category.kind} />
+        <AssessmentArtwork slug={assessment.slug} category={assessment.category} />
         {featured && <span className="card-tag">Start here</span>}
         {assessment.adultsOnly && (
           <span className="mature-tag">Mature · 18+</span>

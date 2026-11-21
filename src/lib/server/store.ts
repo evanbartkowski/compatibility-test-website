@@ -1613,6 +1613,8 @@ export function getGlobalCommunityAggregates(params: {
 
   return {
     aggregates: res.aggregates,
+    assessmentVersion: assessment.version,
+    scoringEngineVersion: brandConfig.scoringEngineVersion,
     dimensions: categories.dimensions,
     archetypes: categories.archetypes,
     eligibleCohortParticipants: res.eligibleCohortParticipants,
