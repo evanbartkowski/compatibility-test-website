@@ -121,6 +121,21 @@ export function AssessmentRunner({
   const [draftStorageAvailable, setDraftStorageAvailable] = useState(true);
   const [draftWasUpgraded, setDraftWasUpgraded] = useState(false);
 
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const urlMode = params.get("mode");
+      if (
+        urlMode === "complete" ||
+        (urlMode === "quick" && assessment.supportsQuickMode !== false)
+      ) {
+        setMode(urlMode);
+      }
+    } catch {
+      // ignore in non-browser env
+    }
+  }, [assessment.supportsQuickMode]);
+
   // Restore saved draft if present
   useEffect(() => {
     try {

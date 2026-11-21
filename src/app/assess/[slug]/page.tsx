@@ -2,14 +2,16 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { consolidatedSlugRedirects } from "@/data/assessments/curated";
 import { brandConfig } from "@/config/brand";
-import {
-  resolveAssessment,
-  getUserPrivacyPreferences,
-} from "@/lib/server/store";
-import { getReadOnlySessionKey } from "@/lib/server/session";
-import { getReadOnlyVerifiedUid } from "@/lib/server/firebase-auth";
+import { resolveAssessment } from "@/lib/server/store";
 import { AssessmentRunner } from "@/components/assessment/AssessmentRunner";
 import type { AssessmentMode } from "@/lib/assessment/types";
+import { builtInAssessments } from "@/data/assessments/catalog";
+
+export const dynamic = "force-static";
+
+export function generateStaticParams() {
+  return builtInAssessments.map((a) => ({ slug: a.slug }));
+}
 
 export async function generateMetadata({
   params,
@@ -29,18 +31,13 @@ export async function generateMetadata({
 
 export default async function AssessPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ mode?: string }>;
 }) {
   const { slug } = await params;
-  const { mode } = await searchParams;
   const assessment = resolveAssessment(slug);
   if (!assessment && Object.hasOwn(consolidatedSlugRedirects, slug)) {
-    redirect(
-      `/assess/${consolidatedSlugRedirects[slug]}?mode=${mode === "complete" ? "complete" : "quick"}`,
-    );
+    redirect(`/assess/${consolidatedSlugRedirects[slug]}`);
   }
 
   if (
@@ -52,16 +49,12 @@ export default async function AssessPage({
   }
 
   const initialMode: AssessmentMode =
-    mode === "complete" ? "complete" : "quick";
+    assessment.supportsQuickMode === false ? "complete" : "quick";
   const previous =
     assessment.version === "4.0.0"
       ? resolveAssessment(assessment.slug, "3.0.0")
       : undefined;
 
-  const prefs = getUserPrivacyPreferences(
-    await getReadOnlySessionKey(),
-    await getReadOnlyVerifiedUid(),
-  );
   return (
     <AssessmentRunner
       assessment={assessment}
@@ -77,7 +70,7 @@ export default async function AssessPage({
           : undefined
       }
       initialMode={initialMode}
-      initialCommunityOptIn={prefs.defaultCommunityOptIn}
+      initialCommunityOptIn={false}
     />
   );
 }

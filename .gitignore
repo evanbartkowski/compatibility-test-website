@@ -1,6 +1,8 @@
 node_modules/
 .next/
 out/
+deploy-public/
+.firebase/
 .env*
 !.env.example
 *.tsbuildinfo

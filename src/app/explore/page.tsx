@@ -4,7 +4,6 @@ import { brandConfig } from "@/config/brand";
 import { builtInAssessments } from "@/data/assessments/catalog";
 import { listPublishedAssessments } from "@/lib/server/store";
 import { summarizeAssessment } from "@/lib/assessment/catalog-summary";
-export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: `Explore All ${builtInAssessments.length} Assessments | ${brandConfig.name}`,
