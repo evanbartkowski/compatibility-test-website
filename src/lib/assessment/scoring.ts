@@ -1,4 +1,7 @@
 import { brandConfig } from "@/config/brand";
+import { selectAssessmentQuestions } from "./definition";
+import { formatIntimacyAnswer, scoreIntimacyProfile } from "./intimacy-profile";
+import { attachPersonalizedAdvice } from "./advice";
 import type {
   AssessmentDefinition,
   AssessmentMode,
@@ -55,17 +58,21 @@ const CURIOSITY_LABELS: Record<CuriosityLevel, string> = {
   havent_considered: "Haven't Considered",
 };
 
-export function isNumericEnjoyment(val: EnjoymentResponse | undefined): val is 1 | 2 | 3 | 4 | 5 {
-  return typeof val === "number" && val >= 1 && val <= 5;
-}
-
-export function isNumericExperience(
-  val: ExperienceFrequencyResponse | undefined
+export function isNumericEnjoyment(
+  val: EnjoymentResponse | undefined,
 ): val is 1 | 2 | 3 | 4 | 5 {
   return typeof val === "number" && val >= 1 && val <= 5;
 }
 
-export function formatEnjoymentLabel(val: EnjoymentResponse | undefined): string {
+export function isNumericExperience(
+  val: ExperienceFrequencyResponse | undefined,
+): val is 1 | 2 | 3 | 4 | 5 {
+  return typeof val === "number" && val >= 1 && val <= 5;
+}
+
+export function formatEnjoymentLabel(
+  val: EnjoymentResponse | undefined,
+): string {
   switch (val) {
     case 1:
       return "Strongly dislike";
@@ -90,7 +97,9 @@ export function formatEnjoymentLabel(val: EnjoymentResponse | undefined): string
   }
 }
 
-export function formatImportanceLabel(importance: ImportanceLevel | undefined): string {
+export function formatImportanceLabel(
+  importance: ImportanceLevel | undefined,
+): string {
   switch (importance) {
     case "essential":
       return "Essential";
@@ -105,14 +114,17 @@ export function formatImportanceLabel(importance: ImportanceLevel | undefined): 
   }
 }
 
-export function formatCuriosityLabel(level: CuriosityLevel | undefined): string {
+export function formatCuriosityLabel(
+  level: CuriosityLevel | undefined,
+): string {
   return level ? CURIOSITY_LABELS[level] : "Unanswered";
 }
 
 export function formatAnswerDisplayLabel(
   q: QuestionDefinition,
-  ans: QuestionAnswer | undefined
+  ans: QuestionAnswer | undefined,
 ): string {
+  if (q.inputType === "intimacy_profile") return formatIntimacyAnswer(q, ans);
   if (!ans || ans.skipped) return "Skipped";
   if (ans.curiosityLevel) return formatCuriosityLabel(ans.curiosityLevel);
   if (ans.firmBoundary && q.inputType === "enjoyment_scale") {
@@ -137,7 +149,7 @@ export function formatAnswerDisplayLabel(
   if (ans.customValue !== undefined) {
     if (Array.isArray(ans.customValue)) {
       const labels = ans.customValue.map(
-        (v) => q.options?.find((o) => o.value === v)?.label || v
+        (v) => q.options?.find((o) => o.value === v)?.label || v,
       );
       return labels.length > 0 ? labels.join(", ") : "None selected";
     }
@@ -150,6 +162,23 @@ export function formatAnswerDisplayLabel(
         return `${ans.customValue} ${q.sliderConfig.unit}`;
       }
       if (q.scaleConfig) {
+        if (
+          q.scaleConfig.min === 1 &&
+          q.scaleConfig.max === 7 &&
+          q.scaleConfig.maxLabel === "Strongly agree"
+        ) {
+          return (
+            [
+              "Strongly disagree",
+              "Disagree",
+              "Somewhat disagree",
+              "Neither agree nor disagree",
+              "Somewhat agree",
+              "Agree",
+              "Strongly agree",
+            ][ans.customValue - 1] ?? String(ans.customValue)
+          );
+        }
         return `${ans.customValue} / ${q.scaleConfig.max}`;
       }
       return String(ans.customValue);
@@ -164,7 +193,7 @@ export function formatAnswerDisplayLabel(
 
 function getEffectiveRatingForScoring(
   _question: QuestionDefinition,
-  answer: QuestionAnswer
+  answer: QuestionAnswer,
 ): number | null {
   if (answer.skipped) return null;
   if (answer.firmBoundary) return 1;
@@ -180,7 +209,7 @@ function getEffectiveRatingForScoring(
 
 function normalizeQuestionAnswer0to100(
   q: QuestionDefinition,
-  ans: QuestionAnswer
+  ans: QuestionAnswer,
 ): number | null {
   if (ans.skipped) return null;
   if (ans.firmBoundary || ans.curiosityLevel === "firm_boundary") return 0;
@@ -231,22 +260,31 @@ export function shortenPromptLabel(prompt: string): string {
   return prompt
     .replace(
       /^How (much|important|strongly|deeply|central|open|firm|uncomfortable|disruptive|negatively) (do you|is it|are you|does|to|would)\s+/i,
-      ""
+      "",
     )
     .replace(/\?$/, "")
     .slice(0, 62)
     .trim();
 }
 
-function classifyQuadrant(enjoyment: number, experience: number): ScatterPoint["quadrant"] {
-  if (enjoyment >= 3.5 && experience <= 2.5) return "high_desire_low_experience";
-  if (enjoyment >= 3.5 && experience >= 3.0) return "high_desire_high_experience";
-  if (enjoyment <= 2.5 && experience >= 3.0) return "low_desire_high_experience";
+function classifyQuadrant(
+  enjoyment: number,
+  experience: number,
+): ScatterPoint["quadrant"] {
+  if (enjoyment >= 3.5 && experience <= 2.5)
+    return "high_desire_low_experience";
+  if (enjoyment >= 3.5 && experience >= 3.0)
+    return "high_desire_high_experience";
+  if (enjoyment <= 2.5 && experience >= 3.0)
+    return "low_desire_high_experience";
   if (enjoyment <= 2.5 && experience <= 2.5) return "low_desire_low_experience";
   return "neutral";
 }
 
-function hasAnyResponse(q: QuestionDefinition, ans: QuestionAnswer | undefined): boolean {
+function hasAnyResponse(
+  q: QuestionDefinition,
+  ans: QuestionAnswer | undefined,
+): boolean {
   if (!ans || ans.skipped) return false;
   if (ans.enjoyment === "prefer_not_to_answer") return false;
   if (ans.curiosityLevel !== undefined) return true;
@@ -257,7 +295,8 @@ function hasAnyResponse(q: QuestionDefinition, ans: QuestionAnswer | undefined):
     if (Array.isArray(ans.customValue)) {
       return q.inputType === "multi_select" ? true : ans.customValue.length > 0;
     }
-    if (typeof ans.customValue === "string") return ans.customValue.trim().length > 0;
+    if (typeof ans.customValue === "string")
+      return ans.customValue.trim().length > 0;
     return typeof ans.customValue === "number";
   }
   return false;
@@ -273,7 +312,7 @@ function prettifyDimensionKey(key: string): string {
 
 function buildDimensionLabelMap(
   assessment: AssessmentDefinition,
-  radarDimensions?: RadarDimensionScore[]
+  radarDimensions?: RadarDimensionScore[],
 ): Map<string, string> {
   const map = new Map<string, string>();
   for (const [k, v] of Object.entries(RADAR_LABELS)) {
@@ -291,7 +330,7 @@ function buildDimensionLabelMap(
 function getQuestionLinkedDimensions(
   q: QuestionDefinition,
   ans: QuestionAnswer | undefined,
-  dimLabelMap: Map<string, string>
+  dimLabelMap: Map<string, string>,
 ): IntoDimensionLink[] {
   const links = new Map<string, { label: string; weight: number }>();
 
@@ -308,7 +347,10 @@ function getQuestionLinkedDimensions(
     if (opt?.dimensionWeights) {
       for (const [dKey, rawW] of Object.entries(opt.dimensionWeights)) {
         if (!rawW) continue;
-        if (!links.has(dKey) || Math.abs(rawW) > Math.abs(links.get(dKey)!.weight)) {
+        if (
+          !links.has(dKey) ||
+          Math.abs(rawW) > Math.abs(links.get(dKey)!.weight)
+        ) {
           links.set(dKey, {
             label: dimLabelMap.get(dKey) || prettifyDimensionKey(dKey),
             weight: rawW,
@@ -326,7 +368,11 @@ function getQuestionLinkedDimensions(
   }
 
   return Array.from(links.entries())
-    .sort((a, b) => Math.abs(b[1].weight) - Math.abs(a[1].weight) || a[0].localeCompare(b[0]))
+    .sort(
+      (a, b) =>
+        Math.abs(b[1].weight) - Math.abs(a[1].weight) ||
+        a[0].localeCompare(b[0]),
+    )
     .slice(0, 4)
     .map(([dimension, info]) => ({
       dimension,
@@ -337,7 +383,7 @@ function getQuestionLinkedDimensions(
 
 function computeQaItemScore0to100(
   q: QuestionDefinition,
-  ans: QuestionAnswer
+  ans: QuestionAnswer,
 ): number | null {
   if (ans.skipped) return null;
   if (ans.firmBoundary || ans.curiosityLevel === "firm_boundary") return 0;
@@ -351,7 +397,11 @@ function computeQaItemScore0to100(
     return Math.round((ans.customValue.length / totalOpts) * 100);
   }
 
-  if (q.inputType === "ranking" && Array.isArray(ans.customValue) && ans.customValue.length > 0) {
+  if (
+    q.inputType === "ranking" &&
+    Array.isArray(ans.customValue) &&
+    ans.customValue.length > 0
+  ) {
     return 100;
   }
 
@@ -360,7 +410,8 @@ function computeQaItemScore0to100(
     if (opt?.dimensionWeights) {
       const vals = Object.values(opt.dimensionWeights);
       if (vals.length > 0) {
-        const avg = vals.reduce((sum, v) => sum + Math.max(0, v), 0) / vals.length;
+        const avg =
+          vals.reduce((sum, v) => sum + Math.max(0, v), 0) / vals.length;
         return Math.max(0, Math.min(100, Math.round(avg * 100)));
       }
     }
@@ -369,14 +420,17 @@ function computeQaItemScore0to100(
   return null;
 }
 
-function computeImpactMetric(directedScore0to100: number, absWeight: number): number {
+function computeImpactMetric(
+  directedScore0to100: number,
+  absWeight: number,
+): number {
   const extremity = 50 + Math.abs(Math.round(directedScore0to100) - 50);
   return Math.round(absWeight * extremity);
 }
 
 function determineProfileArchetype(
   radarMap: Record<RadarDimensionKey, number>,
-  buckets: ScoredAssessmentResult["buckets"]
+  buckets: ScoredAssessmentResult["buckets"],
 ): PersonalProfileSummary {
   const comm = radarMap.communication;
   const sens = radarMap.sensuality;
@@ -483,7 +537,7 @@ function buildGroundedInsights(
   assessment: AssessmentDefinition,
   answers: Record<string, QuestionAnswer>,
   unmetPreferences: UnmetPreferenceInsight[],
-  radarMap: Record<RadarDimensionKey, number>
+  radarMap: Record<RadarDimensionKey, number>,
 ): string[] {
   const insights: string[] = [];
 
@@ -498,15 +552,19 @@ function buildGroundedInsights(
   const checkIn = getNum("comm_verbal_checkin");
   const askBefore = getNum("comm_ask_preferences_before");
 
-  if (lead !== null && lead >= 4 && ((checkIn ?? 0) >= 4 || (askBefore ?? 0) >= 4)) {
+  if (
+    lead !== null &&
+    lead >= 4 &&
+    ((checkIn ?? 0) >= 4 || (askBefore ?? 0) >= 4)
+  ) {
     insights.push(
       `You rated a partner taking confident lead at ${lead}/5 alongside high verbal check-ins (${
         checkIn ?? askBefore
-      }/5): you thrive when direction feels bold yet safe.`
+      }/5): you thrive when direction feels bold yet safe.`,
     );
   } else if (selfLead !== null && selfLead >= 4 && lead !== null && lead >= 4) {
     insights.push(
-      `Both taking the lead (${selfLead}/5) and letting your partner lead (${lead}/5) appeal to you, pointing toward fluid Switch energy.`
+      `Both taking the lead (${selfLead}/5) and letting your partner lead (${lead}/5) appeal to you, pointing toward fluid Switch energy.`,
     );
   }
 
@@ -514,7 +572,7 @@ function buildGroundedInsights(
   const aftercare = getNum("pace_aftercare_affection");
   if ((extForeplay ?? 0) >= 4 && (aftercare ?? 0) >= 4) {
     insights.push(
-      `Extended foreplay (${extForeplay}/5) and unhurried aftercare (${aftercare}/5) both scored high: warm buildup and gentle landing afterward amplify the whole experience.`
+      `Extended foreplay (${extForeplay}/5) and unhurried aftercare (${aftercare}/5) both scored high: warm buildup and gentle landing afterward amplify the whole experience.`,
     );
   }
 
@@ -522,7 +580,7 @@ function buildGroundedInsights(
   const boundaryClarity = getNum("bound_boundary_clarity_requirement");
   if ((novel ?? 0) >= 4 && (boundaryClarity ?? 0) >= 4) {
     insights.push(
-      `Openness to trying new things (${novel}/5) is anchored by strong boundary clarity (${boundaryClarity}/5): trust first makes bolder play easy.`
+      `Openness to trying new things (${novel}/5) is anchored by strong boundary clarity (${boundaryClarity}/5): trust first makes bolder play easy.`,
     );
   }
 
@@ -530,14 +588,14 @@ function buildGroundedInsights(
   const mutualSat = getNum("comm_mutual_satisfaction_priority");
   if ((finishEarly ?? 0) >= 4 || (mutualSat ?? 0) >= 4) {
     insights.push(
-      "Mutual satisfaction is a clear non-negotiable in your answers: partners who stay engaged past their own climax earn deeper trust and heat."
+      "Mutual satisfaction is a clear non-negotiable in your answers: partners who stay engaged past their own climax earn deeper trust and heat.",
     );
   }
 
   if (unmetPreferences.length > 0) {
     const top = unmetPreferences[0];
     insights.push(
-      `Top untapped desire: "${shortenPromptLabel(top.prompt)}" (rated ${top.enjoymentScore}/5, experienced ${top.experienceScore}/5). Worth voicing directly next time.`
+      `Top untapped desire: "${shortenPromptLabel(top.prompt)}" (rated ${top.enjoymentScore}/5, experienced ${top.experienceScore}/5). Worth voicing directly next time.`,
     );
   }
 
@@ -547,16 +605,16 @@ function buildGroundedInsights(
         radarMap.mutualAttentiveness >= radarMap.sensuality
           ? `Mutual Attentiveness (${radarMap.mutualAttentiveness}/100)`
           : `Sensuality (${radarMap.sensuality}/100)`
-      } alongside Communication (${radarMap.communication}/100).`
+      } alongside Communication (${radarMap.communication}/100).`,
     );
   }
 
   const answered = Object.values(answers).filter(
-    (a) => !a.skipped && (a.enjoyment || a.firmBoundary)
+    (a) => !a.skipped && (a.enjoyment || a.firmBoundary),
   ).length;
   if (answered < assessment.questions.length && answered < 14) {
     insights.push(
-      "Complete mode unlocks finer weightings across niche acts and deeper partner matching."
+      "Complete mode unlocks finer weightings across niche acts and deeper partner matching.",
     );
   }
 
@@ -567,32 +625,32 @@ function buildIdealPartnerReport(
   assessment: AssessmentDefinition,
   answers: Record<string, QuestionAnswer>,
   buckets: ScoredAssessmentResult["buckets"],
-  radarMap: Record<RadarDimensionKey, number>
+  radarMap: Record<RadarDimensionKey, number>,
 ): IdealPartnerReport {
   const characteristics: string[] = [];
 
   if (radarMap.communication >= 65) {
     characteristics.push(
-      `Communicates openly before and after intimacy without defensiveness (matches your ${radarMap.communication}/100 Communication score).`
+      `Communicates openly before and after intimacy without defensiveness (matches your ${radarMap.communication}/100 Communication score).`,
     );
   }
   if (radarMap.mutualAttentiveness >= 65) {
     characteristics.push(
-      `Prioritizes your pleasure and comfort equally alongside their own (${radarMap.mutualAttentiveness}/100 Mutual Attentiveness).`
+      `Prioritizes your pleasure and comfort equally alongside their own (${radarMap.mutualAttentiveness}/100 Mutual Attentiveness).`,
     );
   }
   if (radarMap.sensuality >= 65) {
     characteristics.push(
-      `Values unhurried buildup, whole body touch, and close aftercare (${radarMap.sensuality}/100 Sensuality).`
+      `Values unhurried buildup, whole body touch, and close aftercare (${radarMap.sensuality}/100 Sensuality).`,
     );
   }
   if (radarMap.exploration >= 65) {
     characteristics.push(
-      `Enjoys exploring new fantasies and playful ideas at a mutual, relaxed pace (${radarMap.exploration}/100 Exploration).`
+      `Enjoys exploring new fantasies and playful ideas at a mutual, relaxed pace (${radarMap.exploration}/100 Exploration).`,
     );
   } else {
     characteristics.push(
-      "Values steady comfort and deepens what already works without pressuring unwanted novelty."
+      "Values steady comfort and deepens what already works without pressuring unwanted novelty.",
     );
   }
 
@@ -604,25 +662,30 @@ function buildIdealPartnerReport(
     (!isNumericEnjoyment(selfLeadAns) || selfLeadAns <= 3)
   ) {
     characteristics.push(
-      "Confidently steps into lead energy while staying closely tuned to your cues."
+      "Confidently steps into lead energy while staying closely tuned to your cues.",
     );
   } else if (isNumericEnjoyment(selfLeadAns) && selfLeadAns >= 4) {
     characteristics.push(
-      "Responds enthusiastically when you take charge, set tempo, or guide them."
+      "Responds enthusiastically when you take charge, set tempo, or guide them.",
     );
   }
 
-  const whatMattersMost = buckets.importantQualities.slice(0, 6).map((item) => ({
-    title: shortenPromptLabel(item.prompt),
-    detail: `Marked ${formatImportanceLabel(item.importance).toLowerCase()} with ${formatEnjoymentLabel(item.enjoyment).toLowerCase()}.`,
-    weight: item.importance,
-  }));
+  const whatMattersMost = buckets.importantQualities
+    .slice(0, 6)
+    .map((item) => ({
+      title: shortenPromptLabel(item.prompt),
+      detail: `Marked ${formatImportanceLabel(item.importance).toLowerCase()} with ${formatEnjoymentLabel(item.enjoyment).toLowerCase()}.`,
+      weight: item.importance,
+    }));
 
-  const earlyDatingSignals: Array<{ signal: string; conversationPrompt: string }> = [
+  const earlyDatingSignals: Array<{
+    signal: string;
+    conversationPrompt: string;
+  }> = [
     {
       signal: "Receptiveness to small preferences outside the bedroom",
       conversationPrompt:
-        "\"I relax fastest when we share honest preferences early. How do you usually like feedback?\"",
+        '"I relax fastest when we share honest preferences early. How do you usually like feedback?"',
     },
   ];
 
@@ -630,7 +693,7 @@ function buildIdealPartnerReport(
     earlyDatingSignals.push({
       signal: "Comfort with slow, tactile affection and unhurried pacing",
       conversationPrompt:
-        "\"What kind of pace feels most natural to you when physical chemistry starts building?\"",
+        '"What kind of pace feels most natural to you when physical chemistry starts building?"',
     });
   }
 
@@ -638,7 +701,7 @@ function buildIdealPartnerReport(
     earlyDatingSignals.push({
       signal: "Able to talk calmly about fantasies with zero pressure to rush",
       conversationPrompt:
-        "\"Are there curiosities you enjoy just fantasizing about out loud before deciding to try them?\"",
+        '"Are there curiosities you enjoy just fantasizing about out loud before deciding to try them?"',
     });
   }
 
@@ -679,17 +742,23 @@ function buildIdealPartnerReport(
 
   const communicationNeeds: string[] = [];
   if ((answers["comm_ask_preferences_before"]?.enjoyment as number) >= 4) {
-    communicationNeeds.push("Clear talk about likes and limits before heat escalates.");
+    communicationNeeds.push(
+      "Clear talk about likes and limits before heat escalates.",
+    );
   }
   if ((answers["comm_verbal_checkin"]?.enjoyment as number) >= 4) {
-    communicationNeeds.push("Warm verbal check-ins during new or intense moments.");
+    communicationNeeds.push(
+      "Warm verbal check-ins during new or intense moments.",
+    );
   }
   if ((answers["comm_feedback_after"]?.enjoyment as number) >= 4) {
-    communicationNeeds.push("Relaxed honesty afterward about what hit the mark.");
+    communicationNeeds.push(
+      "Relaxed honesty afterward about what hit the mark.",
+    );
   }
   if (communicationNeeds.length === 0) {
     communicationNeeds.push(
-      "Mutual respect for body cues, comfort shifts, and agreed firm limits."
+      "Mutual respect for body cues, comfort shifts, and agreed firm limits.",
     );
   }
 
@@ -733,7 +802,8 @@ function buildWhatYouAreInto(params: {
 
   const isIntimacyWeighted = assessment.scoringStrategy === "intimacy_weighted";
   const isRomanticOrIntimate =
-    assessment.category === "sexuality-intimacy" || assessment.category === "romance";
+    assessment.category === "sexuality-intimacy" ||
+    assessment.category === "romance";
   const isAttachmentTest = assessment.slug === "attachment-style-discovery";
   const isTriviaOrVote =
     assessment.scoringStrategy === "prediction_accuracy" ||
@@ -758,7 +828,8 @@ function buildWhatYouAreInto(params: {
     const ans = answers[q.id];
     if (!hasAnyResponse(q, ans)) continue;
 
-    const prompt = perspective === "partner" && q.partnerPrompt ? q.partnerPrompt : q.prompt;
+    const prompt =
+      perspective === "partner" && q.partnerPrompt ? q.partnerPrompt : q.prompt;
     const links = getQuestionLinkedDimensions(q, ans, dimLabelMap);
     const sc = computeQaItemScore0to100(q, ans);
     scoreByQuestionId.set(q.id, sc);
@@ -767,7 +838,10 @@ function buildWhatYouAreInto(params: {
     const imp: ImportanceLevel =
       ans.importance || (isIntimacyWeighted ? "nice_to_have" : "important");
 
-    const buildItem = (tag: IntoItemTag, detail?: string): IntoEvidenceItem => ({
+    const buildItem = (
+      tag: IntoItemTag,
+      detail?: string,
+    ): IntoEvidenceItem => ({
       questionId: q.id,
       shortLabel: shortenPromptLabel(prompt),
       prompt,
@@ -789,12 +863,15 @@ function buildWhatYouAreInto(params: {
     const isLimitFlag = Boolean(
       ans.firmBoundary ||
         ans.curiosityLevel === "firm_boundary" ||
-        ans.partnerWillingness === "firm_boundary"
+        ans.partnerWillingness === "firm_boundary",
     );
 
     // Boundaries-comfort on Test 1: rating 4-5 OR firmBoundary means strict avoid / limit
     if (q.sectionId === "boundaries-comfort") {
-      if (isLimitFlag || (isNumericEnjoyment(ans.enjoyment) && ans.enjoyment >= 4)) {
+      if (
+        isLimitFlag ||
+        (isNumericEnjoyment(ans.enjoyment) && ans.enjoyment >= 4)
+      ) {
         const detail = isLimitFlag
           ? "Firm boundary"
           : `Strong comfort limit (${ans.enjoyment}/5)`;
@@ -810,8 +887,14 @@ function buildWhatYouAreInto(params: {
       continue;
     }
 
-    if (ans.curiosityLevel === "curious_uncertain" || ans.enjoyment === "curious" || ans.partnerWillingness === "curious_to_explore") {
-      curiousExplorations.push(buildItem("curious", "Open to exploring with trust"));
+    if (
+      ans.curiosityLevel === "curious_uncertain" ||
+      ans.enjoyment === "curious" ||
+      ans.partnerWillingness === "curious_to_explore"
+    ) {
+      curiousExplorations.push(
+        buildItem("curious", "Open to exploring with trust"),
+      );
       intoTagByQuestionId.set(q.id, "curious");
       continue;
     }
@@ -824,13 +907,18 @@ function buildWhatYouAreInto(params: {
     if (
       ans.curiosityLevel === "not_interested" ||
       ans.partnerWillingness === "prefer_not_to" ||
-      (sc !== null && sc <= 25 && (isRomanticOrIntimate || isIntimacyWeighted) && !isAttachmentTest)
+      (sc !== null &&
+        sc <= 25 &&
+        (isRomanticOrIntimate || isIntimacyWeighted) &&
+        !isAttachmentTest)
     ) {
       dealbreakersAndLimits.push(
         buildItem(
           "limit",
-          ans.curiosityLevel === "not_interested" ? "Not interested" : "Low interest / prefer to avoid"
-        )
+          ans.curiosityLevel === "not_interested"
+            ? "Not interested"
+            : "Low interest / prefer to avoid",
+        ),
       );
       intoTagByQuestionId.set(q.id, "limit");
       continue;
@@ -840,11 +928,14 @@ function buildWhatYouAreInto(params: {
     const isAttachmentDistressItem =
       isAttachmentTest &&
       !q.reverseScored &&
-      ((q.dimensionWeights.anxiety ?? 0) > 0 || (q.dimensionWeights.avoidance ?? 0) > 0);
+      ((q.dimensionWeights.anxiety ?? 0) > 0 ||
+        (q.dimensionWeights.avoidance ?? 0) > 0);
 
     if (isAttachmentDistressItem) {
       if (sc !== null && sc >= 70) {
-        dealbreakersAndLimits.push(buildItem("limit", "Heightened sensitivity trigger"));
+        dealbreakersAndLimits.push(
+          buildItem("limit", "Heightened sensitivity trigger"),
+        );
         intoTagByQuestionId.set(q.id, "limit");
       }
       continue;
@@ -866,19 +957,33 @@ function buildWhatYouAreInto(params: {
       continue;
     }
 
-    if (q.inputType === "ranking" && Array.isArray(ans.customValue) && ans.customValue.length > 0) {
+    if (
+      q.inputType === "ranking" &&
+      Array.isArray(ans.customValue) &&
+      ans.customValue.length > 0
+    ) {
       const topValue = ans.customValue[0];
       const topOpt = q.options?.find((o) => o.value === topValue);
       coreTurnOns.push(
-        buildItem("turn_on", `Ranked #1 priority: ${topOpt?.label || topValue}`)
+        buildItem(
+          "turn_on",
+          `Ranked #1 priority: ${topOpt?.label || topValue}`,
+        ),
       );
       intoTagByQuestionId.set(q.id, "turn_on");
       continue;
     }
 
-    if (q.inputType === "multi_select" && Array.isArray(ans.customValue) && ans.customValue.length > 0) {
+    if (
+      q.inputType === "multi_select" &&
+      Array.isArray(ans.customValue) &&
+      ans.customValue.length > 0
+    ) {
       coreTurnOns.push(
-        buildItem("turn_on", `Selected ${ans.customValue.length} high-interest item${ans.customValue.length === 1 ? "" : "s"}`)
+        buildItem(
+          "turn_on",
+          `Selected ${ans.customValue.length} high-interest item${ans.customValue.length === 1 ? "" : "s"}`,
+        ),
       );
       intoTagByQuestionId.set(q.id, "turn_on");
       continue;
@@ -902,8 +1007,11 @@ function buildWhatYouAreInto(params: {
     const ans = answers[unmet.questionId];
     if (!q || !ans) continue;
     wantMoreIds.add(q.id);
-    const links = linksByQuestionId.get(q.id) || getQuestionLinkedDimensions(q, ans, dimLabelMap);
-    const prompt = perspective === "partner" && q.partnerPrompt ? q.partnerPrompt : q.prompt;
+    const links =
+      linksByQuestionId.get(q.id) ||
+      getQuestionLinkedDimensions(q, ans, dimLabelMap);
+    const prompt =
+      perspective === "partner" && q.partnerPrompt ? q.partnerPrompt : q.prompt;
     wantMoreOf.push({
       questionId: q.id,
       shortLabel: shortenPromptLabel(prompt),
@@ -925,7 +1033,8 @@ function buildWhatYouAreInto(params: {
     const ans = answers[q.id];
     if (!ans || ans.skipped || ans.desireDelta !== "want_more") continue;
     wantMoreIds.add(q.id);
-    const prompt = perspective === "partner" && q.partnerPrompt ? q.partnerPrompt : q.prompt;
+    const prompt =
+      perspective === "partner" && q.partnerPrompt ? q.partnerPrompt : q.prompt;
     wantMoreOf.push({
       questionId: q.id,
       shortLabel: shortenPromptLabel(prompt),
@@ -934,26 +1043,38 @@ function buildWhatYouAreInto(params: {
       answerLabel: formatAnswerDisplayLabel(q, ans),
       detail: "Explicitly marked as wanting more often",
       importance: ans.importance || "important",
-      score0to100: scoreByQuestionId.get(q.id) ?? computeQaItemScore0to100(q, ans),
+      score0to100:
+        scoreByQuestionId.get(q.id) ?? computeQaItemScore0to100(q, ans),
       desireDelta: "want_more",
       tag: "want_more",
       linkedDimensions:
-        linksByQuestionId.get(q.id) || getQuestionLinkedDimensions(q, ans, dimLabelMap),
+        linksByQuestionId.get(q.id) ||
+        getQuestionLinkedDimensions(q, ans, dimLabelMap),
     });
     intoTagByQuestionId.set(q.id, "want_more");
   }
 
   if (wantMoreOf.length === 0 && dualChannelScores) {
-    for (const ch of dualChannelScores.filter((d) => d.receiveOrNeedScore >= 68 && d.gap >= 15)) {
+    for (const ch of dualChannelScores.filter(
+      (d) => d.receiveOrNeedScore >= 68 && d.gap >= 15,
+    )) {
       const recDim = (assessment.dimensions || []).find(
-        (d) => d.channelPairKey === ch.channelKey && d.channelRole === "receive"
+        (d) =>
+          d.channelPairKey === ch.channelKey && d.channelRole === "receive",
       );
       if (!recDim) continue;
-      const linkedQ = modeQuestions.find((q) => (q.dimensionWeights[recDim.key] ?? 0) > 0 && hasAnyResponse(q, answers[q.id]));
+      const linkedQ = modeQuestions.find(
+        (q) =>
+          (q.dimensionWeights[recDim.key] ?? 0) > 0 &&
+          hasAnyResponse(q, answers[q.id]),
+      );
       if (!linkedQ || wantMoreIds.has(linkedQ.id)) continue;
       const ans = answers[linkedQ.id]!;
       wantMoreIds.add(linkedQ.id);
-      const prompt = perspective === "partner" && linkedQ.partnerPrompt ? linkedQ.partnerPrompt : linkedQ.prompt;
+      const prompt =
+        perspective === "partner" && linkedQ.partnerPrompt
+          ? linkedQ.partnerPrompt
+          : linkedQ.prompt;
       wantMoreOf.push({
         questionId: linkedQ.id,
         shortLabel: shortenPromptLabel(prompt),
@@ -974,19 +1095,20 @@ function buildWhatYouAreInto(params: {
   coreTurnOns.sort(
     (a, b) =>
       (b.score0to100 ?? 0) - (a.score0to100 ?? 0) ||
-      importanceRank[b.importance || "nice_to_have"] - importanceRank[a.importance || "nice_to_have"] ||
-      a.questionId.localeCompare(b.questionId)
+      importanceRank[b.importance || "nice_to_have"] -
+        importanceRank[a.importance || "nice_to_have"] ||
+      a.questionId.localeCompare(b.questionId),
   );
   wantMoreOf.sort(
     (a, b) =>
       (b.score0to100 ?? 0) - (a.score0to100 ?? 0) ||
-      a.questionId.localeCompare(b.questionId)
+      a.questionId.localeCompare(b.questionId),
   );
   dealbreakersAndLimits.sort(
     (a, b) =>
       (b.detail?.startsWith("Firm boundary") ? 1 : 0) -
         (a.detail?.startsWith("Firm boundary") ? 1 : 0) ||
-      a.questionId.localeCompare(b.questionId)
+      a.questionId.localeCompare(b.questionId),
   );
 
   // Derive Role or Dynamic Lean with direct question links
@@ -995,9 +1117,11 @@ function buildWhatYouAreInto(params: {
     const partnerLead = answers["dyn_partner_takes_lead"]?.enjoyment;
     const selfLead = answers["dyn_taking_lead_self"]?.enjoyment;
     const switchRole = answers["dyn_switching_roles"]?.enjoyment;
-    const linkedQuestionIds = ["dyn_partner_takes_lead", "dyn_taking_lead_self", "dyn_switching_roles"].filter(
-      (id) => Boolean(answers[id] && !answers[id].skipped)
-    );
+    const linkedQuestionIds = [
+      "dyn_partner_takes_lead",
+      "dyn_taking_lead_self",
+      "dyn_switching_roles",
+    ].filter((id) => Boolean(answers[id] && !answers[id].skipped));
     if (linkedQuestionIds.length > 0) {
       const pNum = isNumericEnjoyment(partnerLead) ? partnerLead : 3;
       const sNum = isNumericEnjoyment(selfLead) ? selfLead : 3;
@@ -1012,13 +1136,19 @@ function buildWhatYouAreInto(params: {
       }
       const parts: string[] = [];
       if (answers["dyn_partner_takes_lead"]) {
-        parts.push(`partner leading: ${formatAnswerDisplayLabel(modeQuestions.find((q) => q.id === "dyn_partner_takes_lead") || modeQuestions[0], answers["dyn_partner_takes_lead"])}`);
+        parts.push(
+          `partner leading: ${formatAnswerDisplayLabel(modeQuestions.find((q) => q.id === "dyn_partner_takes_lead") || modeQuestions[0], answers["dyn_partner_takes_lead"])}`,
+        );
       }
       if (answers["dyn_taking_lead_self"]) {
-        parts.push(`taking charge yourself: ${formatAnswerDisplayLabel(modeQuestions.find((q) => q.id === "dyn_taking_lead_self") || modeQuestions[0], answers["dyn_taking_lead_self"])}`);
+        parts.push(
+          `taking charge yourself: ${formatAnswerDisplayLabel(modeQuestions.find((q) => q.id === "dyn_taking_lead_self") || modeQuestions[0], answers["dyn_taking_lead_self"])}`,
+        );
       }
       if (answers["dyn_switching_roles"]) {
-        parts.push(`switching roles: ${formatAnswerDisplayLabel(modeQuestions.find((q) => q.id === "dyn_switching_roles") || modeQuestions[0], answers["dyn_switching_roles"])}`);
+        parts.push(
+          `switching roles: ${formatAnswerDisplayLabel(modeQuestions.find((q) => q.id === "dyn_switching_roles") || modeQuestions[0], answers["dyn_switching_roles"])}`,
+        );
       }
       roleOrDynamicLean = {
         label,
@@ -1031,17 +1161,27 @@ function buildWhatYouAreInto(params: {
     assessment.slug === "dominance-submission-initiative"
   ) {
     const domDim =
-      radar.find((r) => r.dimension === "dominance_top" || r.dimension === "initiative") ?? radar[0];
+      radar.find(
+        (r) => r.dimension === "dominance_top" || r.dimension === "initiative",
+      ) ?? radar[0];
     const subDim =
       radar.find(
-        (r) => r.dimension === "submission_bottom" || r.dimension === "receptive_surrender"
+        (r) =>
+          r.dimension === "submission_bottom" ||
+          r.dimension === "receptive_surrender",
       ) ?? radar[1];
     const swDim = radar.find(
-      (r) => r.dimension === "switch_versatility" || r.dimension === "switch_flexibility"
+      (r) =>
+        r.dimension === "switch_versatility" ||
+        r.dimension === "switch_flexibility",
     );
-    const linkedQuestionIds = ["bdsm_1", "bdsm_2", "bdsm_3", "bdsm_4", "bdsm_7"].filter((id) =>
-      Boolean(answers[id] && !answers[id].skipped)
-    );
+    const linkedQuestionIds = [
+      "bdsm_1",
+      "bdsm_2",
+      "bdsm_3",
+      "bdsm_4",
+      "bdsm_7",
+    ].filter((id) => Boolean(answers[id] && !answers[id].skipped));
     const dScore = domDim?.score ?? 50;
     const sScore = subDim?.score ?? 50;
     const swScore = swDim?.score ?? 50;
@@ -1064,20 +1204,26 @@ function buildWhatYouAreInto(params: {
       linkedQuestionIds:
         linkedQuestionIds.length > 0
           ? linkedQuestionIds
-          : radar.flatMap((r) => r.contributors.slice(0, 2).map((c) => c.questionId)).slice(0, 4),
+          : radar
+              .flatMap((r) =>
+                r.contributors.slice(0, 2).map((c) => c.questionId),
+              )
+              .slice(0, 4),
     };
   } else if (attachmentCoordinates) {
     roleOrDynamicLean = {
       label: attachmentCoordinates.quadrantLabel.split(" (")[0],
       detail: `Reassurance vigilance ${attachmentCoordinates.anxiety}/100, autonomy reflex ${attachmentCoordinates.avoidance}/100.`,
-      linkedQuestionIds: ["att_1", "att_6", "att_9", "att_11"].filter((id) => Boolean(answers[id])),
+      linkedQuestionIds: ["att_1", "att_6", "att_9", "att_11"].filter((id) =>
+        Boolean(answers[id]),
+      ),
     };
   } else if (dualChannelScores && dualChannelScores.length > 0) {
     const topRec = [...dualChannelScores].sort(
-      (a, b) => b.receiveOrNeedScore - a.receiveOrNeedScore
+      (a, b) => b.receiveOrNeedScore - a.receiveOrNeedScore,
     )[0];
     const topExp = [...dualChannelScores].sort(
-      (a, b) => b.expressOrOfferScore - a.expressOrOfferScore
+      (a, b) => b.expressOrOfferScore - a.expressOrOfferScore,
     )[0];
     roleOrDynamicLean = {
       label: `Craves ${topRec.label} · Gives ${topExp.label}`,
@@ -1095,21 +1241,21 @@ function buildWhatYouAreInto(params: {
       } cluster most heavily around ${coreTurnOns
         .slice(0, 2)
         .map((c) => c.linkedDimensions[0]?.label || c.sectionTitle)
-        .join(" and ")}.`
+        .join(" and ")}.`,
     );
   }
   if (wantMoreOf.length > 0) {
     styleSummary.push(
       `${wantMoreOf.length} high desire item${
         wantMoreOf.length === 1 ? " is" : "s are"
-      } marked as untapped or wanted more often, giving you instant clarity on what to invite next.`
+      } marked as untapped or wanted more often, giving you instant clarity on what to invite next.`,
     );
   }
   if (curiousExplorations.length > 0) {
     styleSummary.push(
       `${curiousExplorations.length} open curiosit${
         curiousExplorations.length === 1 ? "y sits" : "ies sit"
-      } ready for relaxed, honest conversation.`
+      } ready for relaxed, honest conversation.`,
     );
   }
   if (dealbreakersAndLimits.length > 0) {
@@ -1118,15 +1264,15 @@ function buildWhatYouAreInto(params: {
         dealbreakersAndLimits.length === 1
           ? " acts as a clear guardrail that stays"
           : "s act as clear guardrails that stay"
-      } protected in partner matching.`
+      } protected in partner matching.`,
     );
   }
   if (styleSummary.length === 0 && topDim) {
     styleSummary.push(
       `Your strongest theme is ${topDim.label} (${topDim.score}/100) across ${radar.reduce(
         (sum, r) => sum + r.answeredCount,
-        0
-      )} weighted signals.`
+        0,
+      )} weighted signals.`,
     );
   }
 
@@ -1164,17 +1310,21 @@ function buildDimensionInteractions(params: {
   const { assessment, radar, whatYouAreInto, dualChannelScores } = params;
   const activeDims = [...radar]
     .filter((d) => d.answeredCount > 0)
-    .sort((a, b) => b.score - a.score || a.dimension.localeCompare(b.dimension));
+    .sort(
+      (a, b) => b.score - a.score || a.dimension.localeCompare(b.dimension),
+    );
   const insights: DimensionInteractionInsight[] = [];
 
   const pickEvidence = (
     dim: RadarDimensionScore,
     limit = 2,
-    preferLow = false
+    preferLow = false,
   ): DimensionInteractionInsight["evidence"] => {
     const pool = preferLow
       ? [...dim.contributors].sort(
-          (a, b) => a.normalizedContribution - b.normalizedContribution || a.questionId.localeCompare(b.questionId)
+          (a, b) =>
+            a.normalizedContribution - b.normalizedContribution ||
+            a.questionId.localeCompare(b.questionId),
         )
       : dim.contributors;
     return pool.slice(0, limit).map((c) => ({
@@ -1186,7 +1336,7 @@ function buildDimensionInteractions(params: {
   };
 
   const dedupeEvidence = (
-    items: DimensionInteractionInsight["evidence"]
+    items: DimensionInteractionInsight["evidence"],
   ): DimensionInteractionInsight["evidence"] => {
     const seen = new Set<string>();
     return items.filter((it) => {
@@ -1206,9 +1356,16 @@ function buildDimensionInteractions(params: {
       summary: `Your two highest dimensions work side by side: ${first.label} (${first.score}/100) sets your primary pull while ${second.label} (${second.score}/100) shapes how it plays out in practice.`,
       dimensions: [
         { dimension: first.dimension, label: first.label, score: first.score },
-        { dimension: second.dimension, label: second.label, score: second.score },
+        {
+          dimension: second.dimension,
+          label: second.label,
+          score: second.score,
+        },
       ],
-      evidence: dedupeEvidence([...pickEvidence(first, 2), ...pickEvidence(second, 2)]),
+      evidence: dedupeEvidence([
+        ...pickEvidence(first, 2),
+        ...pickEvidence(second, 2),
+      ]),
     });
   }
 
@@ -1218,19 +1375,24 @@ function buildDimensionInteractions(params: {
     assessment.slug === "dominance-submission-initiative"
   ) {
     const dom = activeDims.find(
-      (d) => d.dimension === "dominance_top" || d.dimension === "initiative"
+      (d) => d.dimension === "dominance_top" || d.dimension === "initiative",
     );
     const sub = activeDims.find(
-      (d) => d.dimension === "submission_bottom" || d.dimension === "receptive_surrender"
+      (d) =>
+        d.dimension === "submission_bottom" ||
+        d.dimension === "receptive_surrender",
     );
     const care = activeDims.find(
-      (d) => d.dimension === "protocol_aftercare" || d.dimension === "bondage_sensation"
+      (d) =>
+        d.dimension === "protocol_aftercare" ||
+        d.dimension === "bondage_sensation",
     );
     if (dom && sub) {
       const gap = Math.abs(dom.score - sub.score);
       insights.push({
         id: "power-polarity",
-        title: gap >= 22 ? "Focused Power Polarity" : "Dual-Role Switch Contrast",
+        title:
+          gap >= 22 ? "Focused Power Polarity" : "Dual-Role Switch Contrast",
         summary:
           gap >= 22
             ? `Your ${dom.score - sub.score > 0 ? dom.label : sub.label} score runs ${gap} points higher, giving partners an unmistakable signal of which side of the dynamic excites you more.`
@@ -1238,7 +1400,15 @@ function buildDimensionInteractions(params: {
         dimensions: [
           { dimension: dom.dimension, label: dom.label, score: dom.score },
           { dimension: sub.dimension, label: sub.label, score: sub.score },
-          ...(care ? [{ dimension: care.dimension, label: care.label, score: care.score }] : []),
+          ...(care
+            ? [
+                {
+                  dimension: care.dimension,
+                  label: care.label,
+                  score: care.score,
+                },
+              ]
+            : []),
         ],
         evidence: dedupeEvidence([
           ...pickEvidence(dom, 2),
@@ -1253,12 +1423,19 @@ function buildDimensionInteractions(params: {
   if (whatYouAreInto.wantMoreOf.length > 0 && activeDims.length >= 1) {
     const topWant = whatYouAreInto.wantMoreOf[0];
     const linkedDimKey = topWant.linkedDimensions[0]?.dimension;
-    const matchedDim = activeDims.find((d) => d.dimension === linkedDimKey) || activeDims[0];
+    const matchedDim =
+      activeDims.find((d) => d.dimension === linkedDimKey) || activeDims[0];
     insights.push({
       id: "untapped-hunger",
       title: `Untapped Appetite Inside ${matchedDim.label}`,
       summary: `Even though ${matchedDim.label} sits at ${matchedDim.score}/100, "${topWant.shortLabel}" highlights a gap between what turns you on and how often you get it.`,
-      dimensions: [{ dimension: matchedDim.dimension, label: matchedDim.label, score: matchedDim.score }],
+      dimensions: [
+        {
+          dimension: matchedDim.dimension,
+          label: matchedDim.label,
+          score: matchedDim.score,
+        },
+      ],
       evidence: whatYouAreInto.wantMoreOf.slice(0, 3).map((w) => ({
         questionId: w.questionId,
         shortLabel: w.shortLabel,
@@ -1299,9 +1476,16 @@ function buildDimensionInteractions(params: {
         summary: `${top.score - bottom.score} points separate your peak pull (${top.label}: ${top.score}/100) from your quietest area (${bottom.label}: ${bottom.score}/100), showing clearly where your energy concentrates.`,
         dimensions: [
           { dimension: top.dimension, label: top.label, score: top.score },
-          { dimension: bottom.dimension, label: bottom.label, score: bottom.score },
+          {
+            dimension: bottom.dimension,
+            label: bottom.label,
+            score: bottom.score,
+          },
         ],
-        evidence: dedupeEvidence([...pickEvidence(top, 1), ...pickEvidence(bottom, 2, true)]),
+        evidence: dedupeEvidence([
+          ...pickEvidence(top, 1),
+          ...pickEvidence(bottom, 2, true),
+        ]),
       });
     }
   }
@@ -1317,16 +1501,18 @@ function scoreIntimacyWeighted(params: {
   answers: Record<string, QuestionAnswer>;
   createdAt: string;
 }): ScoredAssessmentResult {
-  const { resultId, assessment, mode, perspective, answers, createdAt } = params;
+  const { resultId, assessment, mode, perspective, answers, createdAt } =
+    params;
 
-  const modeQuestions =
-    mode === "quick"
-      ? assessment.questions.filter((q) => q.quickDiscovery)
-      : assessment.questions;
+  const modeQuestions = selectAssessmentQuestions(assessment, mode, answers);
 
   const dimensionTotals: Record<
     RadarDimensionKey,
-    { weightedSum: number; weightDenom: number; contributors: RadarDimensionScore["contributors"] }
+    {
+      weightedSum: number;
+      weightDenom: number;
+      contributors: RadarDimensionScore["contributors"];
+    }
   > = {
     communication: { weightedSum: 0, weightDenom: 0, contributors: [] },
     sensuality: { weightedSum: 0, weightDenom: 0, contributors: [] },
@@ -1356,7 +1542,9 @@ function scoreIntimacyWeighted(params: {
     const ans = answers[q.id];
     if (!ans || ans.skipped) continue;
     const hasMeaningfulAnswer =
-      ans.enjoyment !== undefined || ans.firmBoundary || ans.partnerWillingness !== undefined;
+      ans.enjoyment !== undefined ||
+      ans.firmBoundary ||
+      ans.partnerWillingness !== undefined;
     if (!hasMeaningfulAnswer) continue;
 
     if (ans.enjoyment !== "prefer_not_to_answer") {
@@ -1373,7 +1561,9 @@ function scoreIntimacyWeighted(params: {
       experienceFrequency: ans.experienceFrequency,
       ...(ans.desireDelta ? { desireDelta: ans.desireDelta } : {}),
       importance,
-      firmBoundary: Boolean(ans.firmBoundary || ans.partnerWillingness === "firm_boundary"),
+      firmBoundary: Boolean(
+        ans.firmBoundary || ans.partnerWillingness === "firm_boundary",
+      ),
       partnerWillingness: ans.partnerWillingness,
     };
 
@@ -1391,9 +1581,15 @@ function scoreIntimacyWeighted(params: {
 
     if (summary.firmBoundary) {
       buckets.firmBoundaries.push(summary);
-    } else if (ans.enjoyment === "curious" || ans.partnerWillingness === "curious_to_explore") {
+    } else if (
+      ans.enjoyment === "curious" ||
+      ans.partnerWillingness === "curious_to_explore"
+    ) {
       buckets.curiousAbout.push(summary);
-    } else if (ans.enjoyment === "depends" || ans.partnerWillingness === "depends_on_context") {
+    } else if (
+      ans.enjoyment === "depends" ||
+      ans.partnerWillingness === "depends_on_context"
+    ) {
       buckets.situational.push(summary);
     } else if (
       (isNumericEnjoyment(ans.enjoyment) && ans.enjoyment <= 2) ||
@@ -1422,12 +1618,14 @@ function scoreIntimacyWeighted(params: {
     const effective = getEffectiveRatingForScoring(q, ans);
     if (effective !== null) {
       const impWeight = IMPORTANCE_MULTIPLIER[importance];
-      for (const [dimKey, rawWeight] of Object.entries(q.dimensionWeights) as Array<
-        [RadarDimensionKey, number]
-      >) {
+      for (const [dimKey, rawWeight] of Object.entries(
+        q.dimensionWeights,
+      ) as Array<[RadarDimensionKey, number]>) {
         if (!rawWeight || !dimensionTotals[dimKey]) continue;
         const normalized0to100 =
-          rawWeight >= 0 ? ((effective - 1) / 4) * 100 : ((5 - effective) / 4) * 100;
+          rawWeight >= 0
+            ? ((effective - 1) / 4) * 100
+            : ((5 - effective) / 4) * 100;
         const absW = Math.abs(rawWeight) * impWeight;
         dimensionTotals[dimKey].weightedSum += normalized0to100 * absW;
         dimensionTotals[dimKey].weightDenom += absW;
@@ -1446,10 +1644,15 @@ function scoreIntimacyWeighted(params: {
 
     if (isNumericEnjoyment(ans.enjoyment)) {
       if (isNumericExperience(ans.experienceFrequency)) {
-        const quadrant = classifyQuadrant(ans.enjoyment, ans.experienceFrequency);
+        const quadrant = classifyQuadrant(
+          ans.enjoyment,
+          ans.experienceFrequency,
+        );
         scatterPoints.push({
           questionId: q.id,
-          shortLabel: shortenPromptLabel(perspective === "partner" ? q.partnerPrompt : q.prompt),
+          shortLabel: shortenPromptLabel(
+            perspective === "partner" ? q.partnerPrompt : q.prompt,
+          ),
           prompt: perspective === "partner" ? q.partnerPrompt : q.prompt,
           sectionId: q.sectionId,
           sectionTitle: q.sectionTitle,
@@ -1462,7 +1665,8 @@ function scoreIntimacyWeighted(params: {
 
         if (
           q.sectionId !== "boundaries-comfort" &&
-          ((ans.enjoyment >= 4 && ans.experienceFrequency <= 2) || ans.desireDelta === "want_more")
+          ((ans.enjoyment >= 4 && ans.experienceFrequency <= 2) ||
+            ans.desireDelta === "want_more")
         ) {
           unmetPreferences.push({
             questionId: q.id,
@@ -1475,10 +1679,10 @@ function scoreIntimacyWeighted(params: {
             message:
               ans.desireDelta === "want_more"
                 ? `Rated "${shortenPromptLabel(
-                    perspective === "partner" ? q.partnerPrompt : q.prompt
+                    perspective === "partner" ? q.partnerPrompt : q.prompt,
                   )}" positively (${ans.enjoyment}/5) and marked wanting more of it.`
                 : `Rated "${shortenPromptLabel(
-                    perspective === "partner" ? q.partnerPrompt : q.prompt
+                    perspective === "partner" ? q.partnerPrompt : q.prompt,
                   )}" positively (${ans.enjoyment}/5) while experiencing it rarely (${ans.experienceFrequency}/5). Worth asking for openly.`,
           });
         }
@@ -1502,46 +1706,64 @@ function scoreIntimacyWeighted(params: {
     return importanceRank[b.importance] - importanceRank[a.importance];
   });
   buckets.importantQualities.sort(
-    (a, b) => importanceRank[b.importance] - importanceRank[a.importance]
+    (a, b) => importanceRank[b.importance] - importanceRank[a.importance],
   );
   unmetPreferences.sort(
-    (a, b) => b.enjoymentScore - a.enjoymentScore || a.experienceScore - b.experienceScore
+    (a, b) =>
+      b.enjoymentScore - a.enjoymentScore ||
+      a.experienceScore - b.experienceScore,
   );
 
-  const radar: RadarDimensionScore[] = (Object.keys(RADAR_LABELS) as RadarDimensionKey[]).map(
-    (dim) => {
-      const bucket = dimensionTotals[dim];
-      const score =
-        bucket.weightDenom > 0 ? Math.round(bucket.weightedSum / bucket.weightDenom) : 50;
-      const sortedContributors = [...bucket.contributors].sort(
-        (a, b) => (b.weightedImpact ?? 0) - (a.weightedImpact ?? 0) || a.questionId.localeCompare(b.questionId)
-      );
-      return {
-        dimension: dim,
-        label: RADAR_LABELS[dim],
-        score: Math.max(0, Math.min(100, score)),
-        answeredCount: sortedContributors.length,
-        contributors: sortedContributors,
-      };
-    }
-  );
+  const radar: RadarDimensionScore[] = (
+    Object.keys(RADAR_LABELS) as RadarDimensionKey[]
+  ).map((dim) => {
+    const bucket = dimensionTotals[dim];
+    const score =
+      bucket.weightDenom > 0
+        ? Math.round(bucket.weightedSum / bucket.weightDenom)
+        : 50;
+    const sortedContributors = [...bucket.contributors].sort(
+      (a, b) =>
+        (b.weightedImpact ?? 0) - (a.weightedImpact ?? 0) ||
+        a.questionId.localeCompare(b.questionId),
+    );
+    return {
+      dimension: dim,
+      label: RADAR_LABELS[dim],
+      score: Math.max(0, Math.min(100, score)),
+      answeredCount: sortedContributors.length,
+      contributors: sortedContributors,
+    };
+  });
 
   const radarMap = radar.reduce(
     (acc, item) => {
       acc[item.dimension as RadarDimensionKey] = item.score;
       return acc;
     },
-    {} as Record<RadarDimensionKey, number>
+    {} as Record<RadarDimensionKey, number>,
   );
 
   const totalEligibleInMode = modeQuestions.length;
   const coveragePercent =
-    totalEligibleInMode > 0 ? Math.round((answeredCount / totalEligibleInMode) * 100) : 0;
+    totalEligibleInMode > 0
+      ? Math.round((answeredCount / totalEligibleInMode) * 100)
+      : 0;
   const provisional = coveragePercent < 35 || answeredCount < 5;
 
   const profile = determineProfileArchetype(radarMap, buckets);
-  const groundedInsights = buildGroundedInsights(assessment, answers, unmetPreferences, radarMap);
-  const idealPartner = buildIdealPartnerReport(assessment, answers, buckets, radarMap);
+  const groundedInsights = buildGroundedInsights(
+    assessment,
+    answers,
+    unmetPreferences,
+    radarMap,
+  );
+  const idealPartner = buildIdealPartnerReport(
+    assessment,
+    answers,
+    buckets,
+    radarMap,
+  );
   const dimLabelMap = buildDimensionLabelMap(assessment, radar);
   const intoBundle = buildWhatYouAreInto({
     assessment,
@@ -1600,7 +1822,9 @@ function scoreIntimacyWeighted(params: {
   };
 }
 
-function deriveDimensions(assessment: AssessmentDefinition): DimensionDefinition[] {
+function deriveDimensions(
+  assessment: AssessmentDefinition,
+): DimensionDefinition[] {
   if (assessment.dimensions && assessment.dimensions.length > 0) {
     return assessment.dimensions;
   }
@@ -1638,18 +1862,19 @@ function scoreGeneralAssessment(params: {
   answers: Record<string, QuestionAnswer>;
   createdAt: string;
 }): ScoredAssessmentResult {
-  const { resultId, assessment, mode, perspective, answers, createdAt } = params;
+  const { resultId, assessment, mode, perspective, answers, createdAt } =
+    params;
   const strategy = assessment.scoringStrategy || "dimension_average";
-  const modeQuestions =
-    mode === "quick" && assessment.supportsQuickMode !== false
-      ? assessment.questions.filter((q) => q.quickDiscovery)
-      : assessment.questions;
-  const activeQuestions = modeQuestions.length > 0 ? modeQuestions : assessment.questions;
+  const activeQuestions = selectAssessmentQuestions(assessment, mode, answers);
 
   const dimensions = deriveDimensions(assessment);
   const dimTotals = new Map<
     string,
-    { weightedSum: number; weightDenom: number; contributors: RadarDimensionScore["contributors"] }
+    {
+      weightedSum: number;
+      weightDenom: number;
+      contributors: RadarDimensionScore["contributors"];
+    }
   >();
   for (const d of dimensions) {
     dimTotals.set(d.key, { weightedSum: 0, weightDenom: 0, contributors: [] });
@@ -1676,7 +1901,10 @@ function scoreGeneralAssessment(params: {
     havent_considered: [],
   };
 
-  const priorityTagScores = new Map<string, { label: string; scoreSum: number; hits: number; boundary: boolean }>();
+  const priorityTagScores = new Map<
+    string,
+    { label: string; scoreSum: number; hits: number; boundary: boolean }
+  >();
   const qaSummary: QaSummaryEntry[] = [];
   let answeredCount = 0;
 
@@ -1685,11 +1913,17 @@ function scoreGeneralAssessment(params: {
     if (!hasAnyResponse(q, ans)) continue;
     answeredCount += 1;
 
-    const importance: ImportanceLevel = ans.importance || "important";
+    const importance: ImportanceLevel =
+      q.supportsImportance === false
+        ? "nice_to_have"
+        : ans.importance || "important";
     const impMult = IMPORTANCE_MULTIPLIER[importance];
-    const prompt = perspective === "partner" ? q.partnerPrompt || q.prompt : q.prompt;
+    const prompt =
+      perspective === "partner" ? q.partnerPrompt || q.prompt : q.prompt;
     const answerLabel = formatAnswerDisplayLabel(q, ans);
-    const isBoundary = Boolean(ans.firmBoundary || ans.curiosityLevel === "firm_boundary");
+    const isBoundary = Boolean(
+      ans.firmBoundary || ans.curiosityLevel === "firm_boundary",
+    );
 
     qaSummary.push({
       questionId: q.id,
@@ -1720,7 +1954,10 @@ function scoreGeneralAssessment(params: {
 
     if (isBoundary) {
       buckets.firmBoundaries.push(summary);
-    } else if (ans.curiosityLevel === "curious_uncertain" || ans.enjoyment === "curious") {
+    } else if (
+      ans.curiosityLevel === "curious_uncertain" ||
+      ans.enjoyment === "curious"
+    ) {
       buckets.curiousAbout.push(summary);
     } else if (ans.enjoyment === "depends") {
       buckets.situational.push(summary);
@@ -1762,7 +1999,9 @@ function scoreGeneralAssessment(params: {
             boundary: isBoundary,
           };
           priorityTagScores.set(pTag, {
-            label: pickedOpt.priorityTag ? pickedOpt.label : q.priorityLabel || pickedOpt.label,
+            label: pickedOpt.priorityTag
+              ? pickedOpt.label
+              : q.priorityLabel || pickedOpt.label,
             scoreSum: prev.scoreSum + 100 * impMult,
             hits: prev.hits + 1,
             boundary: prev.boundary || isBoundary,
@@ -1775,7 +2014,10 @@ function scoreGeneralAssessment(params: {
             const rawQWeight = q.dimensionWeights[dKey] || 1;
             const qWeight = Math.abs(rawQWeight) * impMult;
             const optWeight = pickedOpt.dimensionWeights[dKey] ?? 0;
-            const norm = Math.max(0, Math.min(100, Math.round(optWeight * 100)));
+            const norm = Math.max(
+              0,
+              Math.min(100, Math.round(optWeight * 100)),
+            );
             const bucket = dimTotals.get(dKey);
             if (bucket) {
               bucket.weightedSum += norm * qWeight;
@@ -1793,7 +2035,9 @@ function scoreGeneralAssessment(params: {
             }
           }
         } else if (pickedOpt.dimensionWeights) {
-          for (const [dKey, optVal] of Object.entries(pickedOpt.dimensionWeights)) {
+          for (const [dKey, optVal] of Object.entries(
+            pickedOpt.dimensionWeights,
+          )) {
             const bucket = dimTotals.get(dKey);
             if (bucket) {
               const norm = Math.max(0, Math.min(100, Math.round(optVal * 100)));
@@ -1821,7 +2065,8 @@ function scoreGeneralAssessment(params: {
       const list = ans.customValue;
       const total = Math.max(list.length, 1);
       list.forEach((optVal, idx) => {
-        const rankScore = total > 1 ? Math.round(((total - 1 - idx) / (total - 1)) * 100) : 100;
+        const rankScore =
+          total > 1 ? Math.round(((total - 1 - idx) / (total - 1)) * 100) : 100;
         const opt = q.options?.find((o) => o.value === optVal);
         if (opt?.priorityTag || optVal) {
           const tagKey = opt?.priorityTag || optVal;
@@ -1839,7 +2084,9 @@ function scoreGeneralAssessment(params: {
           });
         }
         if (opt?.dimensionWeights) {
-          for (const [dKey, weightVal] of Object.entries(opt.dimensionWeights)) {
+          for (const [dKey, weightVal] of Object.entries(
+            opt.dimensionWeights,
+          )) {
             const bucket = dimTotals.get(dKey);
             if (bucket) {
               const w = Math.abs(weightVal) * impMult;
@@ -1875,7 +2122,10 @@ function scoreGeneralAssessment(params: {
           answerLabel: selectedLabels.join(", "),
         });
       }
-      const multiDimAcc = new Map<string, { scoreSum: number; wSum: number; rawWeight: number }>();
+      const multiDimAcc = new Map<
+        string,
+        { scoreSum: number; wSum: number; rawWeight: number }
+      >();
       for (const opt of qOpts) {
         const isPicked = selected.has(opt.value);
         if (isPicked && (opt.priorityTag || opt.value)) {
@@ -1894,14 +2144,20 @@ function scoreGeneralAssessment(params: {
           });
         }
         if (opt.dimensionWeights) {
-          for (const [dKey, weightVal] of Object.entries(opt.dimensionWeights)) {
+          for (const [dKey, weightVal] of Object.entries(
+            opt.dimensionWeights,
+          )) {
             const bucket = dimTotals.get(dKey);
             if (bucket) {
               const scoreVal = isPicked ? 92 : 18;
               const w = Math.abs(weightVal) * 0.5;
               bucket.weightedSum += scoreVal * w;
               bucket.weightDenom += w;
-              const prevAcc = multiDimAcc.get(dKey) || { scoreSum: 0, wSum: 0, rawWeight: weightVal };
+              const prevAcc = multiDimAcc.get(dKey) || {
+                scoreSum: 0,
+                wSum: 0,
+                rawWeight: weightVal,
+              };
               multiDimAcc.set(dKey, {
                 scoreSum: prevAcc.scoreSum + scoreVal * w,
                 wSum: prevAcc.wSum + w,
@@ -1912,14 +2168,23 @@ function scoreGeneralAssessment(params: {
         }
       }
       // Also distribute question-level dimension weights proportionally by selection ratio
-      const ratio = qOpts.length > 0 ? Math.round((selected.size / qOpts.length) * 100) : 50;
-      for (const [dKey, weightVal] of Object.entries(q.dimensionWeights || {})) {
+      const ratio =
+        qOpts.length > 0
+          ? Math.round((selected.size / qOpts.length) * 100)
+          : 50;
+      for (const [dKey, weightVal] of Object.entries(
+        q.dimensionWeights || {},
+      )) {
         const bucket = dimTotals.get(dKey);
         if (bucket) {
           const w = Math.abs(weightVal) * impMult;
           bucket.weightedSum += ratio * w;
           bucket.weightDenom += w;
-          const prevAcc = multiDimAcc.get(dKey) || { scoreSum: 0, wSum: 0, rawWeight: weightVal };
+          const prevAcc = multiDimAcc.get(dKey) || {
+            scoreSum: 0,
+            wSum: 0,
+            rawWeight: weightVal,
+          };
           multiDimAcc.set(dKey, {
             scoreSum: prevAcc.scoreSum + ratio * w,
             wSum: prevAcc.wSum + w,
@@ -1936,7 +2201,9 @@ function scoreGeneralAssessment(params: {
           prompt,
           normalizedContribution: norm,
           enjoymentLabel:
-            selectedLabels.length > 0 ? selectedLabels.slice(0, 3).join(", ") : "None selected",
+            selectedLabels.length > 0
+              ? selectedLabels.slice(0, 3).join(", ")
+              : "None selected",
           importance,
           direction: acc.rawWeight >= 0 ? "positive" : "inverse",
           weightedImpact: computeImpactMetric(norm, acc.wSum),
@@ -2016,10 +2283,13 @@ function scoreGeneralAssessment(params: {
 
   const radar: RadarDimensionScore[] = dimensions.map((d) => {
     const b = dimTotals.get(d.key);
-    const score = b && b.weightDenom > 0 ? Math.round(b.weightedSum / b.weightDenom) : 50;
+    const score =
+      b && b.weightDenom > 0 ? Math.round(b.weightedSum / b.weightDenom) : 50;
     const sortedContributors = b
       ? [...b.contributors].sort(
-          (x, y) => (y.weightedImpact ?? 0) - (x.weightedImpact ?? 0) || x.questionId.localeCompare(y.questionId)
+          (x, y) =>
+            (y.weightedImpact ?? 0) - (x.weightedImpact ?? 0) ||
+            x.questionId.localeCompare(y.questionId),
         )
       : [];
     return {
@@ -2034,7 +2304,11 @@ function scoreGeneralAssessment(params: {
     };
   });
 
-  const sortedDims = [...radar].sort((a, b) => b.score - a.score || a.dimension.localeCompare(b.dimension));
+  const sortedDims = radar
+    .filter((d) => d.answeredCount > 0)
+    .sort(
+      (a, b) => b.score - a.score || a.dimension.localeCompare(b.dimension),
+    );
   const topDim = sortedDims[0];
   const secondDim = sortedDims[1];
 
@@ -2045,10 +2319,16 @@ function scoreGeneralAssessment(params: {
     { label: string; receive?: number; express?: number }
   >();
   for (const d of dimensions) {
-    if (d.channelPairKey && d.channelRole) {
+    if (
+      d.channelPairKey &&
+      d.channelRole &&
+      (radar.find((r) => r.dimension === d.key)?.answeredCount || 0) > 0
+    ) {
       const score = radar.find((r) => r.dimension === d.key)?.score ?? 50;
       const entry = pairGroups.get(d.channelPairKey) || {
-        label: d.shortLabel || d.label.replace(/^(Receiving|Expressing|Offering|Needing)\s+/i, ""),
+        label:
+          d.shortLabel ||
+          d.label.replace(/^(Receiving|Expressing|Offering|Needing)\s+/i, ""),
       };
       if (d.channelRole === "receive") entry.receive = score;
       else entry.express = score;
@@ -2056,47 +2336,75 @@ function scoreGeneralAssessment(params: {
     }
   }
   if (pairGroups.size > 0) {
-    dualChannelScores = Array.from(pairGroups.entries()).map(([channelKey, info]) => {
-      const r = info.receive ?? 50;
-      const e = info.express ?? 50;
-      return {
-        channelKey,
-        label: info.label,
-        receiveOrNeedScore: r,
-        expressOrOfferScore: e,
-        gap: Math.abs(r - e),
-      };
-    });
+    dualChannelScores = Array.from(pairGroups.entries())
+      .filter(
+        ([, info]) => info.receive !== undefined && info.express !== undefined,
+      )
+      .map(([channelKey, info]) => {
+        const r = info.receive ?? 50;
+        const e = info.express ?? 50;
+        return {
+          channelKey,
+          label: info.label,
+          receiveOrNeedScore: r,
+          expressOrOfferScore: e,
+          gap: Math.abs(r - e),
+        };
+      });
   }
 
   // Attachment quadrant coordinates (Test 11)
   let attachmentCoordinates: ScoredAssessmentResult["attachmentCoordinates"];
-  if (strategy === "attachment_quadrant") {
+  if (
+    strategy === "attachment_quadrant" &&
+    ["anxiety", "avoidance"].every(
+      (key) => (radar.find((r) => r.dimension === key)?.answeredCount || 0) > 0,
+    )
+  ) {
     const anxiety = radar.find((r) => r.dimension === "anxiety")?.score ?? 45;
-    const avoidance = radar.find((r) => r.dimension === "avoidance")?.score ?? 45;
+    const avoidance =
+      radar.find((r) => r.dimension === "avoidance")?.score ?? 45;
     let quadrantLabel = "Steadily Connected (Balanced Anxiety & Avoidance)";
     if (anxiety >= 55 && avoidance < 55) {
-      quadrantLabel = "Reassurance Seeking Leanings (Higher Anxiety, Lower Avoidance)";
+      quadrantLabel =
+        "Reassurance Seeking Leanings (Higher Anxiety, Lower Avoidance)";
     } else if (anxiety < 55 && avoidance >= 55) {
-      quadrantLabel = "Autonomy Protective Leanings (Lower Anxiety, Higher Avoidance)";
+      quadrantLabel =
+        "Autonomy Protective Leanings (Lower Anxiety, Higher Avoidance)";
     } else if (anxiety >= 55 && avoidance >= 55) {
-      quadrantLabel = "Mixed Push Pull Leanings (Higher Anxiety & Higher Avoidance)";
+      quadrantLabel =
+        "Mixed Push Pull Leanings (Higher Anxiety & Higher Avoidance)";
     }
     attachmentCoordinates = { anxiety, avoidance, quadrantLabel };
   }
 
   // Blended Archetype calculation (when archetypes defined on assessment)
   let blendedArchetype: ScoredAssessmentResult["blendedArchetype"];
+  let archetypeSummary = "";
   let archetypeName = topDim ? `${topDim.label} Focus` : assessment.shortTitle;
   let archetypeTagline = topDim
     ? `Anchored most strongly by ${topDim.label.toLowerCase()} (${topDim.score}/100)${
-        secondDim ? ` and ${secondDim.label.toLowerCase()} (${secondDim.score}/100)` : ""
+        secondDim
+          ? ` and ${secondDim.label.toLowerCase()} (${secondDim.score}/100)`
+          : ""
       }.`
     : assessment.audienceNote;
 
-  if (assessment.archetypes && assessment.archetypes.length > 0) {
-    const dimLookup = new Map(radar.map((r) => [r.dimension, r.score]));
-    const blendScores = assessment.archetypes
+  const dimLookup = new Map(
+    radar.filter((r) => r.answeredCount > 0).map((r) => [r.dimension, r.score]),
+  );
+  const eligibleArchetypes = (assessment.archetypes || []).filter(
+    (a) =>
+      Object.keys(a.weights).every((key) => dimLookup.has(key)) &&
+      (a.conditions || []).every(
+        (c) =>
+          dimLookup.has(c.dimension) &&
+          (c.min === undefined || dimLookup.get(c.dimension)! >= c.min) &&
+          (c.max === undefined || dimLookup.get(c.dimension)! <= c.max),
+      ),
+  );
+  if (eligibleArchetypes.length > 0) {
+    const blendScores = eligibleArchetypes
       .map((arch) => {
         let weighted = 0;
         let denom = 0;
@@ -2120,8 +2428,14 @@ function scoreGeneralAssessment(params: {
     const secondary = blendScores[1];
     blendedArchetype = {
       primary: primary.name,
-      ...(secondary && primary.score - secondary.score <= 12 ? { secondary: secondary.name } : {}),
-      blendScores: blendScores.map((b) => ({ id: b.id, name: b.name, score: b.score })),
+      ...(secondary && primary.score - secondary.score <= 12
+        ? { secondary: secondary.name }
+        : {}),
+      blendScores: blendScores.map((b) => ({
+        id: b.id,
+        name: b.name,
+        score: b.score,
+      })),
     };
 
     archetypeName =
@@ -2129,6 +2443,7 @@ function scoreGeneralAssessment(params: {
         ? `${primary.name} · ${secondary.name}`
         : primary.name;
     archetypeTagline = primary.tagline;
+    archetypeSummary = primary.summary;
   } else if (attachmentCoordinates) {
     archetypeName = attachmentCoordinates.quadrantLabel.split(" (")[0];
     archetypeTagline = attachmentCoordinates.quadrantLabel;
@@ -2137,12 +2452,16 @@ function scoreGeneralAssessment(params: {
   // Priority ranking (Tests 10, 16, 22, 26)
   let priorityRanking: PriorityRankItem[] | undefined;
   if (priorityTagScores.size > 0) {
-    const rawItems = Array.from(priorityTagScores.entries()).map(([id, data]) => ({
-      id,
-      label: data.label,
-      score: Math.round(Math.min(100, data.scoreSum / Math.max(data.hits, 1))),
-      boundary: data.boundary,
-    }));
+    const rawItems = Array.from(priorityTagScores.entries()).map(
+      ([id, data]) => ({
+        id,
+        label: data.label,
+        score: Math.round(
+          Math.min(100, data.scoreSum / Math.max(data.hits, 1)),
+        ),
+        boundary: data.boundary,
+      }),
+    );
     rawItems.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
     priorityRanking = rawItems.map((it, idx) => {
       const tier: PriorityRankItem["tier"] = it.boundary
@@ -2190,26 +2509,28 @@ function scoreGeneralAssessment(params: {
   if (topDim) {
     groundedInsights.push(
       `Top theme: ${topDim.label} (${topDim.score}/100)${
-        secondDim ? `, followed closely by ${secondDim.label} (${secondDim.score}/100)` : ""
-      }.`
+        secondDim
+          ? `, followed closely by ${secondDim.label} (${secondDim.score}/100)`
+          : ""
+      }.`,
     );
   }
   if (dualChannelScores && dualChannelScores.length > 0) {
     const topNeed = [...dualChannelScores].sort(
-      (a, b) => b.receiveOrNeedScore - a.receiveOrNeedScore
+      (a, b) => b.receiveOrNeedScore - a.receiveOrNeedScore,
     )[0];
     const topOffer = [...dualChannelScores].sort(
-      (a, b) => b.expressOrOfferScore - a.expressOrOfferScore
+      (a, b) => b.expressOrOfferScore - a.expressOrOfferScore,
     )[0];
     if (topNeed && topOffer) {
       groundedInsights.push(
-        `You feel most desired receiving ${topNeed.label.toLowerCase()} (${topNeed.receiveOrNeedScore}/100), while most naturally giving ${topOffer.label.toLowerCase()} (${topOffer.expressOrOfferScore}/100).`
+        `You feel most desired receiving ${topNeed.label.toLowerCase()} (${topNeed.receiveOrNeedScore}/100), while most naturally giving ${topOffer.label.toLowerCase()} (${topOffer.expressOrOfferScore}/100).`,
       );
     }
   }
   if (strategy === "fantasy_mutual") {
     const privateOnlyCount = Object.values(answers).filter(
-      (a) => a.revealRule === "private_never_share"
+      (a) => a.revealRule === "private_never_share",
     ).length;
     groundedInsights.push(
       `Mutual reveal lock active: private fantasy picks stay hidden unless your partner independently chooses the same item${
@@ -2218,19 +2539,19 @@ function scoreGeneralAssessment(params: {
               privateOnlyCount === 1 ? " never leaves" : "s never leave"
             } private view`
           : ""
-      }.`
+      }.`,
     );
   }
   if (attachmentCoordinates) {
     groundedInsights.push(
-      `Your answers place reassurance sensitivity at ${attachmentCoordinates.anxiety}/100 and autonomy protection at ${attachmentCoordinates.avoidance}/100.`
+      `Your answers place reassurance sensitivity at ${attachmentCoordinates.anxiety}/100 and autonomy protection at ${attachmentCoordinates.avoidance}/100.`,
     );
   }
   if (buckets.firmBoundaries.length > 0) {
     groundedInsights.push(
       `${buckets.firmBoundaries.length} explicit boundary item${
         buckets.firmBoundaries.length === 1 ? " stays" : "s stay"
-      } highlighted and protected in partner comparisons.`
+      } highlighted and protected in partner comparisons.`,
     );
   }
 
@@ -2238,32 +2559,70 @@ function scoreGeneralAssessment(params: {
   if (sortedDims.length >= 2) {
     const lowest = sortedDims[sortedDims.length - 1];
     growthReflections.push(
-      `Lower weight on ${lowest.label} (${lowest.score}/100) simply marks where you prefer lighter intensity or less emphasis.`
+      `${lowest.label} is ${lowest.score}/100${lowest.score <= 40 && lowest.lowLabel ? `: ${lowest.lowLabel}` : lowest.score >= 60 && lowest.highLabel ? `: ${lowest.highLabel}` : ""}. Consider a recent situation that shaped this answer pattern; a lower score is not a judgment of your worth.`,
     );
   }
   if (dualChannelScores) {
     const widestGap = [...dualChannelScores].sort((a, b) => b.gap - a.gap)[0];
     if (widestGap && widestGap.gap >= 20) {
       growthReflections.push(
-        `Largest give vs receive contrast sits in ${widestGap.label} (receive ${widestGap.receiveOrNeedScore} vs express ${widestGap.expressOrOfferScore}): a helpful cue so partners match what you actually crave.`
+        `Largest give vs receive contrast sits in ${widestGap.label} (receive ${widestGap.receiveOrNeedScore} vs express ${widestGap.expressOrOfferScore}): a helpful cue so partners match what you actually crave.`,
       );
     }
   }
 
+  for (const dimension of [topDim, sortedDims.at(-1)].filter(
+    (d, index, list) =>
+      Boolean(d) &&
+      list.findIndex((v) => v?.dimension === d?.dimension) === index,
+  )) {
+    if (!dimension) continue;
+    const key = dimension.dimension;
+    let suggestion =
+      "Discuss one recent example of " +
+      dimension.label.toLowerCase() +
+      " and what felt comfortable or difficult.";
+    if (/repair|conflict|harmony|regulat/.test(key))
+      suggestion =
+        "Agree on a pause signal and a specific time to return to a difficult conversation. Notice whether that helps your reported repair pattern.";
+    else if (/autonomy|avoidance|space/.test(key))
+      suggestion =
+        "Describe what helpful personal space looks like and how you would like to reconnect afterward.";
+    else if (/anxiety|reassurance/.test(key))
+      suggestion =
+        "Discuss what reliable communication means to each of you, including times when an immediate reply is not possible.";
+    else if (/presence|listening|empathy/.test(key))
+      suggestion =
+        "Before offering support, ask whether listening, practical help or quiet company would be most welcome.";
+    else if (/financial|domestic|future|life_compat/.test(key))
+      suggestion =
+        "Turn this preference into one concrete agreement about money, household work or future plans, then check whether both people can support it.";
+    else if (/trust|boundar|respect|consent|safety/.test(key))
+      suggestion =
+        "Name what respecting this limit looks like in practice. Agreement and a high score never replace ongoing consent.";
+    else if (/openness|explor|novel|curiosity/.test(key))
+      suggestion =
+        "Choose one unfamiliar experience you would actually welcome, and one limit you want respected. Compare the difference without pressure.";
+    growthReflections.push(
+      dimension.label + " (" + dimension.score + "/100): " + suggestion,
+    );
+  }
   const disclaimer =
     assessment.scientificDisclaimer ||
     "Descriptive self reflection built directly from your answers. Private guide only, not a clinical diagnosis.";
 
   const totalEligibleInMode = activeQuestions.length;
   const coveragePercent =
-    totalEligibleInMode > 0 ? Math.round((answeredCount / totalEligibleInMode) * 100) : 0;
+    totalEligibleInMode > 0
+      ? Math.round((answeredCount / totalEligibleInMode) * 100)
+      : 0;
   const provisional = coveragePercent < 35 || answeredCount < 4;
 
   const profile: PersonalProfileSummary = {
     archetypeName,
     archetypeTagline,
     disclaimer,
-    summaryParagraph: `${archetypeTagline} Built from ${answeredCount} answered question${
+    summaryParagraph: `${archetypeSummary || archetypeTagline}${topDim ? ` Your strongest measured theme is ${topDim.label} at ${topDim.score}/100.` : ""} Built from ${answeredCount} answered question${
       answeredCount === 1 ? "" : "s"
     } (${coveragePercent}% of ${mode} mode) in ${assessment.title}.`,
     strongestPreferences: sortedDims
@@ -2272,21 +2631,26 @@ function scoreGeneralAssessment(params: {
     importantNeeds: buckets.importantQualities
       .slice(0, 4)
       .map((b) => shortenPromptLabel(b.prompt)),
-    noveltyComfort:
-      curiosityGroups?.find((g) => g.level === "curious_uncertain")
-        ? `${curiosityGroups.find((g) => g.level === "curious_uncertain")!.items.length} topics marked curious to explore.`
-        : "Grounded in explicit answers for this test.",
+    noveltyComfort: curiosityGroups?.find(
+      (g) => g.level === "curious_uncertain",
+    )
+      ? `${curiosityGroups.find((g) => g.level === "curious_uncertain")!.items.length} topics marked curious to explore.`
+      : "Grounded in explicit answers for this test.",
     communicationStyle: groundedInsights[0] || assessment.audienceNote,
-    paceAndEnergy: sortedDims[0]?.description || assessment.futureExtensibilityNote,
+    paceAndEnergy:
+      sortedDims[0]?.description || assessment.futureExtensibilityNote,
     initiativeBalance: dualChannelScores
       ? `Top receiving pull: ${
-          [...dualChannelScores].sort((a, b) => b.receiveOrNeedScore - a.receiveOrNeedScore)[0]
-            ?.label || "Balanced"
+          [...dualChannelScores].sort(
+            (a, b) => b.receiveOrNeedScore - a.receiveOrNeedScore,
+          )[0]?.label || "Balanced"
         }`
       : topDim
         ? `Strongest pull: ${topDim.label}`
         : "Balanced profile",
-    topBoundaries: buckets.firmBoundaries.slice(0, 5).map((b) => shortenPromptLabel(b.prompt)),
+    topBoundaries: buckets.firmBoundaries
+      .slice(0, 5)
+      .map((b) => shortenPromptLabel(b.prompt)),
   };
 
   const idealPartner: IdealPartnerReport = {
@@ -2310,7 +2674,12 @@ function scoreGeneralAssessment(params: {
     whatMattersMost: (priorityRanking || []).slice(0, 5).map((p) => ({
       title: p.label,
       detail: `Ranked #${p.rank} (${p.score}/100 · ${p.tier})`,
-      weight: p.tier === "essential" ? "essential" : p.tier === "strong" ? "important" : "nice_to_have",
+      weight:
+        p.tier === "essential"
+          ? "essential"
+          : p.tier === "strong"
+            ? "important"
+            : "nice_to_have",
     })),
     earlyDatingSignals: [
       {
@@ -2326,7 +2695,8 @@ function scoreGeneralAssessment(params: {
     })),
     explorationOpportunities: buckets.curiousAbout.slice(0, 4).map((b) => ({
       topic: shortenPromptLabel(b.prompt),
-      framing: "Curious to try: bring this up in relaxed conversation with zero pressure.",
+      framing:
+        "Curious to try: bring this up in relaxed conversation with zero pressure.",
     })),
     communicationNeeds: groundedInsights.slice(0, 3),
   };
@@ -2404,12 +2774,144 @@ export function scoreAssessmentSubmission(params: {
 }): ScoredAssessmentResult {
   const createdAt = params.createdAt || new Date().toISOString();
   const strategy = params.assessment.scoringStrategy || "intimacy_weighted";
-
-  if (strategy === "intimacy_weighted") {
-    return scoreIntimacyWeighted({ ...params, createdAt });
+  if (strategy === "intimacy_profile") {
+    const result = scoreIntimacyProfile({ ...params, createdAt });
+    attachPersonalizedAdvice(result, params.assessment, params.answers);
+    return result;
   }
 
-  return scoreGeneralAssessment({ ...params, createdAt });
+  const result =
+    strategy === "intimacy_weighted"
+      ? scoreIntimacyWeighted({ ...params, createdAt })
+      : scoreGeneralAssessment({ ...params, createdAt });
+  result.adultsOnly = params.assessment.adultsOnly;
+  const eligible = selectAssessmentQuestions(
+    params.assessment,
+    params.mode,
+    params.answers,
+  );
+  for (const dimension of result.radar) {
+    const definition = params.assessment.dimensions?.find(
+      (d) => d.key === dimension.dimension,
+    );
+    if (!definition?.interpretations) continue;
+    dimension.eligibleCount = eligible.filter((q) =>
+      Boolean(q.dimensionWeights[dimension.dimension]),
+    ).length;
+    if (dimension.answeredCount > 0) {
+      const band =
+        dimension.score < 40
+          ? "low"
+          : dimension.score > 60
+            ? "high"
+            : "balanced";
+      dimension.interpretation = { ...definition.interpretations[band], band };
+    }
+  }
+  if (
+    params.assessment.dimensions?.every((d) => Boolean(d.interpretations)) &&
+    result.radar.some((d) => d.answeredCount > 0)
+  ) {
+    result.profile.archetypeName = params.assessment.title;
+    result.profile.archetypeTagline =
+      "A category profile grounded in your answers";
+    result.profile.summaryParagraph = result.radar
+      .filter((d) => d.answeredCount > 0)
+      .map((d) => `${d.label}: ${d.score}/100. ${d.interpretation!.meaning}`)
+      .join(" ");
+    result.profile.strongestPreferences = result.radar
+      .filter((d) => d.answeredCount >= 3 && d.score > 60)
+      .map((d) => `${d.label}: ${d.interpretation!.meaning}`);
+    result.whatYouAreInto = undefined;
+    result.dimensionInteractions = [];
+    result.idealPartner = {
+      characteristics: [],
+      whatMattersMost: [],
+      earlyDatingSignals: [],
+      potentialMismatches: [],
+      explorationOpportunities: [],
+      communicationNeeds: [],
+    };
+    result.groundedInsights = result.radar
+      .filter((d) => d.answeredCount >= 3)
+      .map((d) => `${d.label}: ${d.interpretation!.possibleTradeoff}`);
+    result.growthReflections = result.radar
+      .filter((d) => d.answeredCount >= 3)
+      .map((d) => d.interpretation!.reflection);
+    result.buckets = {
+      stronglyDesired: [],
+      importantQualities: [],
+      curiousAbout: [],
+      situational: [],
+      preferToAvoid: [],
+      firmBoundaries: [],
+    };
+    for (const qa of result.qaSummary ?? []) delete qa.intoTag;
+  }
+  const measured = result.radar.filter((d) => d.answeredCount > 0);
+  result.dimensionInteractions = result.dimensionInteractions?.filter((item) =>
+    item.dimensions.every((d) =>
+      measured.some((m) => m.dimension === d.dimension),
+    ),
+  );
+  const measuredKey = (pattern: RegExp) =>
+    measured.some((d) => pattern.test(d.dimension + " " + d.label));
+  if (!measuredKey(/novel|explor|openness|curiosity/i))
+    result.profile.noveltyComfort = "Not measured in this attempt.";
+  if (!measuredKey(/communicat|feedback|clarity|listening/i))
+    result.profile.communicationStyle = "Not measured in this attempt.";
+  if (!measuredKey(/pace|energy|sensual|cadence/i))
+    result.profile.paceAndEnergy = "Not measured in this attempt.";
+  if (
+    !measuredKey(/initiative|assertive|guiding|receptive|dominance|submission/i)
+  )
+    result.profile.initiativeBalance = "Not measured in this attempt.";
+  if (
+    strategy === "intimacy_weighted" &&
+    measured.length > 0 &&
+    measured.length < result.radar.length
+  ) {
+    result.provisional = true;
+    result.profile.archetypeName = "An emerging preference profile";
+    result.profile.archetypeTagline =
+      "A partial picture, grounded in your answers";
+    result.profile.summaryParagraph =
+      "Your measured categories are " +
+      measured.map((d) => d.label + " (" + d.score + "%)").join(", ") +
+      ". Other categories are unmeasured in this attempt; no broader archetype is assigned yet.";
+  }
+  if (!result.radar.some((d) => d.answeredCount > 0)) {
+    result.provisional = true;
+    result.profile = {
+      archetypeName: "Not enough answers yet",
+      archetypeTagline: "Your profile takes shape from measured answers.",
+      disclaimer: result.profile.disclaimer,
+      summaryParagraph:
+        "No scored dimensions are available in this attempt. Skipped and private answers do not establish traits.",
+      strongestPreferences: [],
+      importantNeeds: [],
+      noveltyComfort: "Not measured.",
+      communicationStyle: "Not measured.",
+      paceAndEnergy: "Not measured.",
+      initiativeBalance: "Not measured.",
+      topBoundaries: [],
+    };
+    result.attachmentCoordinates = undefined;
+    result.blendedArchetype = undefined;
+    result.dualChannelScores = [];
+    result.dimensionInteractions = [];
+    result.groundedInsights = [];
+    result.idealPartner = {
+      characteristics: [],
+      whatMattersMost: [],
+      earlyDatingSignals: [],
+      potentialMismatches: [],
+      explorationOpportunities: [],
+      communicationNeeds: [],
+    };
+  }
+  attachPersonalizedAdvice(result, params.assessment, params.answers);
+  return result;
 }
 
 export function computeMultiRaterSummary(params: {
@@ -2466,15 +2968,20 @@ export function computeMultiRaterSummary(params: {
       perspective: "partner",
       answers: r.answers,
       createdAt: r.createdAt,
-    })
+    }),
   );
 
   const dimensionComparison = selfResult.radar.map((selfDim) => {
     const scores = raterScored
-      .map((rs) => rs.radar.find((d) => d.dimension === selfDim.dimension)?.score)
+      .map(
+        (rs) =>
+          rs.radar.find(
+            (d) => d.dimension === selfDim.dimension && d.answeredCount > 0,
+          )?.score,
+      )
       .filter((v): v is number => typeof v === "number");
     const mean =
-      scores.length > 0
+      scores.length >= minRespondents
         ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
         : null;
     return {
@@ -2494,13 +3001,13 @@ export function computeMultiRaterSummary(params: {
   if (sortedByGap[0] && sortedByGap[0].othersMeanScore !== null) {
     const top = sortedByGap[0];
     insights.push(
-      `Largest perception contrast: on ${top.label}, you rated yourself ${top.selfScore}/100 while anonymous observers averaged ${top.othersMeanScore}/100.`
+      `Largest perception contrast: on ${top.label}, you rated yourself ${top.selfScore}/100 while anonymous observers averaged ${top.othersMeanScore}/100.`,
     );
   }
   const closest = sortedByGap[sortedByGap.length - 1];
   if (closest && closest.othersMeanScore !== null) {
     insights.push(
-      `Closest self-other alignment: ${closest.label} (self ${closest.selfScore}/100 vs. observers ${closest.othersMeanScore}/100).`
+      `Closest self-other alignment: ${closest.label} (self ${closest.selfScore}/100 vs. observers ${closest.othersMeanScore}/100).`,
     );
   }
 

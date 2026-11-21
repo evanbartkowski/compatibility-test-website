@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const questionAnswerSchema = z.object({
-  questionId: z.string().min(1),
+  questionId: z.string().min(1).max(120),
   enjoyment: z
     .union([
       z.literal(1),
@@ -53,9 +53,15 @@ export const questionAnswerSchema = z.object({
   revealRule: z
     .enum(["mutual_only", "always_share_with_partner", "private_never_share"])
     .optional(),
-  customValue: z.union([z.string(), z.number(), z.array(z.string())]).optional(),
+  customValue: z
+    .union([
+      z.string().max(120),
+      z.number().finite(),
+      z.array(z.string().max(120)).max(20),
+    ])
+    .optional(),
   skipped: z.boolean().optional(),
-  updatedAt: z.string(),
+  updatedAt: z.string().max(80),
 });
 
 export const answersMapSchema = z.record(z.string(), questionAnswerSchema);
@@ -66,18 +72,32 @@ export const consentSettingsSchema = z.object({
   optInCommunityStats: z.boolean(),
   cohortMetadata: z
     .object({
-      ageGroup: z.enum(["18-24", "25-34", "35-44", "45+", "prefer_not"]).optional(),
-      relationshipStatus: z
-        .enum(["single", "dating", "partnered", "married", "other", "prefer_not"])
+      ageGroup: z
+        .enum(["18-24", "25-34", "35-44", "45+", "prefer_not"])
         .optional(),
-      datingPreference: z.enum(["men", "women", "all_genders", "prefer_not"]).optional(),
-      genderIdentity: z.enum(["woman", "man", "nonbinary", "prefer_not"]).optional(),
+      relationshipStatus: z
+        .enum([
+          "single",
+          "dating",
+          "partnered",
+          "married",
+          "other",
+          "prefer_not",
+        ])
+        .optional(),
+      datingPreference: z
+        .enum(["men", "women", "all_genders", "prefer_not"])
+        .optional(),
+      genderIdentity: z
+        .enum(["woman", "man", "nonbinary", "prefer_not"])
+        .optional(),
     })
     .optional(),
   consentedAt: z.string(),
 });
 
 export const sharingPreferencesSchema = z.object({
+  shareGameAnswerDetails: z.boolean().optional().default(false),
   shareCategoryScores: z.boolean(),
   shareAlignedHighlights: z.boolean(),
   shareComplementaryHighlights: z.boolean(),

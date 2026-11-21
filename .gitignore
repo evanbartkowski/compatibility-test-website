@@ -7,7 +7,11 @@ out/
 .between-us-data/
 playwright-report/
 test-results/
+qa-artifacts/
 functions/lib/
 functions/node_modules/
 firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
 .DS_Store
+.kilo/

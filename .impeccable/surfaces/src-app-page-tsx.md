@@ -1,25 +1,17 @@
 ---
-version: 1
-slug: "src-app-page-tsx"
-primary_target: "src/app/page.tsx"
-related_targets: []
+version: 2
+slug: src-app-page-tsx
+primary_target: src/app/page.tsx
+related_targets:
+  - src/components/home/HomeResultPreview.tsx
+  - src/components/home/DiscoveryPreview.tsx
+  - src/components/explore/TestCard.tsx
 ---
 
-Scope: Homepage & Primary Landing Surface (`src/app/page.tsx` and primary interactive preview shell `src/components/home/HomeInteractivePreview.tsx`)
-Visitor Mode: Persuade
-Audience: Curious adults (18+) on desktop and mobile seeking a candid, romantic, and spicy self-discovery & couples compatibility platform—specifically wanting to explore desire vs. lived experience, BDSM/kink chemistry, and private partner matching without mandatory registration.
-Job: Immediately communicate what Truth Desire reveals that ordinary quizzes cannot, prove the interactive analytical depth and consent-first privacy right in the opening viewport, and drive visitors smoothly into taking the flagship Intimacy Assessment, BDSM Roles test, Kink Exploration Map, or browsing all 30 modules.
-Action: Launch an assessment directly from the opening monograph band (flagship 56-item Intimacy & Partner Preferences, BDSM Roles & Power Exchange, Kink Exploration Map, or the full 30-test catalog), optionally test the interactive preference/desire/kink preview specimen inline, and optionally sign in via the header account control without blocking guest usage.
-Proof / Content: Interactive live specimen bench toggling between (1) the 7-axis Intimacy Preference Radar, (2) Desire vs. Lived Experience quadrant plotting, and (3) Couples Compatibility & Zero-Leak Kink/BDSM complementarity; real built-in catalog counts (`30` assessments across 4 categories); explicit privacy & statistical floor guarantees (`n >= 50` community floor, optional login, zero external AI).
-Constraints: Nocturnal Noir Pink & Black default (`data-theme="dark"`) with clean toggle to Blush Pink & Carbon light mode; WCAG 2.2 AA contrast; optional Firebase login (never a gate); zero fabricated community figures; preserve zero `[OBSCURED]` exposure; zero eyebrows/kickers, zero decorative step numerals, zero generic split-hero + badge-row or uniform icon-card grid clichés, zero gradient text or neon box-shadow halos.
-Chosen Direction: Nocturnal Silk & Rose-Ink Monograph (`seed:9ab854d30ee5adab`) — treating the landing page like an intimate nocturnal silk & press monograph combining razor-sharp typographic contrast, crisp hairline rules, velvet `#08060A` / `#110C13` depth, electric `#FF5C9E` rose-pink accents, champagne `#E5BC87` partner highlights, and interactive live specimens.
-Memorable Moment: Switching cleanly inside the opening Monograph Bench between the flagship Intimacy Radar, Desire-vs-Experience scatterplot specimen, and Couples BDSM/Kink Zero-Leak Compatibility preview with instant theme fidelity across Obsidian Noir and Blush Light.
-Unresolved Decisions: None — Firebase project `truth-desire`, 30-assessment scope, and Noir Pink & Black + Blush Light polarity are confirmed.
+Truth Desire introduces self-discovery, partner compatibility, and community perspective to curious adults. The homepage leads with broad personality and connection topics. Mature assessments remain discoverable and clearly labeled.
 
-## Direction contract
-THESIS: An intimate nocturnal silk-and-ink publication where honest desire mapping, BDSM power dynamics, and zero-leak kink compatibility read with museum-grade editorial clarity rather than a generic SaaS quiz site—refusing the predictable split-hero-with-badge-strip and uniform icon-card-grid templates.
-OWN-WORLD: Default dark Noir Pink & Black palette (`#08060A` obsidian ground, `#110C13` velvet plate, `#19121B` subtle inset, `#FF5C9E` crisp electric rose primary, `#E5BC87` warm champagne partner overlay, `#FDF2F7` ivory-blush primary ink, `#2F202D` hairline rules) paired symmetrically with Blush Pink & Carbon light theme (`#FFF3F7` ground, `#FFFFFF` sheets, `#C2185B` crimson rose, `#110A0E` ink), editorial display serif (`Bodoni Moda`) + crisp grotesk sans (`Figtree`) + tabular mono numbers (`JetBrains Mono`), pill buttons with high-contrast dark ink on hot pink (`#090509` on `#FF5C9E`), zero neon glow shadows, and hairline architectural framing.
-STORY: Within five seconds a visitor feels invited into a candid, romantic, adults-first sanctuary; interacts directly with a live multi-mode analytical specimen proving desire-vs-experience, BDSM dynamics, and mutually revealed compatibility; understands that guests take all 30 tests privately with optional cross-device sync via Firebase; and clicks directly into an assessment or directory test.
-FIRST VIEWPORT: Asymmetric 12-column editorial monograph header band across full `#08060A` canvas: columns 1–7 hold the high-contrast display headline (*Truth*, *desire*, and what actually moves you.), while columns 8–12 hold tight conversational positioning copy and primary + secondary pill CTAs (`Start the Intimacy Test`, `Explore All 30 Tests`) plus a concise inline trust line (`Optional account · 18+ private · Zero external AI`); immediately anchored below inside the opening fold by a full-width `#110C13` Interactive Specimen Folio uniting a 3-mode selector (*Preference Radar*, *Desire vs. Experience Gap*, *BDSM & Kink Mutual Reveal*) on the left rail with live SVG visualization & direct module launch on the main stage.
-FORM: Asymmetric Monograph Broadsheet & Live Interactive Specimen Folio (position 1 of the derived compositions, stamped against `seed:9ab854d30ee5adab`) paired with alternating full-width spotlight bands for flagship intimacy + BDSM/kink launches, interactive couples matcher demonstration, four-category horizontal hairline directory, and concise privacy commitments.
-FINISH: "unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance"
+The direction uses a black canvas, quiet violet surfaces, Space Grotesk headings, Figtree body text, and an actual scored example with a custom interactive radar. Cyan distinguishes comparison data. The hero and navigation focus on choosing a test or comparing with a partner; detailed directories live in the searchable library.
+
+The page contains curated tests, labeled compatibility and community illustrations, short/full depth choices, and a concise explanation of the experience. Demonstration values are never presented as live statistics. Testimonials and user counts are not fabricated.
+
+The source of truth is `src/app/globals.css`, with component and interaction guidance in `DESIGN.md`. Desktop, tablet, and mobile checks are in `e2e/platform.spec.ts`.

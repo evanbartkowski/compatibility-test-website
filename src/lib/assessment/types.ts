@@ -15,6 +15,7 @@ export type BuiltInIntimacySectionId =
 export type QuestionSectionId = BuiltInIntimacySectionId | (string & {});
 
 export type QuestionInputType =
+  | "intimacy_profile"
   | "enjoyment_scale"
   | "curiosity_map"
   | "multiple_choice"
@@ -90,6 +91,7 @@ export type PartnerWillingnessState =
   | "firm_boundary";
 
 export type ScoringStrategy =
+  | "intimacy_profile"
   | "intimacy_weighted"
   | "dimension_average"
   | "attachment_quadrant"
@@ -103,6 +105,7 @@ export type ScoringStrategy =
   | "multi_rater_perception";
 
 export type CompatibilityStrategy =
+  | "consent_complementary"
   | "intimacy_complementary"
   | "affection_give_receive"
   | "trait_similarity_complement"
@@ -131,6 +134,13 @@ export interface QuestionOption {
 }
 
 export interface DimensionDefinition {
+  blueprintAxis?:
+    | "connection"
+    | "pacing"
+    | "sensory"
+    | "imagination"
+    | "roles"
+    | "autonomy";
   key: string;
   label: string;
   shortLabel?: string;
@@ -139,6 +149,18 @@ export interface DimensionDefinition {
   highLabel?: string;
   channelPairKey?: string;
   channelRole?: "receive" | "express";
+  interpretations?: {
+    low: CategoryInterpretation;
+    balanced: CategoryInterpretation;
+    high: CategoryInterpretation;
+  };
+}
+
+export interface CategoryInterpretation {
+  meaning: string;
+  possibleTradeoff: string;
+  experiment: string;
+  reflection: string;
 }
 
 export interface ArchetypeRule {
@@ -147,9 +169,13 @@ export interface ArchetypeRule {
   tagline: string;
   summary: string;
   weights: Record<string, number>;
+  conditions?: Array<{ dimension: string; min?: number; max?: number }>;
 }
 
 export interface QuestionDefinition {
+  defaultRevealRule?: "mutual_only";
+  intimacyRole?: "receive" | "offer" | "shared";
+  topicTags?: string[];
   id: string;
   order: number;
   sectionId: QuestionSectionId;
@@ -163,6 +189,7 @@ export interface QuestionDefinition {
   directionality: Directionality;
   complementaryPartnerId?: string;
   supportsExperienceFrequency: boolean;
+  supportsImportance?: boolean;
   supportsDesireDelta?: boolean;
   supportsBoundaryFlag: boolean;
   partnerSupportsWillingness: boolean;
@@ -204,6 +231,16 @@ export interface AssessmentSection {
 }
 
 export interface AssessmentDefinition {
+  adviceProfile?: AssessmentAdviceProfile;
+  styleRankingEnabled?: boolean;
+  collection?: "intimacy-suite";
+  marketingBlurb?: string;
+  matchingNotes?: string[];
+  contentNote?: string;
+  purpose?: string;
+  quickDescription?: string;
+  deepDescription?: string;
+  scoringNotes?: string[];
   id: string;
   slug: string;
   version: string;
@@ -259,7 +296,13 @@ export interface ConsentSettings {
   optInCommunityStats: boolean;
   cohortMetadata?: {
     ageGroup?: "18-24" | "25-34" | "35-44" | "45+" | "prefer_not";
-    relationshipStatus?: "single" | "dating" | "partnered" | "married" | "other" | "prefer_not";
+    relationshipStatus?:
+      | "single"
+      | "dating"
+      | "partnered"
+      | "married"
+      | "other"
+      | "prefer_not";
     datingPreference?: "men" | "women" | "all_genders" | "prefer_not";
     genderIdentity?: "woman" | "man" | "nonbinary" | "prefer_not";
   };
@@ -267,6 +310,7 @@ export interface ConsentSettings {
 }
 
 export interface SharingPreferences {
+  shareGameAnswerDetails?: boolean;
   shareCategoryScores: boolean;
   shareAlignedHighlights: boolean;
   shareComplementaryHighlights: boolean;
@@ -352,6 +396,10 @@ export interface RadarDimensionScore {
   description?: string;
   lowLabel?: string;
   highLabel?: string;
+  eligibleCount?: number;
+  interpretation?: CategoryInterpretation & {
+    band: "low" | "balanced" | "high";
+  };
   contributors: Array<{
     questionId: string;
     prompt: string;
@@ -409,7 +457,11 @@ export interface UnmetPreferenceInsight {
 
 export interface IdealPartnerReport {
   characteristics: string[];
-  whatMattersMost: Array<{ title: string; detail: string; weight: ImportanceLevel }>;
+  whatMattersMost: Array<{
+    title: string;
+    detail: string;
+    weight: ImportanceLevel;
+  }>;
   earlyDatingSignals: Array<{ signal: string; conversationPrompt: string }>;
   potentialMismatches: Array<{ area: string; note: string }>;
   explorationOpportunities: Array<{ topic: string; framing: string }>;
@@ -457,7 +509,123 @@ export interface QaSummaryEntry {
   intoTag?: IntoItemTag;
 }
 
+export interface AdviceEvidence {
+  dimension: string;
+  label: string;
+  score?: number;
+  answeredCount: number;
+  questionId?: string;
+  prompt?: string;
+}
+export interface AdviceInsight {
+  id: string;
+  title: string;
+  body: string;
+  evidence: AdviceEvidence[];
+  script?: string;
+}
+export interface AdviceExperiment extends AdviceInsight {
+  kind: "solo" | "partnered" | "curiosity";
+  effort: 1 | 2 | 3;
+  scope: string;
+  steps: string[];
+  stopRule: string;
+  aftercare?: string;
+}
+export interface AssessmentAdviceProfile {
+  wording?: string;
+  dimensionCoaching?: Record<
+    string,
+    {
+      wording?: string;
+      seek: string;
+      friction: string;
+      optimize: string;
+      solo?: [string, string];
+      together?: [string, string];
+      curiosity?: [string, string];
+    }
+  >;
+  theme: string;
+  seek: string;
+  friction: string;
+  optimize: string;
+  solo: [title: string, step: string];
+  together: [title: string, step: string];
+  curiosity: [title: string, step: string];
+  ask: string;
+}
+export interface PersonalizedAdvice {
+  version: string;
+  status: "ready" | "needs-more-answers";
+  focusDimension?: string;
+  headline: string;
+  context: string;
+  partnerTraits: AdviceInsight[];
+  frictionPoints: AdviceInsight[];
+  partnerSearchLine: string;
+  optimizations: AdviceInsight[];
+  experiments: AdviceExperiment[];
+  gaps: Array<{
+    questionId: string;
+    label: string;
+    desire: number;
+    experience: number | null;
+    gap: number | null;
+    path:
+      | "discuss-first"
+      | "keep-as-fantasy"
+      | "respect-limit"
+      | "keep-private"
+      | "needs-context";
+    explanation: string;
+  }>;
+  gapNote: string;
+  synthesisNote?: string;
+}
+
 export interface ScoredAssessmentResult {
+  advice?: PersonalizedAdvice;
+  styleRanking?: {
+    primary?: { key: string; label: string; score: number };
+    secondary?: { key: string; label: string; score: number };
+    ranked: Array<{
+      key: string;
+      label: string;
+      score: number;
+      answeredCount: number;
+    }>;
+    tied: boolean;
+    provisional: boolean;
+    note: string;
+  };
+  intimacyProfile?: {
+    channels: Array<{
+      dimension: string;
+      label: string;
+      desireScore: number | null;
+      willingnessScore: number | null;
+      experienceScore: number | null;
+      desireCount: number;
+      experienceCount: number;
+      receiveScore: number | null;
+      offerScore: number | null;
+    }>;
+    hardLimits: Array<{ questionId: string; label: string }>;
+    privateCount: number;
+    contextOnlyCount: number;
+  };
+  intimacyBlueprint?: {
+    sources: Array<{ title: string; createdAt: string }>;
+    axes: Array<{
+      key: string;
+      label: string;
+      score: number;
+      sourceCount: number;
+    }>;
+    note: string;
+  };
+  adultsOnly?: boolean;
   resultId: string;
   assessmentSlug: string;
   assessmentTitle?: string;
@@ -585,6 +753,15 @@ export interface CompatibilityPairItem {
 }
 
 export interface CompatibilityReport {
+  pairAdvice?: {
+    version: string;
+    status: "shared-topics" | "no-shared-topics";
+    strengths: AdviceInsight[];
+    frictionPoints: AdviceInsight[];
+    conversationStarters: string[];
+    experiments: AdviceExperiment[];
+    privacyNote: string;
+  };
   compatibilityId: string;
   inviteId: string;
   assessmentSlug: string;
@@ -616,9 +793,21 @@ export interface CompatibilityReport {
   coupleInsights: string[];
   conversationStarters: string[];
   fantasyReveals?: {
-    mutuallySelected: Array<{ questionId: string; label: string; category: string }>;
-    openlySharedByCreatorOnly: Array<{ questionId: string; label: string; category: string }>;
-    openlySharedByPartnerOnly: Array<{ questionId: string; label: string; category: string }>;
+    mutuallySelected: Array<{
+      questionId: string;
+      label: string;
+      category: string;
+    }>;
+    openlySharedByCreatorOnly: Array<{
+      questionId: string;
+      label: string;
+      category: string;
+    }>;
+    openlySharedByPartnerOnly: Array<{
+      questionId: string;
+      label: string;
+      category: string;
+    }>;
     sharedCategoryHighlights: string[];
     privateProtectedCount: number;
     privacyNotice: string;
@@ -637,8 +826,16 @@ export interface CompatibilityReport {
     accuracyPercent: number;
     correctCount: number;
     totalCompared: number;
-    categoryAccuracy: Array<{ category: string; correct: number; total: number }>;
-    surprises: Array<{ prompt: string; primaryActual: string; partnerGuess: string }>;
+    categoryAccuracy: Array<{
+      category: string;
+      correct: number;
+      total: number;
+    }>;
+    surprises: Array<{
+      prompt: string;
+      primaryActual: string;
+      partnerGuess: string;
+    }>;
     nailedIt: Array<{ prompt: string; answer: string }>;
   };
   voteGameSummary?: {

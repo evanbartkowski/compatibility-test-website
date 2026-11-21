@@ -3,7 +3,11 @@ import Link from "next/link";
 import { OptionalSyncBanner } from "@/components/auth/OptionalSyncBanner";
 import { ResultsDashboard } from "@/components/results/ResultsDashboard";
 import { brandConfig } from "@/config/brand";
-import { builtInAssessments, getCategoryMeta } from "@/data/assessments/catalog";
+import { areHistoryResultsComparable } from "@/lib/assessment/definition";
+import {
+  builtInAssessments,
+  getCategoryMeta,
+} from "@/data/assessments/catalog";
 import { getReadOnlyVerifiedUid } from "@/lib/server/firebase-auth";
 import { getReadOnlySessionKey } from "@/lib/server/session";
 import {
@@ -16,7 +20,8 @@ import {
 
 export const metadata: Metadata = {
   title: `Personal Results | ${brandConfig.name}`,
-  description: "Private individual assessment insights and comparison dashboard.",
+  description:
+    "Private individual assessment insights and comparison dashboard.",
   robots: { index: false, follow: false },
 };
 
@@ -53,8 +58,9 @@ export default async function ResultsPage({
             Private Result Protected
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-[var(--ink-secondary)]">
-            Personal assessment results are only visible inside the browser session that created
-            them, or via an explicit expiring private access link.
+            Personal assessment results are only visible inside the browser
+            session that created them, or via an explicit expiring private
+            access link.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link
@@ -90,7 +96,9 @@ export default async function ResultsPage({
   }
 
   const assessment = resolveAssessment(sub.result.assessmentSlug);
-  const categoryMeta = assessment ? getCategoryMeta(assessment.category) : undefined;
+  const categoryMeta = assessment
+    ? getCategoryMeta(assessment.category)
+    : undefined;
 
   let previousResult = null;
   if (
@@ -99,16 +107,21 @@ export default async function ResultsPage({
     canAccessResult({ resultId: compare, sessionKey, uid, accessToken: access })
   ) {
     const prevSub = getSubmissionResult(compare);
-    if (prevSub && prevSub.result.assessmentSlug === sub.result.assessmentSlug) {
+    if (prevSub && areHistoryResultsComparable(prevSub.result, sub.result)) {
       previousResult = prevSub.result;
     }
   }
 
   const nextSlugs =
-    assessment?.recommendedNextSlugs && assessment.recommendedNextSlugs.length > 0
+    assessment?.recommendedNextSlugs &&
+    assessment.recommendedNextSlugs.length > 0
       ? assessment.recommendedNextSlugs
       : builtInAssessments
-          .filter((a) => a.slug !== sub.result.assessmentSlug && a.category === assessment?.category)
+          .filter(
+            (a) =>
+              a.slug !== sub.result.assessmentSlug &&
+              a.category === assessment?.category,
+          )
           .slice(0, 3)
           .map((a) => a.slug);
 
@@ -136,7 +149,7 @@ export default async function ResultsPage({
 
   return (
     <>
-      <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:px-8">
+      <div className="site-shell pt-6">
         <OptionalSyncBanner compact />
       </div>
       <ResultsDashboard
@@ -144,11 +157,15 @@ export default async function ResultsPage({
         initialOptIn={sub.consent.optInCommunityStats}
         initialCommunity={community}
         assessmentMeta={{
-          title: assessment?.title ?? sub.result.assessmentTitle ?? sub.result.assessmentSlug,
+          title:
+            assessment?.title ??
+            sub.result.assessmentTitle ??
+            sub.result.assessmentSlug,
           categoryTitle: categoryMeta?.title ?? "Self-Discovery",
           accentVar: categoryMeta?.accentVar ?? "var(--accent-plum)",
           supportsPartnerMatching: assessment?.supportsPartnerMatching ?? true,
-          supportsCommunityComparison: assessment?.supportsCommunityComparison ?? true,
+          supportsCommunityComparison:
+            assessment?.supportsCommunityComparison ?? true,
           supportsMultiRater: Boolean(assessment?.supportsMultiRater),
           visualizationTypes: assessment?.visualizationTypes ?? [],
           scientificDisclaimer: assessment?.scientificDisclaimer,

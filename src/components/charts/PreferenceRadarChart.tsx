@@ -19,6 +19,7 @@ interface PreferenceRadarChartProps {
   partnerLabel?: string;
   interactive?: boolean;
   stacked?: boolean;
+  showDetails?: boolean;
   onInspectQuestion?: (questionId: string, dimensionKey: string) => void;
 }
 
@@ -29,8 +30,10 @@ export function PreferenceRadarChart({
   partnerLabel = "Partner",
   interactive = true,
   stacked = false,
+  showDetails = true,
   onInspectQuestion,
 }: PreferenceRadarChartProps) {
+  dimensions = dimensions.filter((d) => d.answeredCount > 0);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [expandedDims, setExpandedDims] = useState<Record<string, boolean>>({});
   const count = overlay ? overlay.length : dimensions.length;
@@ -64,23 +67,33 @@ export function PreferenceRadarChart({
         {rows.map((r) => (
           <div key={r.dimension} className="space-y-1.5">
             <div className="flex items-baseline justify-between text-xs">
-              <span className="font-medium text-[var(--ink-primary)]">{r.label}</span>
+              <span className="font-medium text-[var(--ink-primary)]">
+                {r.label}
+              </span>
               <span className="font-mono-tabular font-semibold text-[var(--accent-plum)]">
                 {r.primary}/100
-                {r.partner !== null ? ` · ${partnerLabel}: ${r.partner}/100` : ""}
+                {r.partner !== null
+                  ? ` · ${partnerLabel}: ${r.partner}/100`
+                  : ""}
               </span>
             </div>
             <div className="h-2.5 overflow-hidden rounded-full bg-[var(--bg-inset)]">
               <div
                 className="h-full rounded-full"
-                style={{ width: `${r.primary}%`, backgroundColor: "var(--accent-plum)" }}
+                style={{
+                  width: `${r.primary}%`,
+                  backgroundColor: "var(--accent-plum)",
+                }}
               />
             </div>
             {r.partner !== null && (
               <div className="h-2 overflow-hidden rounded-full bg-[var(--bg-inset)]">
                 <div
                   className="h-full rounded-full"
-                  style={{ width: `${r.partner}%`, backgroundColor: "var(--accent-gold)" }}
+                  style={{
+                    width: `${r.partner}%`,
+                    backgroundColor: "var(--accent-cyan)",
+                  }}
                 />
               </div>
             )}
@@ -98,7 +111,7 @@ export function PreferenceRadarChart({
 
   const pointAt = (idx: number, value0to100: number) => {
     const angle = angleFor(idx);
-    const r = (Math.max(4, Math.min(100, value0to100)) / 100) * maxR;
+    const r = (Math.max(0, Math.min(100, value0to100)) / 100) * maxR;
     return {
       x: cx + r * Math.cos(angle),
       y: cy + r * Math.sin(angle),
@@ -119,19 +132,28 @@ export function PreferenceRadarChart({
 
   const partnerValues = overlay ? overlay.map((d) => d.partnerScore) : null;
 
-  const labels = overlay ? overlay.map((d) => d.label) : dimensions.map((d) => d.label);
+  const labels = overlay
+    ? overlay.map((d) => d.label)
+    : dimensions.map((d) => d.label);
   const activeDim = dimensions[selectedIndex];
 
   return (
-    <div className={cn("grid gap-6", !stacked && "lg:grid-cols-12 lg:items-center")}>
-      <div className={cn("relative", !stacked && "lg:col-span-7")}>
+    <div
+      className={cn(
+        "grid gap-6",
+        !stacked && showDetails && "lg:grid-cols-12 lg:items-center",
+      )}
+    >
+      <div
+        className={cn("relative", !stacked && showDetails && "lg:col-span-7")}
+      >
         <svg
           viewBox="0 0 520 410"
           role="img"
           aria-label={`${count}-axis preference radar chart`}
           className={cn(
             "mx-auto w-full select-none overflow-visible",
-            stacked ? "max-w-[380px]" : "max-w-[480px]"
+            stacked ? "max-w-[380px]" : "max-w-[480px]",
           )}
         >
           {/* Concentric rings */}
@@ -157,7 +179,9 @@ export function PreferenceRadarChart({
                 y1={cy}
                 x2={outer.x}
                 y2={outer.y}
-                stroke={isSelected ? "var(--accent-gold)" : "var(--border-hairline)"}
+                stroke={
+                  isSelected ? "var(--accent-cyan)" : "var(--border-hairline)"
+                }
                 strokeWidth={isSelected ? "1.6" : "1"}
               />
             );
@@ -180,11 +204,15 @@ export function PreferenceRadarChart({
             <motion.polygon
               initial={{ opacity: 0.2, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.65, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+              transition={{
+                duration: 0.65,
+                delay: 0.08,
+                ease: [0.16, 1, 0.3, 1],
+              }}
               style={{ transformOrigin: `${cx}px ${cy}px` }}
               points={toPolygonPoints(partnerValues)}
-              fill="color-mix(in srgb, var(--accent-gold) 20%, transparent)"
-              stroke="var(--accent-gold)"
+              fill="color-mix(in srgb, var(--accent-cyan) 20%, transparent)"
+              stroke="var(--accent-cyan)"
               strokeWidth="2.2"
               strokeDasharray="5 3"
             />
@@ -200,7 +228,7 @@ export function PreferenceRadarChart({
                   cx={pt.x}
                   cy={pt.y}
                   r={active ? 6.5 : 4.5}
-                  fill={active ? "var(--accent-gold)" : "var(--accent-plum)"}
+                  fill={active ? "var(--accent-cyan)" : "var(--accent-plum)"}
                   stroke="var(--bg-elevated)"
                   strokeWidth="1.8"
                   className={interactive ? "cursor-pointer transition-all" : ""}
@@ -211,7 +239,7 @@ export function PreferenceRadarChart({
                     cx={pointAt(idx, partnerValues[idx]).x}
                     cy={pointAt(idx, partnerValues[idx]).y}
                     r={4.2}
-                    fill="var(--accent-gold)"
+                    fill="var(--accent-cyan)"
                     stroke="var(--bg-elevated)"
                     strokeWidth="1.5"
                   />
@@ -233,7 +261,8 @@ export function PreferenceRadarChart({
                   ? "start"
                   : "end";
             const active = interactive && idx === selectedIndex;
-            const shortLabel = label.length > 22 ? `${label.slice(0, 20)}...` : label;
+            const shortLabel =
+              label.length > 22 ? `${label.slice(0, 20)}...` : label;
 
             return (
               <text
@@ -246,7 +275,9 @@ export function PreferenceRadarChart({
                 className={cn(
                   "text-[11px] font-medium transition-colors",
                   interactive ? "cursor-pointer" : "",
-                  active ? "fill-[var(--accent-plum)] font-semibold" : "fill-[var(--ink-secondary)]"
+                  active
+                    ? "fill-[var(--accent-plum)] font-semibold"
+                    : "fill-[var(--ink-secondary)]",
                 )}
               >
                 {shortLabel}
@@ -267,7 +298,7 @@ export function PreferenceRadarChart({
             <span className="inline-flex items-center gap-2">
               <span
                 className="h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: "var(--accent-gold)" }}
+                style={{ backgroundColor: "var(--accent-cyan)" }}
               />
               {partnerLabel}
             </span>
@@ -276,206 +307,227 @@ export function PreferenceRadarChart({
       </div>
 
       {/* Dimension breakdown & contributors */}
-      <div className={cn("min-w-0 space-y-4", !stacked && "lg:col-span-5")}>
-        {interactive && (
-          <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Select radar dimension">
-            {labels.map((label, idx) => (
-              <button
-                key={label}
-                type="button"
-                role="tab"
-                aria-selected={idx === selectedIndex}
-                onClick={() => setSelectedIndex(idx)}
-                className={cn(
-                  "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-                  idx === selectedIndex
-                    ? "border-[var(--accent-plum)] bg-[var(--accent-plum)] text-[var(--accent-plum-contrast)]"
-                    : "border-[var(--border-hairline)] bg-[var(--bg-subtle)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {overlay ? (
-          <div
-            className="rounded-2xl border p-5"
-            style={{
-              backgroundColor: "var(--bg-subtle)",
-              borderColor: "var(--border-hairline)",
-            }}
-          >
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h4 className="font-display text-2xl text-[var(--ink-primary)]">
-                {overlay[selectedIndex]?.label}
-              </h4>
-              <span className="font-mono-tabular shrink-0 text-xs text-[var(--ink-muted)]">
-                Dimension comparison
-              </span>
+      {showDetails && (
+        <div className={cn("min-w-0 space-y-4", !stacked && "lg:col-span-5")}>
+          {interactive && (
+            <div
+              className="flex flex-wrap gap-1.5"
+              role="tablist"
+              aria-label="Select radar dimension"
+            >
+              {labels.map((label, idx) => (
+                <button
+                  key={label}
+                  type="button"
+                  role="tab"
+                  aria-selected={idx === selectedIndex}
+                  onClick={() => setSelectedIndex(idx)}
+                  className={cn(
+                    "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                    idx === selectedIndex
+                      ? "border-[var(--accent-plum)] bg-[var(--accent-plum)] text-[var(--accent-plum-contrast)]"
+                      : "border-[var(--border-hairline)] bg-[var(--bg-subtle)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]",
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
-            <div className="mt-4 grid grid-cols-2 gap-4">
-              <div
-                className="rounded-xl border p-3.5"
-                style={{
-                  backgroundColor: "var(--bg-elevated)",
-                  borderColor: "var(--border-hairline)",
-                }}
-              >
-                <p className="text-xs text-[var(--ink-secondary)]">{primaryLabel}</p>
-                <p className="font-mono-tabular mt-1 text-2xl font-semibold text-[var(--accent-plum)]">
-                  {overlay[selectedIndex]?.primaryScore}/100
-                </p>
+          )}
+
+          {overlay ? (
+            <div
+              className="rounded-2xl border p-5"
+              style={{
+                backgroundColor: "var(--bg-subtle)",
+                borderColor: "var(--border-hairline)",
+              }}
+            >
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h4 className="font-display text-2xl text-[var(--ink-primary)]">
+                  {overlay[selectedIndex]?.label}
+                </h4>
+                <span className="font-mono-tabular shrink-0 text-xs text-[var(--ink-muted)]">
+                  Dimension comparison
+                </span>
               </div>
-              <div
-                className="rounded-xl border p-3.5"
-                style={{
-                  backgroundColor: "var(--bg-elevated)",
-                  borderColor: "var(--border-hairline)",
-                }}
-              >
-                <p className="text-xs text-[var(--ink-secondary)]">{partnerLabel}</p>
-                <p className="font-mono-tabular mt-1 text-2xl font-semibold text-[var(--accent-gold)]">
-                  {overlay[selectedIndex]?.partnerScore}/100
-                </p>
-              </div>
-            </div>
-          </div>
-        ) : (
-          activeDim && (() => {
-            const isDimExpanded = Boolean(expandedDims[activeDim.dimension]);
-            const visibleContributors = isDimExpanded
-              ? activeDim.contributors
-              : activeDim.contributors.slice(0, 4);
-            const hasMoreContributors = activeDim.contributors.length > 4;
-
-            return (
-              <div
-                className="rounded-2xl border p-5"
-                style={{
-                  backgroundColor: "var(--bg-subtle)",
-                  borderColor: "var(--border-hairline)",
-                }}
-              >
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <h4 className="font-display text-2xl text-[var(--ink-primary)]">
-                    {activeDim.label}
-                  </h4>
-                  <span className="font-mono-tabular shrink-0 text-xl font-semibold text-[var(--accent-plum)]">
-                    {activeDim.score}/100
-                  </span>
-                </div>
-                <p className="mt-1 text-xs text-[var(--ink-secondary)]">
-                  Computed from {activeDim.answeredCount} weighted question response
-                  {activeDim.answeredCount === 1 ? "" : "s"}
-                  {onInspectQuestion ? ". Click any answer below to jump to it." : "."}
-                </p>
-
-                {activeDim.contributors.length > 0 ? (
-                  <>
-                    <ul className="mt-4 space-y-2.5">
-                      {visibleContributors.map((c) => {
-                        const content = (
-                          <>
-                            <div className="flex items-start justify-between gap-2">
-                              <p className="font-medium text-[var(--ink-primary)] line-clamp-2 text-left">
-                                {c.prompt}
-                              </p>
-                              <span
-                                className="font-mono-tabular shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold"
-                                style={{
-                                  backgroundColor:
-                                    "color-mix(in srgb, var(--accent-plum) 14%, transparent)",
-                                  color: "var(--accent-plum)",
-                                }}
-                              >
-                                {c.normalizedContribution}/100
-                              </span>
-                            </div>
-                            <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] text-[var(--ink-secondary)]">
-                              <span className="inline-flex flex-wrap items-center gap-1.5">
-                                <span>Response: {c.enjoymentLabel}</span>
-                                {c.direction === "inverse" && (
-                                  <span
-                                    className="rounded-full px-1.5 py-0.5 text-[10px] font-medium"
-                                    style={{
-                                      backgroundColor:
-                                        "color-mix(in srgb, var(--accent-rose) 15%, transparent)",
-                                      color: "var(--accent-rose)",
-                                    }}
-                                  >
-                                    Inverse pull
-                                  </span>
-                                )}
-                              </span>
-                              <span className="font-mono-tabular text-[var(--accent-plum)]">
-                                Importance: {c.importance.replace("_", " ")}
-                              </span>
-                            </div>
-                          </>
-                        );
-
-                        return (
-                          <li key={c.questionId}>
-                            {onInspectQuestion ? (
-                              <button
-                                type="button"
-                                onClick={() => onInspectQuestion(c.questionId, activeDim.dimension)}
-                                className="w-full rounded-xl border px-3.5 py-2.5 text-left text-xs transition-colors hover:border-[var(--accent-plum)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-plum)]"
-                                style={{
-                                  backgroundColor: "var(--bg-elevated)",
-                                  borderColor: "var(--border-hairline)",
-                                }}
-                              >
-                                {content}
-                              </button>
-                            ) : (
-                              <div
-                                className="rounded-xl border px-3.5 py-2.5 text-xs"
-                                style={{
-                                  backgroundColor: "var(--bg-elevated)",
-                                  borderColor: "var(--border-hairline)",
-                                }}
-                              >
-                                {content}
-                              </div>
-                            )}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                    {hasMoreContributors && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setExpandedDims((prev) => ({
-                            ...prev,
-                            [activeDim.dimension]: !isDimExpanded,
-                          }))
-                        }
-                        className="mt-3 w-full rounded-full border px-3.5 py-1.5 text-xs font-medium text-[var(--ink-primary)] transition-colors hover:border-[var(--accent-plum)]"
-                        style={{
-                          backgroundColor: "var(--bg-elevated)",
-                          borderColor: "var(--border-hairline)",
-                        }}
-                      >
-                        {isDimExpanded
-                          ? "Show fewer weighted answers"
-                          : `Show all ${activeDim.contributors.length} weighted answers`}
-                      </button>
-                    )}
-                  </>
-                ) : (
-                  <p className="mt-4 text-xs text-[var(--ink-muted)]">
-                    Answer more items linked to {activeDim.label.toLowerCase()} to inspect specific contributors.
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <div
+                  className="rounded-xl border p-3.5"
+                  style={{
+                    backgroundColor: "var(--bg-elevated)",
+                    borderColor: "var(--border-hairline)",
+                  }}
+                >
+                  <p className="text-xs text-[var(--ink-secondary)]">
+                    {primaryLabel}
                   </p>
-                )}
+                  <p className="font-mono-tabular mt-1 text-2xl font-semibold text-[var(--accent-plum)]">
+                    {overlay[selectedIndex]?.primaryScore}/100
+                  </p>
+                </div>
+                <div
+                  className="rounded-xl border p-3.5"
+                  style={{
+                    backgroundColor: "var(--bg-elevated)",
+                    borderColor: "var(--border-hairline)",
+                  }}
+                >
+                  <p className="text-xs text-[var(--ink-secondary)]">
+                    {partnerLabel}
+                  </p>
+                  <p className="font-mono-tabular mt-1 text-2xl font-semibold text-[var(--accent-cyan)]">
+                    {overlay[selectedIndex]?.partnerScore}/100
+                  </p>
+                </div>
               </div>
-            );
-          })()
-        )}
-      </div>
+            </div>
+          ) : (
+            activeDim &&
+            (() => {
+              const isDimExpanded = Boolean(expandedDims[activeDim.dimension]);
+              const visibleContributors = isDimExpanded
+                ? activeDim.contributors
+                : activeDim.contributors.slice(0, 4);
+              const hasMoreContributors = activeDim.contributors.length > 4;
+
+              return (
+                <div
+                  className="rounded-2xl border p-5"
+                  style={{
+                    backgroundColor: "var(--bg-subtle)",
+                    borderColor: "var(--border-hairline)",
+                  }}
+                >
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <h4 className="font-display text-2xl text-[var(--ink-primary)]">
+                      {activeDim.label}
+                    </h4>
+                    <span className="font-mono-tabular shrink-0 text-xl font-semibold text-[var(--accent-plum)]">
+                      {activeDim.score}/100
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-[var(--ink-secondary)]">
+                    Computed from {activeDim.answeredCount} weighted question
+                    response
+                    {activeDim.answeredCount === 1 ? "" : "s"}
+                    {onInspectQuestion
+                      ? ". Click any answer below to jump to it."
+                      : "."}
+                  </p>
+
+                  {activeDim.contributors.length > 0 ? (
+                    <>
+                      <ul className="mt-4 space-y-2.5">
+                        {visibleContributors.map((c) => {
+                          const content = (
+                            <>
+                              <div className="flex items-start justify-between gap-2">
+                                <p className="font-medium text-[var(--ink-primary)] line-clamp-2 text-left">
+                                  {c.prompt}
+                                </p>
+                                <span
+                                  className="font-mono-tabular shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                                  style={{
+                                    backgroundColor:
+                                      "color-mix(in srgb, var(--accent-plum) 14%, transparent)",
+                                    color: "var(--accent-plum)",
+                                  }}
+                                >
+                                  {c.normalizedContribution}/100
+                                </span>
+                              </div>
+                              <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] text-[var(--ink-secondary)]">
+                                <span className="inline-flex flex-wrap items-center gap-1.5">
+                                  <span>Response: {c.enjoymentLabel}</span>
+                                  {c.direction === "inverse" && (
+                                    <span
+                                      className="rounded-full px-1.5 py-0.5 text-[10px] font-medium"
+                                      style={{
+                                        backgroundColor:
+                                          "color-mix(in srgb, var(--accent-rose) 15%, transparent)",
+                                        color: "var(--accent-rose)",
+                                      }}
+                                    >
+                                      Inverse pull
+                                    </span>
+                                  )}
+                                </span>
+                                <span className="font-mono-tabular text-[var(--accent-plum)]">
+                                  Importance: {c.importance.replace("_", " ")}
+                                </span>
+                              </div>
+                            </>
+                          );
+
+                          return (
+                            <li key={c.questionId}>
+                              {onInspectQuestion ? (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    onInspectQuestion(
+                                      c.questionId,
+                                      activeDim.dimension,
+                                    )
+                                  }
+                                  className="w-full rounded-xl border px-3.5 py-2.5 text-left text-xs transition-colors hover:border-[var(--accent-plum)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-plum)]"
+                                  style={{
+                                    backgroundColor: "var(--bg-elevated)",
+                                    borderColor: "var(--border-hairline)",
+                                  }}
+                                >
+                                  {content}
+                                </button>
+                              ) : (
+                                <div
+                                  className="rounded-xl border px-3.5 py-2.5 text-xs"
+                                  style={{
+                                    backgroundColor: "var(--bg-elevated)",
+                                    borderColor: "var(--border-hairline)",
+                                  }}
+                                >
+                                  {content}
+                                </div>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      {hasMoreContributors && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setExpandedDims((prev) => ({
+                              ...prev,
+                              [activeDim.dimension]: !isDimExpanded,
+                            }))
+                          }
+                          className="mt-3 w-full rounded-full border px-3.5 py-1.5 text-xs font-medium text-[var(--ink-primary)] transition-colors hover:border-[var(--accent-plum)]"
+                          style={{
+                            backgroundColor: "var(--bg-elevated)",
+                            borderColor: "var(--border-hairline)",
+                          }}
+                        >
+                          {isDimExpanded
+                            ? "Show fewer weighted answers"
+                            : `Show all ${activeDim.contributors.length} weighted answers`}
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <p className="mt-4 text-xs text-[var(--ink-muted)]">
+                      Answer more items linked to{" "}
+                      {activeDim.label.toLowerCase()} to inspect specific
+                      contributors.
+                    </p>
+                  )}
+                </div>
+              );
+            })()
+          )}
+        </div>
+      )}
     </div>
   );
 }

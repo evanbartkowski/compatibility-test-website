@@ -9,38 +9,77 @@ export interface VerifiedFirebaseUser {
   email?: string;
   displayName?: string;
 }
+export function isAccountSessionConfigured(): boolean {
+  return getSigningSecret() !== null;
+}
 
-function getSigningSecret(): string {
-  return (
-    process.env.BETWEEN_US_UID_SECRET ||
-    process.env.BETWEEN_US_ADMIN_KEY ||
-    "truth-desire-local-uid-signing-secret"
-  );
+function getSigningSecret(): string | null {
+  const configured = process.env.BETWEEN_US_UID_SECRET?.trim();
+  if (configured && configured.length >= 32) return configured;
+  return process.env.NODE_ENV === "production"
+    ? null
+    : "truth-desire-local-uid-signing-secret";
 }
 
 export function signUidCookie(uid: string): string {
-  const sig = crypto.createHmac("sha256", getSigningSecret()).update(uid).digest("base64url");
-  return `${uid}.${sig}`;
+  const secret = getSigningSecret();
+  if (!secret)
+    throw new Error(
+      "Set BETWEEN_US_UID_SECRET to at least 32 random characters before enabling production accounts.",
+    );
+  const payload = Buffer.from(
+    JSON.stringify({
+      uid,
+      issuedAt: Date.now(),
+      expiresAt: Date.now() + 5 * 24 * 60 * 60 * 1000,
+    }),
+  ).toString("base64url");
+  const sig = crypto
+    .createHmac("sha256", secret)
+    .update(payload)
+    .digest("base64url");
+  return `${payload}.${sig}`;
 }
 
-export function verifySignedUidCookie(raw: string | undefined | null): string | null {
+export function verifySignedUidCookie(
+  raw: string | undefined | null,
+): string | null {
   if (!raw) return null;
+  const secret = getSigningSecret();
+  if (!secret) return null;
   const idx = raw.lastIndexOf(".");
   if (idx <= 0 || idx === raw.length - 1) return null;
-  const uid = raw.slice(0, idx);
+  const payload = raw.slice(0, idx);
   const sig = raw.slice(idx + 1);
-  if (uid.length < 4 || uid.length > 128) return null;
-
-  const expected = crypto.createHmac("sha256", getSigningSecret()).update(uid).digest("base64url");
+  const expected = crypto
+    .createHmac("sha256", secret)
+    .update(payload)
+    .digest("base64url");
   const sigBuf = Buffer.from(sig);
   const expBuf = Buffer.from(expected);
   if (sigBuf.length !== expBuf.length) return null;
   if (!crypto.timingSafeEqual(sigBuf, expBuf)) return null;
-  return uid;
+  try {
+    const data = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+    if (
+      typeof data.uid !== "string" ||
+      data.uid.length < 4 ||
+      data.uid.length > 128 ||
+      !Number.isFinite(data.expiresAt) ||
+      !Number.isFinite(data.issuedAt) ||
+      data.issuedAt > Date.now() + 30000 ||
+      data.expiresAt <= Date.now() ||
+      data.expiresAt - data.issuedAt > 5 * 24 * 60 * 60 * 1000
+    )
+      return null;
+    return data.uid;
+  } catch {
+    return null;
+  }
 }
 
 export async function verifyFirebaseIdToken(
-  idToken: string
+  idToken: string,
 ): Promise<VerifiedFirebaseUser | null> {
   const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY?.trim();
   if (!apiKey || !idToken || idToken.length < 32) {
@@ -48,14 +87,18 @@ export async function verifyFirebaseIdToken(
   }
 
   try {
+    const emulator = process.env.FIREBASE_AUTH_EMULATOR_HOST;
+    const base = emulator
+      ? `http://${emulator}/identitytoolkit.googleapis.com`
+      : "https://identitytoolkit.googleapis.com";
     const res = await fetch(
-      `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(apiKey)}`,
+      `${base}/v1/accounts:lookup?key=${encodeURIComponent(apiKey)}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idToken }),
         cache: "no-store",
-      }
+      },
     );
     if (!res.ok) return null;
     const data = (await res.json()) as {
@@ -80,21 +123,30 @@ export async function verifyFirebaseIdToken(
   }
 }
 
-export async function getReadOnlyVerifiedUid(req?: NextRequest): Promise<string | null> {
+export async function getReadOnlyVerifiedUid(
+  req?: NextRequest,
+): Promise<string | null> {
   const rawCookie = req
     ? req.cookies.get(UID_COOKIE_NAME)?.value
     : (await cookies()).get(UID_COOKIE_NAME)?.value;
-  return verifySignedUidCookie(rawCookie);
+  const uid = verifySignedUidCookie(rawCookie);
+  if (!uid || !rawCookie) return null;
+  const { isAccountSessionRevoked } = await import("./store");
+  const issuedAt = JSON.parse(
+    Buffer.from(rawCookie.split(".")[0], "base64url").toString(),
+  ).issuedAt;
+  return isAccountSessionRevoked(uid, issuedAt) ? null : uid;
 }
 
 export function attachUidCookie(res: NextResponse, uid: string): NextResponse {
   const isSecure =
-    process.env.NODE_ENV === "production" && process.env.ALLOW_HTTP_LOCALHOST !== "true";
+    process.env.NODE_ENV === "production" &&
+    process.env.ALLOW_HTTP_LOCALHOST !== "true";
   res.cookies.set(UID_COOKIE_NAME, signUidCookie(uid), {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 180,
+    maxAge: 60 * 60 * 24 * 5,
     secure: isSecure,
   });
   return res;

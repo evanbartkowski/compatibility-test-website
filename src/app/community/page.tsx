@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { CommunityInsightsClient } from "@/components/community/CommunityInsightsClient";
-import { builtInAssessments, getCategoryMeta } from "@/data/assessments/catalog";
+
 import { brandConfig } from "@/config/brand";
-import { getGlobalCommunityAggregates } from "@/lib/server/store";
+import {
+  getGlobalCommunityAggregates,
+  getCommunityReadiness,
+} from "@/lib/server/store";
 
 export const metadata: Metadata = {
   title: `Community Insights & Statistics | ${brandConfig.name}`,
@@ -17,27 +20,15 @@ export default function CommunityPage() {
     includeSyntheticDemo: false,
   });
 
-  const readiness = builtInAssessments.map((a) => {
-    const agg = getGlobalCommunityAggregates({
-      assessmentSlug: a.slug,
-      includeSyntheticDemo: false,
-    });
-    return {
-      slug: a.slug,
-      title: a.title,
-      category: getCategoryMeta(a.category)?.title ?? a.category,
-      realOptedInCount: agg?.realOptedInCount ?? 0,
-      minimumThreshold: brandConfig.communityMinimumThreshold,
-      unlocked: (agg?.realOptedInCount ?? 0) >= brandConfig.communityMinimumThreshold,
-    };
-  });
+  const readiness = getCommunityReadiness();
 
   return (
     <CommunityInsightsClient
       initialData={{
         assessmentSlug: slug,
         eligibleCohortParticipants: initial?.eligibleCohortParticipants ?? 0,
-        suppressedByPrivacyThreshold: initial?.suppressedByPrivacyThreshold ?? true,
+        suppressedByPrivacyThreshold:
+          initial?.suppressedByPrivacyThreshold ?? true,
         minimumThreshold: brandConfig.communityMinimumThreshold,
         realOptedInCount: initial?.realOptedInCount ?? 0,
         isSyntheticDemo: false,

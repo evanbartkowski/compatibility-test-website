@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Bodoni_Moda, Figtree, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, Figtree } from "next/font/google";
 import { brandConfig } from "@/config/brand";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -14,17 +14,9 @@ const figtree = Figtree({
   display: "swap",
 });
 
-const bodoniModa = Bodoni_Moda({
+const display = Space_Grotesk({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-bodoni-moda",
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-jetbrains-mono",
+  variable: "--font-display",
   display: "swap",
 });
 
@@ -48,7 +40,7 @@ export default function RootLayout({
       lang="en"
       data-theme="dark"
       suppressHydrationWarning
-      className={`dark ${figtree.variable} ${bodoniModa.variable} ${jetbrainsMono.variable}`}
+      className={`dark ${figtree.variable} ${display.variable}`}
     >
       <body className="min-h-screen flex flex-col antialiased">
         <Script id="between-us-theme-init" strategy="beforeInteractive">
@@ -56,8 +48,13 @@ export default function RootLayout({
         </Script>
         <ThemeProvider>
           <AuthProvider>
+            <a href="#main-content" className="skip-link">
+              Skip to content
+            </a>
             <SiteHeader />
-            <main className="flex-1">{children}</main>
+            <main id="main-content" tabIndex={-1} className="flex-1">
+              {children}
+            </main>
             <SiteFooter />
           </AuthProvider>
         </ThemeProvider>

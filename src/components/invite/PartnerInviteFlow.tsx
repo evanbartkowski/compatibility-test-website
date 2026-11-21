@@ -1,10 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight, Clock, Lock, ShieldCheck } from "lucide-react";
 import { AssessmentRunner } from "@/components/assessment/AssessmentRunner";
-import type { AssessmentDefinition, AssessmentMode } from "@/lib/assessment/types";
+import type {
+  AssessmentDefinition,
+  AssessmentMode,
+  SharingPreferences,
+} from "@/lib/assessment/types";
 
 interface PartnerInviteFlowProps {
   token: string;
@@ -13,6 +18,7 @@ interface PartnerInviteFlowProps {
   mode: AssessmentMode;
   assessment: AssessmentDefinition;
   existingCompatibilityId?: string;
+  savedResults?: Array<{ id: string; createdAt: string; mode: string }>;
 }
 
 export function PartnerInviteFlow({
@@ -22,8 +28,23 @@ export function PartnerInviteFlow({
   mode,
   assessment,
   existingCompatibilityId,
+  savedResults = [],
 }: PartnerInviteFlowProps) {
+  const router = useRouter();
   const [acceptedIntro, setAcceptedIntro] = useState(false);
+  const [savedId, setSavedId] = useState(""),
+    [consented, setConsented] = useState(false),
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  const [sharing, setSharing] = useState<SharingPreferences>({
+    shareCategoryScores: true,
+    shareAlignedHighlights: true,
+    shareComplementaryHighlights: true,
+    shareSharedCuriosities: false,
+    shareHighLevelBoundariesWithoutDetails: true,
+    neverExposeRawPrivateAnswers: true,
+    shareGameAnswerDetails: false,
+  });
 
   if (existingCompatibilityId) {
     return (
@@ -40,7 +61,8 @@ export function PartnerInviteFlow({
             Compatibility Report Ready
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-[var(--ink-secondary)]">
-            This invitation with {creatorDisplayName} has already been completed.
+            This invitation with {creatorDisplayName} has already been
+            completed.
           </p>
           <Link
             href={`/compatibility/${existingCompatibilityId}`}
@@ -89,14 +111,14 @@ export function PartnerInviteFlow({
         </h1>
 
         <p className="mt-4 text-sm leading-relaxed text-[var(--ink-secondary)]">
-          You will answer a complementary perspective of the <strong>{assessment.title}</strong>{" "}
-          questionnaire ({itemCount}{" "}
+          You will answer a complementary perspective of the{" "}
+          <strong>{assessment.title}</strong> questionnaire ({itemCount}{" "}
           {mode === "quick" && assessment.supportsQuickMode !== false
             ? "quick-discovery items"
             : "complete items"}
-          ). Your private responses are never sent straight to your partner; compatibility is
-          calculated through mutual sharing filters that respect firm boundaries and private reveal
-          locks unconditionally.
+          ). Your private responses are never sent straight to your partner;
+          compatibility is calculated through mutual sharing filters that
+          respect firm boundaries and private reveal locks unconditionally.
         </p>
 
         <div
@@ -120,8 +142,124 @@ export function PartnerInviteFlow({
           </span>
         </div>
 
+        {savedResults.length > 0 && (
+          <section className="saved-comparison-choice">
+            <h2 className="font-display text-2xl">
+              Already explored this test?
+            </h2>
+            <p className="text-sm mt-2">
+              Reuse your own result from the same test and scoring version. If
+              either result is quick, only the shared quick questions are
+              compared.
+            </p>
+            <label className="form-field mt-4">
+              <span>Choose a compatible saved result</span>
+              <select
+                value={savedId}
+                onChange={(e) => setSavedId(e.target.value)}
+              >
+                <option value="">Select an attempt</option>
+                {savedResults.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {new Date(s.createdAt).toLocaleDateString()} ·{" "}
+                    {s.mode === "quick" ? "Quick" : "Deep"}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="share-selection-fields">
+              {(
+                [
+                  "shareCategoryScores",
+                  "shareAlignedHighlights",
+                  "shareComplementaryHighlights",
+                  "shareSharedCuriosities",
+                  "shareHighLevelBoundariesWithoutDetails",
+                  "shareGameAnswerDetails",
+                ] as const
+              ).map((key) => (
+                <label key={key}>
+                  <input
+                    type="checkbox"
+                    checked={Boolean(sharing[key])}
+                    onChange={(e) =>
+                      setSharing((old) => ({ ...old, [key]: e.target.checked }))
+                    }
+                  />
+                  {
+                    {
+                      shareCategoryScores: "Category scores",
+                      shareAlignedHighlights: "Alignment & differences",
+                      shareComplementaryHighlights: "Complementary highlights",
+                      shareSharedCuriosities: "Mutual interests",
+                      shareHighLevelBoundariesWithoutDetails:
+                        "High level boundary notice",
+                      shareGameAnswerDetails:
+                        "Individual game answers, only if both agree",
+                    }[key]
+                  }
+                </label>
+              ))}
+              <label>
+                <input
+                  type="checkbox"
+                  checked={consented}
+                  onChange={(e) => setConsented(e.target.checked)}
+                />
+                I am 18 or older, accept the privacy terms, and authorize this
+                comparison of my selected result.
+              </label>
+            </div>
+            <button
+              className="button button-primary mt-4"
+              disabled={!savedId || !consented || busy}
+              onClick={async () => {
+                setBusy(true);
+                setError("");
+                try {
+                  const response = await fetch(`/api/invitations/${token}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      existingResultId: savedId,
+                      consent: {
+                        confirmedAdult18Plus: true,
+                        acceptedPrivacyTerms: true,
+                        optInCommunityStats: false,
+                        consentedAt: new Date().toISOString(),
+                      },
+                      partnerSharing: sharing,
+                    }),
+                  });
+                  const data = await response.json();
+                  if (!response.ok) throw new Error(data.error);
+                  router.push(`/compatibility/${data.compatibilityId}`);
+                } catch (e) {
+                  setError(
+                    e instanceof Error ? e.message : "Unable to compare.",
+                  );
+                } finally {
+                  setBusy(false);
+                }
+              }}
+            >
+              {busy ? "Comparing…" : "Compare my saved result"}
+            </button>
+            {error && (
+              <p
+                role="alert"
+                className="mt-3 text-sm text-[var(--accent-rose)]"
+              >
+                {error}
+              </p>
+            )}
+          </section>
+        )}
         <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
-          <Link href="/" className="text-xs font-medium text-[var(--ink-muted)] hover:underline">
+          <Link
+            href="/"
+            className="text-xs font-medium text-[var(--ink-muted)] hover:underline"
+          >
             Decline &amp; return home
           </Link>
           <button
@@ -133,7 +271,8 @@ export function PartnerInviteFlow({
               color: "var(--accent-plum-contrast)",
             }}
           >
-            Continue to Consent &amp; Questions <ArrowRight className="h-4 w-4" />
+            Continue to Consent &amp; Questions{" "}
+            <ArrowRight className="h-4 w-4" />
           </button>
         </div>
       </div>

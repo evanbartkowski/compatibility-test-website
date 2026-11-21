@@ -43,8 +43,10 @@ export function PartnerInviteModal({ resultId }: PartnerInviteModalProps) {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Unable to create invitation.");
-      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      if (!res.ok)
+        throw new Error(data.error || "Unable to create invitation.");
+      const origin =
+        typeof window !== "undefined" ? window.location.origin : "";
       setInviteUrl(`${origin}/invite/${data.token}`);
       setExpiresAt(data.expiresAt);
     } catch (err) {
@@ -94,8 +96,8 @@ export function PartnerInviteModal({ resultId }: PartnerInviteModalProps) {
                 Discover how compatible you are together
               </Dialog.Title>
               <Dialog.Description className="mt-1.5 text-xs leading-relaxed text-[var(--ink-secondary)]">
-                Creates an unguessable, revocable link for your partner. Zero answers are stored in
-                the URL, and no account is required.
+                Creates an unguessable, revocable link for your partner. Zero
+                answers are stored in the URL, and no account is required.
               </Dialog.Description>
             </div>
             <Dialog.Close asChild>
@@ -153,19 +155,44 @@ export function PartnerInviteModal({ resultId }: PartnerInviteModalProps) {
                 <div className="mt-2.5 space-y-2 text-xs text-[var(--ink-secondary)]">
                   {(
                     [
-                      ["shareCategoryScores", "Share category scores & overlay radar"],
-                      ["shareAlignedHighlights", "Share aligned & differing topic summaries"],
-                      ["shareComplementaryHighlights", "Share complementary dynamic insights"],
-                      ["shareSharedCuriosities", "Reveal mutually shared curiosities only"],
-                      ["shareHighLevelBoundariesWithoutDetails", "Include high-level boundary reminders"],
+                      [
+                        "shareCategoryScores",
+                        "Share category scores & overlay radar",
+                      ],
+                      [
+                        "shareGameAnswerDetails",
+                        "Reveal individual answers in prediction / voting games (only if both agree)",
+                      ],
+                      [
+                        "shareAlignedHighlights",
+                        "Share aligned & differing topic summaries",
+                      ],
+                      [
+                        "shareComplementaryHighlights",
+                        "Share complementary dynamic insights",
+                      ],
+                      [
+                        "shareSharedCuriosities",
+                        "Reveal mutually shared curiosities only",
+                      ],
+                      [
+                        "shareHighLevelBoundariesWithoutDetails",
+                        "Include high-level boundary reminders",
+                      ],
                     ] as const
                   ).map(([field, label]) => (
-                    <label key={field} className="flex cursor-pointer items-center gap-2.5">
+                    <label
+                      key={field}
+                      className="flex cursor-pointer items-center gap-2.5"
+                    >
                       <input
                         type="checkbox"
-                        checked={sharing[field]}
+                        checked={Boolean(sharing[field])}
                         onChange={(e) =>
-                          setSharing((s) => ({ ...s, [field]: e.target.checked }))
+                          setSharing((s) => ({
+                            ...s,
+                            [field]: e.target.checked,
+                          }))
                         }
                         className="h-3.5 w-3.5 accent-[var(--accent-plum)]"
                       />
@@ -176,7 +203,10 @@ export function PartnerInviteModal({ resultId }: PartnerInviteModalProps) {
               </div>
 
               {error && (
-                <p role="alert" className="text-xs font-medium text-[var(--accent-rose)]">
+                <p
+                  role="alert"
+                  className="text-xs font-medium text-[var(--accent-rose)]"
+                >
                   {error}
                 </p>
               )}
@@ -201,7 +231,9 @@ export function PartnerInviteModal({ resultId }: PartnerInviteModalProps) {
                   }}
                 >
                   <Lock className="h-3.5 w-3.5" />
-                  {loading ? "Creating Secure Link..." : "Create Private Invitation"}
+                  {loading
+                    ? "Creating Secure Link..."
+                    : "Create Private Invitation"}
                 </button>
               </div>
             </div>
@@ -222,7 +254,8 @@ export function PartnerInviteModal({ resultId }: PartnerInviteModalProps) {
                 </p>
                 {expiresAt && (
                   <p className="mt-2 text-[11px] text-[var(--ink-muted)]">
-                    Expires: {new Date(expiresAt).toLocaleString()} · Revocable anytime from your Dashboard
+                    Expires: {new Date(expiresAt).toLocaleString()} · Revocable
+                    anytime from your Dashboard
                   </p>
                 )}
               </div>
@@ -237,7 +270,11 @@ export function PartnerInviteModal({ resultId }: PartnerInviteModalProps) {
                     color: "var(--accent-plum-contrast)",
                   }}
                 >
-                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {copied ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
                   {copied ? "Copied Link" : "Copy Private Link"}
                 </button>
 

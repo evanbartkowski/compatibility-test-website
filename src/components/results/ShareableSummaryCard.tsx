@@ -1,149 +1,223 @@
 "use client";
-
-import React, { useState } from "react";
-import { Download, Image as ImageIcon, ShieldCheck } from "lucide-react";
-import { brandConfig } from "@/config/brand";
+import { useMemo, useState } from "react";
+import Image from "next/image";
+import { Download, LockKeyhole, Image as ImageIcon } from "lucide-react";
 import type { ScoredAssessmentResult } from "@/lib/assessment/types";
-
-function escapeXml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+import {
+  projectResultForSharing,
+  buildShareCardSvg,
+  type ResultShareSelection,
+} from "@/lib/assessment/sharing";
+function download(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob),
+    a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
-
-function buildSafeCardSvg(result: ScoredAssessmentResult): string {
-  const topDims = result.radar.slice(0, 7);
-  const height = Math.max(400, 230 + topDims.length * 34);
-  const dims = topDims
-    .map(
-      (d, idx) =>
-        `<text x="48" y="${210 + idx * 32}" font-family="system-ui, sans-serif" font-size="13.5" fill="#DFC2D1">${escapeXml(
-          d.label.length > 26 ? `${d.label.slice(0, 24)}...` : d.label
-        )}</text>
-         <rect x="240" y="${198 + idx * 32}" width="270" height="10" rx="5" fill="#271C2B"/>
-         <rect x="240" y="${198 + idx * 32}" width="${Math.round(
-           (d.score / 100) * 270
-         )}" height="10" rx="5" fill="#FF5C9E"/>
-         <text x="526" y="${210 + idx * 32}" font-family="monospace" font-size="13" fill="#FDF2F7">${
-           d.score
-         }</text>`
-    )
-    .join("\n");
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="${height}" viewBox="0 0 600 ${height}">
-    <rect width="600" height="${height}" rx="24" fill="#08060A"/>
-    <rect x="16" y="16" width="568" height="${height - 32}" rx="18" fill="#110C13" stroke="#5E3B55"/>
-    <text x="48" y="60" font-family="Georgia, serif" font-size="15" fill="#E5BC87">${escapeXml(
-      brandConfig.name
-    )} · ${escapeXml(result.assessmentTitle ?? result.assessmentSlug)}</text>
-    <text x="48" y="108" font-family="Georgia, serif" font-size="30" fill="#FDF2F7">${escapeXml(
-      result.profile.archetypeName
-    )}</text>
-    <text x="48" y="142" font-family="system-ui, sans-serif" font-size="12.5" fill="#DFC2D1">High-level summary card · Private answers &amp; boundaries omitted</text>
-    <line x1="48" y1="168" x2="552" y2="168" stroke="#2F202D"/>
-    ${dims}
-    <text x="48" y="${height - 36}" font-family="system-ui, sans-serif" font-size="11" fill="#AE8E9E">Reflective summary (v${escapeXml(
-      result.scoringEngineVersion
-    )}) · Not a clinical diagnosis</text>
-  </svg>`;
-}
-
-export function ShareableSummaryCard({ result }: { result: ScoredAssessmentResult }) {
-  const [downloadedType, setDownloadedType] = useState<"svg" | "png" | null>(null);
-
-  const safeSlug = result.profile.archetypeName
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-
-  const handleDownloadSvg = () => {
-    const svg = buildSafeCardSvg(result);
-    const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `truth-desire-card-${safeSlug || "profile"}.svg`;
-    a.click();
-    URL.revokeObjectURL(url);
-    setDownloadedType("svg");
-    setTimeout(() => setDownloadedType(null), 2500);
-  };
-
-  const handleDownloadPng = () => {
-    const svg = buildSafeCardSvg(result);
-    const img = new window.Image();
-    const svgBlob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(svgBlob);
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = 1200;
-      canvas.height = img.height * 2 || 960;
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.scale(2, 2);
-        ctx.drawImage(img, 0, 0);
-        canvas.toBlob((pngBlob) => {
-          if (pngBlob) {
-            const pngUrl = URL.createObjectURL(pngBlob);
-            const a = document.createElement("a");
-            a.href = pngUrl;
-            a.download = `truth-desire-card-${safeSlug || "profile"}.png`;
-            a.click();
-            URL.revokeObjectURL(pngUrl);
-          }
-        }, "image/png");
+export function ShareableSummaryCard({
+  result,
+}: {
+  result: ScoredAssessmentResult;
+}) {
+  const [selection, setSelection] = useState<ResultShareSelection>({
+    dimensionKeys: [],
+    includeArchetype: false,
+    includeAssessmentTitle: false,
+    allowSensitive: false,
+  });
+  const [error, setError] = useState(""),
+    [saving, setSaving] = useState(false),
+    [status, setStatus] = useState("");
+  const preview = useMemo(() => {
+    try {
+      return buildShareCardSvg(projectResultForSharing(result, selection));
+    } catch {
+      return null;
+    }
+  }, [result, selection]);
+  const sensitive =
+    result.adultsOnly || result.assessmentCategory === "sexuality-intimacy";
+  const exportCard = async (format: "svg" | "png") => {
+    setError("");
+    setStatus("");
+    setSaving(true);
+    try {
+      const svg = buildShareCardSvg(projectResultForSharing(result, selection));
+      if (format === "svg")
+        download(
+          new Blob([svg], { type: "image/svg+xml;charset=utf-8" }),
+          "truth-desire-selected-profile.svg",
+        );
+      else {
+        const image = new window.Image(),
+          url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
+        try {
+          await new Promise<void>((resolve, reject) => {
+            image.onload = () => resolve();
+            image.onerror = () =>
+              reject(
+                new Error(
+                  "The image could not be rendered. Try the SVG download.",
+                ),
+              );
+            image.src = url;
+          });
+          const canvas = document.createElement("canvas");
+          canvas.width = image.naturalWidth;
+          canvas.height = image.naturalHeight;
+          const context = canvas.getContext("2d");
+          if (!context)
+            throw new Error(
+              "Image export is unavailable in this browser. Download the SVG instead.",
+            );
+          context.drawImage(image, 0, 0);
+          const blob = await new Promise<Blob | null>((resolve) =>
+            canvas.toBlob(resolve, "image/png"),
+          );
+          if (!blob)
+            throw new Error("PNG export failed. Download the SVG instead.");
+          download(blob, "truth-desire-selected-profile.png");
+        } finally {
+          URL.revokeObjectURL(url);
+        }
       }
-      URL.revokeObjectURL(url);
-      setDownloadedType("png");
-      setTimeout(() => setDownloadedType(null), 2500);
-    };
-    img.src = url;
+      setStatus(
+        `${format.toUpperCase()} download started. Only your selected fields are included.`,
+      );
+    } catch (e) {
+      setError(
+        e instanceof Error ? e.message : "Unable to create the result card.",
+      );
+    } finally {
+      setSaving(false);
+    }
   };
-
   return (
-    <div
-      className="flex flex-col justify-between gap-4 rounded-2xl border p-5 sm:flex-row sm:items-center no-print"
-      style={{
-        backgroundColor: "var(--bg-subtle)",
-        borderColor: "var(--border-hairline)",
-      }}
-    >
-      <div className="space-y-1">
-        <div className="flex items-center gap-2 text-xs font-medium text-[var(--accent-sage)]">
-          <ShieldCheck className="h-4 w-4" />
-          Privacy-screened summary card
+    <section className="share-card-editor no-print">
+      <div>
+        <span className="intro-pill">
+          <LockKeyhole size={13} />
+          Selected by you
+        </span>
+        <h3 className="font-display text-2xl mt-4">Make your result card.</h3>
+        <p className="text-sm leading-relaxed text-[var(--ink-muted)] mt-3">
+          Choose exactly what appears in the image. Private answers are never
+          included.
+        </p>
+        <div className="share-selection-fields !border-0 !px-0">
+          <label>
+            <input
+              type="checkbox"
+              checked={selection.includeArchetype}
+              onChange={(e) =>
+                setSelection((s) => ({
+                  ...s,
+                  includeArchetype: e.target.checked,
+                }))
+              }
+            />
+            Include archetype & description
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={selection.includeAssessmentTitle}
+              onChange={(e) =>
+                setSelection((s) => ({
+                  ...s,
+                  includeAssessmentTitle: e.target.checked,
+                }))
+              }
+            />
+            Include test title
+          </label>
+          {result.radar
+            .filter((d) => d.answeredCount > 0)
+            .map((d) => (
+              <label key={d.dimension}>
+                <input
+                  type="checkbox"
+                  checked={selection.dimensionKeys.includes(d.dimension)}
+                  onChange={(e) =>
+                    setSelection((s) => ({
+                      ...s,
+                      dimensionKeys: e.target.checked
+                        ? [...s.dimensionKeys, d.dimension]
+                        : s.dimensionKeys.filter((key) => key !== d.dimension),
+                    }))
+                  }
+                />
+                {d.label}
+                <span>{d.score}%</span>
+              </label>
+            ))}
+          {sensitive && (
+            <label className="sensitive-ack">
+              <input
+                type="checkbox"
+                checked={selection.allowSensitive}
+                onChange={(e) =>
+                  setSelection((s) => ({
+                    ...s,
+                    allowSensitive: e.target.checked,
+                  }))
+                }
+              />
+              I choose to include the selected sensitive result fields in this
+              image.
+            </label>
+          )}
         </div>
-        <p className="text-sm font-medium text-[var(--ink-primary)]">
-          Shareable Summary Card ({result.profile.archetypeName})
-        </p>
-        <p className="text-xs text-[var(--ink-secondary)]">
-          Exports only your archetype and high-level dimension bars. Specific acts, private answers,
-          and boundaries stay hidden.
-        </p>
+        {error && (
+          <p role="alert" className="form-error">
+            {error}
+          </p>
+        )}
+        <div className="flex flex-wrap gap-3 mt-5">
+          <button
+            className="button button-primary"
+            onClick={() => exportCard("png")}
+            disabled={saving}
+          >
+            <ImageIcon size={15} />
+            Download PNG
+          </button>
+          <button
+            className="button button-secondary"
+            onClick={() => exportCard("svg")}
+            disabled={saving}
+          >
+            <Download size={15} />
+            Download SVG
+          </button>
+        </div>
+        {status && (
+          <p role="status" className="text-sm text-[var(--accent-sage)] mt-4">
+            {status}
+          </p>
+        )}
       </div>
-
-      <div className="flex shrink-0 flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={handleDownloadPng}
-          className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium text-[var(--ink-primary)] hover:bg-[var(--bg-elevated)]"
-          style={{ borderColor: "var(--border-strong)" }}
-        >
-          <ImageIcon className="h-3.5 w-3.5" />
-          {downloadedType === "png" ? "PNG Saved" : "Save PNG"}
-        </button>
-        <button
-          type="button"
-          onClick={handleDownloadSvg}
-          className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium text-[var(--ink-primary)] hover:bg-[var(--bg-elevated)]"
-          style={{ borderColor: "var(--border-hairline)" }}
-        >
-          <Download className="h-3.5 w-3.5" />
-          {downloadedType === "svg" ? "SVG Saved" : "Download Safe Summary Card"}
-        </button>
+      <div className="result-card-preview">
+        {preview ? (
+          <Image
+            unoptimized
+            src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(preview)}`}
+            width="1200"
+            height={Math.max(
+              630,
+              410 + Math.ceil(selection.dimensionKeys.length / 2) * 68,
+            )}
+            alt="Preview of the result fields selected for sharing"
+          />
+        ) : (
+          <div className="empty-state">
+            <LockKeyhole className="mx-auto mb-4" />
+            <p>Select the fields you’d like to include to preview your card.</p>
+          </div>
+        )}
       </div>
-    </div>
+    </section>
   );
 }

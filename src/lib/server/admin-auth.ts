@@ -48,7 +48,11 @@ export function verifyAdminCookieValue(value: string | undefined): boolean {
   if (parts.length !== 2) return false;
   const [issuedAt, sig] = parts;
   const ts = Number(issuedAt);
-  if (!Number.isFinite(ts) || Date.now() - ts > 1000 * 60 * 60 * 12) {
+  if (
+    !Number.isFinite(ts) ||
+    ts > Date.now() + 30000 ||
+    Date.now() - ts > 1000 * 60 * 60 * 12
+  ) {
     return false;
   }
   const expected = signAdminPayload(issuedAt, secret);
@@ -79,7 +83,8 @@ export async function isAdminRequest(req?: NextRequest): Promise<boolean> {
 export function attachAdminCookie(res: NextResponse): NextResponse {
   const val = createAdminCookieValue();
   const isSecure =
-    process.env.NODE_ENV === "production" && process.env.ALLOW_HTTP_LOCALHOST !== "true";
+    process.env.NODE_ENV === "production" &&
+    process.env.ALLOW_HTTP_LOCALHOST !== "true";
   if (val) {
     res.cookies.set(ADMIN_COOKIE_NAME, val, {
       httpOnly: true,

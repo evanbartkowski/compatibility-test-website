@@ -13,8 +13,12 @@ import {
   Trash2,
 } from "lucide-react";
 import { PreferenceHistoryChart } from "@/components/charts/PreferenceHistoryChart";
-import { builtInAssessments } from "@/data/assessments/catalog";
-import type { AssessmentDraft, ScoredAssessmentResult } from "@/lib/assessment/types";
+import { areHistoryResultsComparable } from "@/lib/assessment/definition";
+import { ConfirmAction } from "@/components/ConfirmAction";
+import type {
+  AssessmentDraft,
+  ScoredAssessmentResult,
+} from "@/lib/assessment/types";
 import { formatShortDate } from "@/lib/utils";
 
 interface SubmissionSummary {
@@ -28,11 +32,16 @@ interface SubmissionSummary {
   result: ScoredAssessmentResult;
 }
 
-export function MyResultsClient({ initialSubmissions }: { initialSubmissions: SubmissionSummary[] }) {
+export function MyResultsClient({
+  initialSubmissions,
+  libraryCount,
+}: {
+  initialSubmissions: SubmissionSummary[];
+  libraryCount: number;
+}) {
   const [submissions, setSubmissions] = useState(initialSubmissions);
   const [drafts, setDrafts] = useState<AssessmentDraft[]>([]);
   const [search, setSearch] = useState("");
-  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [compareNewest, setCompareNewest] = useState("");
   const [compareOlder, setCompareOlder] = useState("");
 
@@ -42,7 +51,9 @@ export function MyResultsClient({ initialSubmissions }: { initialSubmissions: Su
       for (let i = 0; i < window.localStorage.length; i++) {
         const k = window.localStorage.key(i);
         if (k && k.startsWith("between_us_draft_")) {
-          const parsed = JSON.parse(window.localStorage.getItem(k) || "{}") as AssessmentDraft;
+          const parsed = JSON.parse(
+            window.localStorage.getItem(k) || "{}",
+          ) as AssessmentDraft;
           if (parsed && Object.keys(parsed.answers || {}).length > 0) {
             foundDrafts.push(parsed);
           }
@@ -63,21 +74,27 @@ export function MyResultsClient({ initialSubmissions }: { initialSubmissions: Su
   };
 
   const handleDeleteSingle = async (submissionId: string) => {
-    setDeletingId(submissionId);
     try {
-      const res = await fetch(`/api/results/${encodeURIComponent(submissionId)}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `/api/results/${encodeURIComponent(submissionId)}`,
+        {
+          method: "DELETE",
+        },
+      );
+      if (!res.ok) throw new Error("Unable to delete this result.");
       if (res.ok) {
-        setSubmissions((prev) => prev.filter((s) => s.submissionId !== submissionId));
+        setSubmissions((prev) =>
+          prev.filter((s) => s.submissionId !== submissionId),
+        );
       }
-    } finally {
-      setDeletingId(null);
+    } catch (error) {
+      throw error;
     }
   };
 
   const handleDeleteAll = async () => {
-    await fetch("/api/dashboard", { method: "DELETE" });
+    const response = await fetch("/api/dashboard", { method: "DELETE" });
+    if (!response.ok) throw new Error("Unable to erase your data. Try again.");
     try {
       const keys: string[] = [];
       for (let i = 0; i < window.localStorage.length; i++) {
@@ -96,9 +113,25 @@ export function MyResultsClient({ initialSubmissions }: { initialSubmissions: Su
   const repeatedSlugs = useMemo(() => {
     const counts = new Map<string, SubmissionSummary[]>();
     for (const s of submissions) {
-      const arr = counts.get(s.assessmentSlug) || [];
+      const arr =
+        counts.get(
+          JSON.stringify([
+            s.assessmentSlug,
+            s.assessmentVersion,
+            s.result.scoringEngineVersion,
+            s.mode,
+          ]),
+        ) || [];
       arr.push(s);
-      counts.set(s.assessmentSlug, arr);
+      counts.set(
+        JSON.stringify([
+          s.assessmentSlug,
+          s.assessmentVersion,
+          s.result.scoringEngineVersion,
+          s.mode,
+        ]),
+        arr,
+      );
     }
     return Array.from(counts.entries()).filter(([, list]) => list.length >= 2);
   }, [submissions]);
@@ -107,11 +140,15 @@ export function MyResultsClient({ initialSubmissions }: { initialSubmissions: Su
     const q = search.trim().toLowerCase();
     if (!q) return submissions;
     return submissions.filter((s) =>
-      [s.assessmentSlug, s.result.assessmentTitle, s.result.profile.archetypeName]
+      [
+        s.assessmentSlug,
+        s.result.assessmentTitle,
+        s.result.profile.archetypeName,
+      ]
         .filter(Boolean)
         .join(" ")
         .toLowerCase()
-        .includes(q)
+        .includes(q),
     );
   }, [submissions, search]);
 
@@ -120,26 +157,27 @@ export function MyResultsClient({ initialSubmissions }: { initialSubmissions: Su
     .map((s) => s.result);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+    <div className="site-shell py-12 sm:py-16">
       <div className="flex flex-col justify-between gap-4 border-b pb-6 sm:flex-row sm:items-end">
         <div>
           <h1 className="font-display text-4xl tracking-tight text-[var(--ink-primary)] sm:text-5xl">
             My Saved Results ({submissions.length})
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-[var(--ink-secondary)]">
-            Download PDF, CSV, or JSON reports, compare past attempts, resume saved drafts, or
-            delete results anytime.
+            Download PDF, CSV, or JSON reports, compare past attempts, resume
+            saved drafts, or delete results anytime.
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleDeleteAll}
-          className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium text-[var(--accent-rose)] hover:bg-[var(--bg-subtle)]"
-          style={{ borderColor: "var(--accent-rose)" }}
+        <ConfirmAction
+          title="Erase all saved data?"
+          description="This permanently erases your results, invitations and private reports and invalidates related shared links. Download an export first if you want a copy."
+          confirmLabel="Erase all data"
+          onConfirm={handleDeleteAll}
         >
-          <Trash2 className="h-3.5 w-3.5" /> Delete All Stored Data
-        </button>
+          <Trash2 size={14} />
+          Delete All Stored Data
+        </ConfirmAction>
       </div>
 
       {/* Unfinished Drafts */}
@@ -165,7 +203,8 @@ export function MyResultsClient({ initialSubmissions }: { initialSubmissions: Su
                     {d.assessmentSlug.replace(/-/g, " ")} ({d.mode})
                   </p>
                   <p className="text-[var(--ink-secondary)]">
-                    {Object.keys(d.answers).length} saved · {formatShortDate(d.updatedAt)}
+                    {Object.keys(d.answers).length} saved ·{" "}
+                    {formatShortDate(d.updatedAt)}
                   </p>
                 </div>
                 <Link
@@ -203,16 +242,21 @@ export function MyResultsClient({ initialSubmissions }: { initialSubmissions: Su
             <select
               aria-label="Select newer attempt"
               value={compareNewest}
-              onChange={(e) => setCompareNewest(e.target.value)}
+              onChange={(e) => {
+                setCompareNewest(e.target.value);
+                setCompareOlder("");
+              }}
               className="rounded-xl border bg-[var(--bg-canvas)] px-3 py-2 text-[var(--ink-primary)]"
             >
               <option value="">Choose newer result...</option>
               {repeatedSlugs.flatMap(([, list]) =>
                 list.map((s) => (
                   <option key={`n-${s.submissionId}`} value={s.submissionId}>
-                    {s.result.assessmentTitle ?? s.assessmentSlug} · {formatShortDate(s.createdAt)} ({s.result.profile.archetypeName})
+                    {s.result.assessmentTitle ?? s.assessmentSlug} ·{" "}
+                    {formatShortDate(s.createdAt)} (
+                    {s.result.profile.archetypeName})
                   </option>
-                ))
+                )),
               )}
             </select>
             <span className="text-[var(--ink-muted)]">vs.</span>
@@ -224,25 +268,41 @@ export function MyResultsClient({ initialSubmissions }: { initialSubmissions: Su
             >
               <option value="">Choose older result...</option>
               {repeatedSlugs.flatMap(([, list]) =>
-                list.map((s) => (
-                  <option key={`o-${s.submissionId}`} value={s.submissionId}>
-                    {s.result.assessmentTitle ?? s.assessmentSlug} · {formatShortDate(s.createdAt)} ({s.result.profile.archetypeName})
-                  </option>
-                ))
+                list
+                  .filter(
+                    (s) =>
+                      s.submissionId !== compareNewest &&
+                      (!compareNewest ||
+                        areHistoryResultsComparable(
+                          s.result,
+                          submissions.find(
+                            (n) => n.submissionId === compareNewest,
+                          )!.result,
+                        )),
+                  )
+                  .map((s) => (
+                    <option key={`o-${s.submissionId}`} value={s.submissionId}>
+                      {s.result.assessmentTitle ?? s.assessmentSlug} ·{" "}
+                      {formatShortDate(s.createdAt)} (
+                      {s.result.profile.archetypeName})
+                    </option>
+                  )),
               )}
             </select>
-            {compareNewest && compareOlder && compareNewest !== compareOlder && (
-              <Link
-                href={`/results/${compareNewest}?compare=${encodeURIComponent(compareOlder)}`}
-                className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 font-medium"
-                style={{
-                  backgroundColor: "var(--accent-plum)",
-                  color: "var(--accent-plum-contrast)",
-                }}
-              >
-                Compare Selected <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            )}
+            {compareNewest &&
+              compareOlder &&
+              compareNewest !== compareOlder && (
+                <Link
+                  href={`/results/${compareNewest}?compare=${encodeURIComponent(compareOlder)}`}
+                  className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 font-medium"
+                  style={{
+                    backgroundColor: "var(--accent-plum)",
+                    color: "var(--accent-plum-contrast)",
+                  }}
+                >
+                  Compare Selected <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              )}
           </div>
         </section>
       )}
@@ -256,6 +316,7 @@ export function MyResultsClient({ initialSubmissions }: { initialSubmissions: Su
           {submissions.length > 0 && (
             <input
               type="search"
+              aria-label="Filter saved results"
               placeholder="Filter results by assessment or archetype..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -271,8 +332,8 @@ export function MyResultsClient({ initialSubmissions }: { initialSubmissions: Su
               No saved results yet
             </p>
             <p className="mt-2 text-sm text-[var(--ink-secondary)]">
-              Complete any assessment across all {builtInAssessments.length} modules to generate
-              private visual insights and downloadable reports.
+              Complete any assessment across all {libraryCount} modules to
+              generate private visual insights and downloadable reports.
             </p>
             <Link
               href="/explore"
@@ -306,13 +367,18 @@ export function MyResultsClient({ initialSubmissions }: { initialSubmissions: Su
                     <span>·</span>
                     <span>{sub.mode}</span>
                     <span>·</span>
-                    <span className="font-mono-tabular">{sub.result.coveragePercent}% coverage</span>
+                    <span className="font-mono-tabular">
+                      {sub.result.coveragePercent}% coverage
+                    </span>
                   </div>
                   <h3 className="font-display text-2xl text-[var(--ink-primary)]">
                     {sub.result.profile.archetypeName}
                   </h3>
                   <p className="text-xs text-[var(--ink-secondary)]">
-                    Community stats: {sub.optInCommunityStats ? "Opted in" : "Private (excluded)"}
+                    Community stats:{" "}
+                    {sub.optInCommunityStats
+                      ? "Opted in"
+                      : "Private (excluded)"}
                   </p>
                 </div>
 
@@ -335,15 +401,15 @@ export function MyResultsClient({ initialSubmissions }: { initialSubmissions: Su
                   >
                     <FileJson className="h-3 w-3" /> JSON
                   </a>
-                  <button
-                    type="button"
-                    disabled={deletingId === sub.submissionId}
-                    onClick={() => handleDeleteSingle(sub.submissionId)}
-                    aria-label={`Delete result ${sub.submissionId}`}
-                    className="inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-medium text-[var(--accent-rose)] hover:bg-[var(--bg-subtle)]"
+                  <ConfirmAction
+                    title="Delete this attempt?"
+                    description="This permanently removes the result and any comparison or shared profile that depends on it."
+                    confirmLabel="Delete result"
+                    onConfirm={() => handleDeleteSingle(sub.submissionId)}
                   >
-                    <Trash2 className="h-3 w-3" /> Delete
-                  </button>
+                    <Trash2 size={12} />
+                    Delete result
+                  </ConfirmAction>
                   <Link
                     href={`/results/${sub.submissionId}`}
                     className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium"

@@ -24,7 +24,7 @@ export const brandConfig: BrandConfig = {
   domain: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   supportEmail: "privacy@truthdesire.app",
   minimumAge: 18,
-  scoringEngineVersion: "1.0.0",
+  scoringEngineVersion: "1.2.0",
   communityMinimumThreshold: 50,
   cohortSuppressionThreshold: 50,
   defaultInviteExpirationHours: 24 * 7,

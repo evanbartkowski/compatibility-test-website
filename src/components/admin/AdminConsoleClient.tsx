@@ -1,5 +1,6 @@
 "use client";
 
+import { AssessmentBuilder } from "./AssessmentBuilder";
 import React, { useEffect, useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 import {
@@ -10,18 +11,14 @@ import {
   Lock,
   LogOut,
   Mail,
-  Plus,
   Sparkles,
 } from "lucide-react";
 import { builtInAssessments } from "@/data/assessments/catalog";
-import { brandConfig } from "@/config/brand";
+
 import type { ReferenceChartItem } from "@/data/reference-chart-audit";
 import type {
-  AssessmentCategorySlug,
   AssessmentDefinition,
   AuditEventRecord,
-  QuestionDefinition,
-  QuestionInputType,
   ScoredAssessmentResult,
 } from "@/lib/assessment/types";
 import type { EmailTemplateConfig } from "@/lib/server/store";
@@ -59,30 +56,20 @@ export function AdminConsoleClient({
   const [auditItems, setAuditItems] = useState<ReferenceChartItem[]>([]);
   const [telemetry, setTelemetry] = useState<TelemetrySummary | null>(null);
   const [templates, setTemplates] = useState<EmailTemplateConfig | null>(null);
-  const [auditFilter, setAuditFilter] = useState<"all" | "flagged_obscured" | "verified_readable">(
-    "flagged_obscured"
-  );
+  const [auditFilter, setAuditFilter] = useState<
+    "all" | "flagged_obscured" | "verified_readable"
+  >("flagged_obscured");
 
   // Simulator state
   const [simSlug, setSimSlug] = useState("intimacy-partner-preferences");
   const [simPreset, setSimPreset] = useState<
     "balanced" | "high_exploration" | "boundary_focused" | "reserved"
   >("balanced");
-  const [simResult, setSimResult] = useState<ScoredAssessmentResult | null>(null);
+  const [simResult, setSimResult] = useState<ScoredAssessmentResult | null>(
+    null,
+  );
   const [simLoading, setSimLoading] = useState(false);
 
-  // Custom assessment builder state
-  const [title, setTitle] = useState("Romantic Affection & Pacing Check");
-  const [slug, setSlug] = useState("romantic-affection-custom");
-  const [category, setCategory] = useState<AssessmentCategorySlug>("romance");
-  const [questionPrompt, setQuestionPrompt] = useState(
-    "How much do you enjoy daily unhurried verbal affection and check-ins?"
-  );
-  const [partnerPrompt, setPartnerPrompt] = useState(
-    "How naturally do you enjoy offering daily unhurried verbal affection?"
-  );
-  const [inputType, setInputType] = useState<QuestionInputType>("enjoyment_scale");
-  const [draftQuestions, setDraftQuestions] = useState<QuestionDefinition[]>([]);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
   const loadWorkspace = async () => {
@@ -165,77 +152,11 @@ export function AdminConsoleClient({
     }
   };
 
-  const addDraftQuestion = () => {
-    const id = `custom_q_${draftQuestions.length + 1}`;
-    const q: QuestionDefinition = {
-      id,
-      order: draftQuestions.length + 1,
-      sectionId: "communication",
-      sectionTitle: "Communication & Emotional Connection",
-      inputType,
-      prompt: questionPrompt,
-      partnerPrompt,
-      helperText: `Configured inside ${brandConfig.name} Admin Studio.`,
-      quickDiscovery: true,
-      directionality: "reciprocal",
-      supportsExperienceFrequency: inputType === "enjoyment_scale",
-      supportsBoundaryFlag: true,
-      partnerSupportsWillingness: true,
-      eligibleForMatching: true,
-      dimensionWeights: { communication: 0.9, emotionalConnection: 0.7 },
-      editorialStatus: "verified",
-    };
-    setDraftQuestions((prev) => [...prev, q]);
-    setQuestionPrompt("");
-    setPartnerPrompt("");
-  };
-
-  const publishCustomAssessment = async (status: "published" | "draft") => {
-    if (draftQuestions.length === 0) {
-      setSaveMessage("Add at least one question before saving.");
-      return;
-    }
-    const payload: AssessmentDefinition = {
-      id: `${slug}-v1`,
-      slug: slug.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
-      version: "1.0.0",
-      title,
-      shortTitle: title.slice(0, 24),
-      category,
-      status,
-      audienceNote: `Custom assessment authored via ${brandConfig.name} Admin Studio.`,
-      futureExtensibilityNote: "Supports full scoring, radar charts, and partner invitations.",
-      estimatedMinutesQuick: Math.max(2, Math.ceil(draftQuestions.length * 0.4)),
-      estimatedMinutesComplete: Math.max(2, Math.ceil(draftQuestions.length * 0.5)),
-      supportsPartnerMatching: true,
-      supportsCommunityComparison: true,
-      sections: [
-        {
-          id: "communication",
-          title: "Communication & Emotional Connection",
-          subtitle: "Custom Section",
-          description: "Questions configured in studio.",
-        },
-      ],
-      questions: draftQuestions,
-    };
-
-    const res = await fetch("/api/studio", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ assessment: payload }),
-    });
-    if (res.ok) {
-      setSaveMessage(`Saved "${title}" (${status}).`);
-      loadWorkspace();
-    } else {
-      setSaveMessage("Failed to save custom assessment.");
-    }
-  };
-
   const toggleEditorialVerification = async (item: ReferenceChartItem) => {
     const nextStatus =
-      item.editorialStatus === "flagged_obscured" ? "verified_readable" : "flagged_obscured";
+      item.editorialStatus === "flagged_obscured"
+        ? "verified_readable"
+        : "flagged_obscured";
     await fetch("/api/studio", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -261,23 +182,29 @@ export function AdminConsoleClient({
           }}
         >
           <Lock className="h-8 w-8 text-[var(--accent-plum)]" />
-          <h1 className="mt-4 font-display text-4xl text-[var(--ink-primary)]">{heading}</h1>
+          <h1 className="mt-4 font-display text-4xl text-[var(--ink-primary)]">
+            {heading}
+          </h1>
           <p className="mt-2 text-sm leading-relaxed text-[var(--ink-secondary)]">
-            Protected administration area for managing assessments, running deterministic scoring
-            simulations, customizing email templates, and reviewing non-PII system telemetry.
+            Protected administration area for managing assessments, running
+            deterministic scoring simulations, customizing email templates, and
+            reviewing non-PII system telemetry.
           </p>
 
           {!keyConfigured ? (
             <p className="mt-5 rounded-2xl border border-[var(--accent-rose)] bg-[var(--bg-subtle)] p-4 text-xs text-[var(--ink-primary)]">
-              <code>BETWEEN_US_ADMIN_KEY</code> is not configured in this production server
-              environment. Set a strong administrator passphrase (8+ characters) to unlock access.
+              <code>BETWEEN_US_ADMIN_KEY</code> is not configured in this
+              production server environment. Set a strong administrator
+              passphrase (8+ characters) to unlock access.
             </p>
           ) : (
             <form onSubmit={handleLogin} className="mt-6 space-y-4">
               {devFallbackActive && (
                 <p className="rounded-2xl border border-[var(--accent-gold)] bg-[var(--bg-subtle)] p-3 text-xs text-[var(--ink-secondary)]">
-                  Local development fallback active (<code>BETWEEN_US_ADMIN_KEY</code> defaults to{" "}
-                  <code>between-us-local-dev-admin</code> when unset outside production).
+                  Local development fallback active (
+                  <code>BETWEEN_US_ADMIN_KEY</code> defaults to{" "}
+                  <code>between-us-local-dev-admin</code> when unset outside
+                  production).
                 </p>
               )}
 
@@ -296,7 +223,11 @@ export function AdminConsoleClient({
                 />
               </label>
 
-              {authError && <p className="text-xs font-medium text-[var(--accent-rose)]">{authError}</p>}
+              {authError && (
+                <p className="text-xs font-medium text-[var(--accent-rose)]">
+                  {authError}
+                </p>
+              )}
 
               <button
                 type="submit"
@@ -322,15 +253,16 @@ export function AdminConsoleClient({
       : auditItems.filter((i) => i.editorialStatus === auditFilter);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+    <div className="site-shell py-12 sm:py-16">
       <div className="flex flex-col justify-between gap-4 border-b pb-6 sm:flex-row sm:items-end">
         <div className="max-w-3xl space-y-2">
           <h1 className="font-display text-4xl tracking-tight text-[var(--ink-primary)] sm:text-5xl">
             {heading}
           </h1>
           <p className="text-sm leading-relaxed text-[var(--ink-secondary)]">
-            Manage assessments, simulate deterministic scoring across all {builtInAssessments.length} assessments, edit
-            transactional email copy, review non-PII audit telemetry, and curate the reference
+            Manage assessments, simulate deterministic scoring across all{" "}
+            {builtInAssessments.length} assessments, edit transactional email
+            copy, review non-PII audit telemetry, and curate the reference
             scatterplot queue.
           </p>
         </div>
@@ -354,7 +286,11 @@ export function AdminConsoleClient({
           {[
             { value: "telemetry", label: "Telemetry & Audit", icon: Activity },
             { value: "simulator", label: "Scoring Tester", icon: FlaskConical },
-            { value: "builder", label: `Assessment Builder (${assessments.length})`, icon: Sparkles },
+            {
+              value: "builder",
+              label: `Assessment Builder (${assessments.length})`,
+              icon: Sparkles,
+            },
             { value: "emails", label: "Email Templates", icon: Mail },
             {
               value: "audit",
@@ -371,7 +307,7 @@ export function AdminConsoleClient({
                   "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium",
                   tab === item.value
                     ? "border-[var(--accent-plum)] bg-[var(--accent-plum)] text-[var(--accent-plum-contrast)]"
-                    : "border-[var(--border-hairline)] bg-[var(--bg-elevated)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
+                    : "border-[var(--border-hairline)] bg-[var(--bg-elevated)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]",
                 )}
               >
                 <Icon className="h-3.5 w-3.5" /> {item.label}
@@ -386,10 +322,22 @@ export function AdminConsoleClient({
             <>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {[
-                  { label: "Total Submissions", value: telemetry.totalSubmissions },
-                  { label: "Partner Invitations", value: telemetry.totalInvitations },
-                  { label: "Compatibility Reports", value: telemetry.totalCompatibilities },
-                  { label: "Email Deliveries Logged", value: telemetry.totalEmailDeliveries },
+                  {
+                    label: "Total Submissions",
+                    value: telemetry.totalSubmissions,
+                  },
+                  {
+                    label: "Partner Invitations",
+                    value: telemetry.totalInvitations,
+                  },
+                  {
+                    label: "Compatibility Reports",
+                    value: telemetry.totalCompatibilities,
+                  },
+                  {
+                    label: "Email Deliveries Logged",
+                    value: telemetry.totalEmailDeliveries,
+                  },
                 ].map((stat) => (
                   <div
                     key={stat.label}
@@ -399,7 +347,9 @@ export function AdminConsoleClient({
                       borderColor: "var(--border-hairline)",
                     }}
                   >
-                    <p className="text-xs text-[var(--ink-muted)]">{stat.label}</p>
+                    <p className="text-xs text-[var(--ink-muted)]">
+                      {stat.label}
+                    </p>
                     <p className="font-mono-tabular mt-1 text-3xl font-bold text-[var(--ink-primary)]">
                       {stat.value}
                     </p>
@@ -414,19 +364,25 @@ export function AdminConsoleClient({
                   </h2>
                   <div className="mt-4 max-h-80 space-y-2 overflow-y-auto text-xs">
                     {Object.entries(telemetry.byAssessment).length === 0 ? (
-                      <p className="text-[var(--ink-muted)]">No submissions recorded yet.</p>
+                      <p className="text-[var(--ink-muted)]">
+                        No submissions recorded yet.
+                      </p>
                     ) : (
-                      Object.entries(telemetry.byAssessment).map(([s, counts]) => (
-                        <div
-                          key={s}
-                          className="flex items-center justify-between rounded-xl border bg-[var(--bg-canvas)] px-3 py-2"
-                        >
-                          <span className="font-medium text-[var(--ink-primary)]">{s}</span>
-                          <span className="font-mono-tabular text-[var(--ink-secondary)]">
-                            {counts.total} total · {counts.optedIn} opted in
-                          </span>
-                        </div>
-                      ))
+                      Object.entries(telemetry.byAssessment).map(
+                        ([s, counts]) => (
+                          <div
+                            key={s}
+                            className="flex items-center justify-between rounded-xl border bg-[var(--bg-canvas)] px-3 py-2"
+                          >
+                            <span className="font-medium text-[var(--ink-primary)]">
+                              {s}
+                            </span>
+                            <span className="font-mono-tabular text-[var(--ink-secondary)]">
+                              {counts.total} total · {counts.optedIn} opted in
+                            </span>
+                          </div>
+                        ),
+                      )
                     )}
                   </div>
                 </div>
@@ -453,7 +409,9 @@ export function AdminConsoleClient({
                             </span>
                           </div>
                           {ev.detail && (
-                            <p className="mt-1 text-[var(--ink-secondary)]">{ev.detail}</p>
+                            <p className="mt-1 text-[var(--ink-secondary)]">
+                              {ev.detail}
+                            </p>
                           )}
                         </div>
                       ))
@@ -472,12 +430,15 @@ export function AdminConsoleClient({
               Deterministic Scoring Tester
             </h2>
             <p className="mt-1 text-xs text-[var(--ink-secondary)]">
-              Run synthetic persona profiles across any of the {builtInAssessments.length} built-in assessments without writing
+              Run synthetic persona profiles across any of the{" "}
+              {builtInAssessments.length} built-in assessments without writing
               records to storage.
             </p>
             <div className="mt-5 flex flex-wrap items-end gap-3 text-xs">
               <label className="block flex-1 min-w-[200px]">
-                <span className="text-[var(--ink-muted)]">Target Assessment</span>
+                <span className="text-[var(--ink-muted)]">
+                  Target Assessment
+                </span>
                 <select
                   value={simSlug}
                   onChange={(e) => setSimSlug(e.target.value)}
@@ -492,15 +453,23 @@ export function AdminConsoleClient({
               </label>
 
               <label className="block min-w-[180px]">
-                <span className="text-[var(--ink-muted)]">Synthetic Persona Preset</span>
+                <span className="text-[var(--ink-muted)]">
+                  Synthetic Persona Preset
+                </span>
                 <select
                   value={simPreset}
-                  onChange={(e) => setSimPreset(e.target.value as typeof simPreset)}
+                  onChange={(e) =>
+                    setSimPreset(e.target.value as typeof simPreset)
+                  }
                   className="mt-1 w-full rounded-xl border bg-[var(--bg-canvas)] px-3 py-2 text-xs text-[var(--ink-primary)]"
                 >
                   <option value="balanced">Balanced / Moderate</option>
-                  <option value="high_exploration">High Exploration &amp; Intensity</option>
-                  <option value="boundary_focused">Boundary-Conscious / Selective</option>
+                  <option value="high_exploration">
+                    High Exploration &amp; Intensity
+                  </option>
+                  <option value="boundary_focused">
+                    Boundary-Conscious / Selective
+                  </option>
                   <option value="reserved">Quiet / Low Intensity</option>
                 </select>
               </label>
@@ -523,19 +492,27 @@ export function AdminConsoleClient({
               <div className="mt-6 space-y-4 rounded-2xl border bg-[var(--bg-canvas)] p-5 text-xs">
                 <div className="flex flex-wrap items-baseline justify-between gap-2 border-b pb-3">
                   <div>
-                    <p className="text-[var(--ink-muted)]">Computed Archetype</p>
+                    <p className="text-[var(--ink-muted)]">
+                      Computed Archetype
+                    </p>
                     <p className="font-display text-2xl text-[var(--ink-primary)]">
                       {simResult.profile.archetypeName}
                     </p>
                   </div>
                   <span className="font-mono-tabular text-[var(--accent-plum)]">
-                    {simResult.answeredCount} items · {simResult.coveragePercent}% coverage
+                    {simResult.answeredCount} items ·{" "}
+                    {simResult.coveragePercent}% coverage
                   </span>
                 </div>
-                <p className="text-[var(--ink-secondary)]">{simResult.profile.summaryParagraph}</p>
+                <p className="text-[var(--ink-secondary)]">
+                  {simResult.profile.summaryParagraph}
+                </p>
                 <div className="grid gap-2 sm:grid-cols-3">
                   {simResult.radar.map((d) => (
-                    <div key={d.dimension} className="rounded-xl border bg-[var(--bg-elevated)] p-3">
+                    <div
+                      key={d.dimension}
+                      className="rounded-xl border bg-[var(--bg-elevated)] p-3"
+                    >
                       <span className="text-[var(--ink-muted)]">{d.label}</span>
                       <p className="font-mono-tabular mt-0.5 text-lg font-semibold text-[var(--ink-primary)]">
                         {d.score}/100
@@ -549,139 +526,11 @@ export function AdminConsoleClient({
         </Tabs.Content>
 
         {/* ASSESSMENT BUILDER TAB */}
-        <Tabs.Content value="builder" className="mt-8 grid gap-8 lg:grid-cols-12">
-          <div className="space-y-5 rounded-3xl border bg-[var(--bg-elevated)] p-6 sm:p-8 lg:col-span-7">
-            <h2 className="font-display text-3xl text-[var(--ink-primary)]">
-              Create &amp; Publish Extensible Assessment
-            </h2>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="block text-xs">
-                <span className="font-medium text-[var(--ink-primary)]">Assessment Title</span>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="mt-1 w-full rounded-xl border bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--ink-primary)]"
-                />
-              </label>
-              <label className="block text-xs">
-                <span className="font-medium text-[var(--ink-primary)]">URL Slug</span>
-                <input
-                  type="text"
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                  className="mt-1 w-full rounded-xl border bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--ink-primary)]"
-                />
-              </label>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="block text-xs">
-                <span className="font-medium text-[var(--ink-primary)]">Category</span>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value as AssessmentCategorySlug)}
-                  className="mt-1 w-full rounded-xl border bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--ink-primary)]"
-                >
-                  <option value="personality">Personality</option>
-                  <option value="romance">Romance</option>
-                  <option value="sexuality-intimacy">Sexuality &amp; Intimacy</option>
-                  <option value="compatibility">Compatibility</option>
-                </select>
-              </label>
-
-              <label className="block text-xs">
-                <span className="font-medium text-[var(--ink-primary)]">Question Input Type</span>
-                <select
-                  value={inputType}
-                  onChange={(e) => setInputType(e.target.value as QuestionInputType)}
-                  className="mt-1 w-full rounded-xl border bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--ink-primary)]"
-                >
-                  <option value="enjoyment_scale">Enjoyment + Experience Scale</option>
-                  <option value="multiple_choice">Multiple Choice</option>
-                  <option value="rating_scale">Rating Scale</option>
-                  <option value="slider">Continuous Slider</option>
-                  <option value="forced_choice">Forced Choice Pair</option>
-                  <option value="ranking">Priority Ranking</option>
-                  <option value="situational">Situational Scenario</option>
-                </select>
-              </label>
-            </div>
-
-            <div className="space-y-3 rounded-2xl border bg-[var(--bg-subtle)] p-4">
-              <label className="block text-xs">
-                <span className="font-medium text-[var(--ink-primary)]">Primary Question Prompt</span>
-                <input
-                  type="text"
-                  value={questionPrompt}
-                  onChange={(e) => setQuestionPrompt(e.target.value)}
-                  className="mt-1 w-full rounded-xl border bg-[var(--bg-elevated)] px-3 py-2 text-sm text-[var(--ink-primary)]"
-                />
-              </label>
-              <label className="block text-xs">
-                <span className="font-medium text-[var(--ink-primary)]">
-                  Complementary Partner Prompt
-                </span>
-                <input
-                  type="text"
-                  value={partnerPrompt}
-                  onChange={(e) => setPartnerPrompt(e.target.value)}
-                  className="mt-1 w-full rounded-xl border bg-[var(--bg-elevated)] px-3 py-2 text-sm text-[var(--ink-primary)]"
-                />
-              </label>
-              <button
-                type="button"
-                disabled={!questionPrompt.trim()}
-                onClick={addDraftQuestion}
-                className="inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-xs font-medium text-[var(--ink-primary)] hover:bg-[var(--bg-elevated)] disabled:opacity-50"
-              >
-                <Plus className="h-3.5 w-3.5" /> Add Question ({draftQuestions.length})
-              </button>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => publishCustomAssessment("published")}
-                className="rounded-full px-5 py-2.5 text-xs font-medium"
-                style={{
-                  backgroundColor: "var(--accent-plum)",
-                  color: "var(--accent-plum-contrast)",
-                }}
-              >
-                Publish Assessment Live
-              </button>
-              <button
-                type="button"
-                onClick={() => publishCustomAssessment("draft")}
-                className="rounded-full border px-5 py-2.5 text-xs font-medium text-[var(--ink-secondary)]"
-              >
-                Save as Draft
-              </button>
-            </div>
-          </div>
-
-          <div className="space-y-4 rounded-3xl border bg-[var(--bg-subtle)] p-6 lg:col-span-5">
-            <h3 className="font-display text-2xl text-[var(--ink-primary)]">
-              Registered Catalog ({assessments.length})
-            </h3>
-            <div className="max-h-[480px] space-y-2.5 overflow-y-auto pr-1">
-              {assessments.map((a) => (
-                <div key={a.slug} className="rounded-2xl border bg-[var(--bg-elevated)] p-3.5 text-xs">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-semibold text-[var(--ink-primary)]">{a.title}</span>
-                    <span className="font-mono-tabular text-[11px] text-[var(--accent-plum)]">
-                      v{a.version}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-[var(--ink-secondary)]">
-                    {a.category} · {a.questions.length} items · {a.status}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
+        <Tabs.Content value="builder" className="mt-8">
+          <AssessmentBuilder
+            assessments={assessments}
+            onSaved={loadWorkspace}
+          />
         </Tabs.Content>
 
         {/* EMAIL TEMPLATES TAB */}
@@ -696,41 +545,64 @@ export function AdminConsoleClient({
               </h2>
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="block text-xs">
-                  <span className="font-medium text-[var(--ink-primary)]">Secure Link Subject</span>
+                  <span className="font-medium text-[var(--ink-primary)]">
+                    Secure Link Subject
+                  </span>
                   <input
                     type="text"
                     value={templates.secureLinkSubject}
                     onChange={(e) =>
-                      setTemplates({ ...templates, secureLinkSubject: e.target.value })
+                      setTemplates({
+                        ...templates,
+                        secureLinkSubject: e.target.value,
+                      })
                     }
                     className="mt-1 w-full rounded-xl border bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--ink-primary)]"
                   />
                 </label>
                 <label className="block text-xs">
-                  <span className="font-medium text-[var(--ink-primary)]">Summary Subject</span>
+                  <span className="font-medium text-[var(--ink-primary)]">
+                    Summary Subject
+                  </span>
                   <input
                     type="text"
                     value={templates.summarySubject}
-                    onChange={(e) => setTemplates({ ...templates, summarySubject: e.target.value })}
+                    onChange={(e) =>
+                      setTemplates({
+                        ...templates,
+                        summarySubject: e.target.value,
+                      })
+                    }
                     className="mt-1 w-full rounded-xl border bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--ink-primary)]"
                   />
                 </label>
               </div>
               <label className="block text-xs">
-                <span className="font-medium text-[var(--ink-primary)]">Secure Link Intro</span>
+                <span className="font-medium text-[var(--ink-primary)]">
+                  Secure Link Intro
+                </span>
                 <textarea
                   rows={2}
                   value={templates.secureLinkIntro}
-                  onChange={(e) => setTemplates({ ...templates, secureLinkIntro: e.target.value })}
+                  onChange={(e) =>
+                    setTemplates({
+                      ...templates,
+                      secureLinkIntro: e.target.value,
+                    })
+                  }
                   className="mt-1 w-full rounded-xl border bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--ink-primary)]"
                 />
               </label>
               <label className="block text-xs">
-                <span className="font-medium text-[var(--ink-primary)]">Summary Mode Intro</span>
+                <span className="font-medium text-[var(--ink-primary)]">
+                  Summary Mode Intro
+                </span>
                 <textarea
                   rows={2}
                   value={templates.summaryIntro}
-                  onChange={(e) => setTemplates({ ...templates, summaryIntro: e.target.value })}
+                  onChange={(e) =>
+                    setTemplates({ ...templates, summaryIntro: e.target.value })
+                  }
                   className="mt-1 w-full rounded-xl border bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--ink-primary)]"
                 />
               </label>
@@ -741,7 +613,12 @@ export function AdminConsoleClient({
                 <textarea
                   rows={2}
                   value={templates.pdfDisclaimer}
-                  onChange={(e) => setTemplates({ ...templates, pdfDisclaimer: e.target.value })}
+                  onChange={(e) =>
+                    setTemplates({
+                      ...templates,
+                      pdfDisclaimer: e.target.value,
+                    })
+                  }
                   className="mt-1 w-full rounded-xl border bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--ink-primary)]"
                 />
               </label>
@@ -763,9 +640,10 @@ export function AdminConsoleClient({
         <Tabs.Content value="audit" className="mt-8 space-y-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="max-w-2xl text-xs leading-relaxed text-[var(--ink-secondary)]">
-              Every point visible on the supplied &ldquo;Marketplace of Sex Acts&rdquo; reference
-              scatterplot is transcribed verbatim below. Any redacted term carries{" "}
-              <code>[OBSCURED]</code> and never guesses missing phrasing.
+              Every point visible on the supplied &ldquo;Marketplace of Sex
+              Acts&rdquo; reference scatterplot is transcribed verbatim below.
+              Any redacted term carries <code>[OBSCURED]</code> and never
+              guesses missing phrasing.
             </p>
             <div className="flex gap-1.5">
               {(
@@ -783,7 +661,7 @@ export function AdminConsoleClient({
                     "rounded-full border px-3 py-1.5 text-xs font-medium",
                     auditFilter === key
                       ? "border-[var(--accent-plum)] bg-[var(--accent-plum)] text-[var(--accent-plum-contrast)]"
-                      : "border-[var(--border-hairline)] bg-[var(--bg-elevated)] text-[var(--ink-secondary)]"
+                      : "border-[var(--border-hairline)] bg-[var(--bg-elevated)] text-[var(--ink-secondary)]",
                   )}
                 >
                   {label}
@@ -801,7 +679,8 @@ export function AdminConsoleClient({
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <span className="font-mono-tabular text-[11px] text-[var(--ink-muted)]">
-                      {item.chartId} · (X={item.approxXEncountered}, Y={item.approxYEnjoyment})
+                      {item.chartId} · (X={item.approxXEncountered}, Y=
+                      {item.approxYEnjoyment})
                     </span>
                     <p className="mt-1 text-sm font-medium text-[var(--ink-primary)]">
                       &ldquo;{item.exactReadableTranscription}&rdquo;
@@ -813,10 +692,14 @@ export function AdminConsoleClient({
                     className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--bg-subtle)] px-2.5 py-1 text-[11px] font-medium text-[var(--accent-gold)]"
                   >
                     <Check className="h-3 w-3" />
-                    {item.editorialStatus === "flagged_obscured" ? "Needs Review" : "Verified"}
+                    {item.editorialStatus === "flagged_obscured"
+                      ? "Needs Review"
+                      : "Verified"}
                   </button>
                 </div>
-                <p className="mt-2 text-[var(--ink-secondary)]">{item.editorialNotes}</p>
+                <p className="mt-2 text-[var(--ink-secondary)]">
+                  {item.editorialNotes}
+                </p>
               </div>
             ))}
           </div>

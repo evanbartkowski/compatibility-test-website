@@ -20,19 +20,29 @@ export interface SendEmailOutcome {
   error?: string;
 }
 
-export function isEmailProviderConfigured(): { configured: boolean; provider: "resend" | "smtp" | "none" } {
+export function isEmailProviderConfigured(): {
+  configured: boolean;
+  provider: "resend" | "smtp" | "none";
+} {
   if (process.env.RESEND_API_KEY?.trim()) {
     return { configured: true, provider: "resend" };
   }
-  if (process.env.SMTP_HOST?.trim() && process.env.SMTP_USER?.trim() && process.env.SMTP_PASS?.trim()) {
+  if (
+    process.env.SMTP_HOST?.trim() &&
+    process.env.SMTP_USER?.trim() &&
+    process.env.SMTP_PASS?.trim()
+  ) {
     return { configured: true, provider: "smtp" };
   }
   return { configured: false, provider: "none" };
 }
 
-export async function sendTransactionalEmail(payload: SendEmailPayload): Promise<SendEmailOutcome> {
+export async function sendTransactionalEmail(
+  payload: SendEmailPayload,
+): Promise<SendEmailOutcome> {
   const fromAddress =
-    process.env.EMAIL_FROM?.trim() || `${brandConfig.name} <noreply@truthdesire.app>`;
+    process.env.EMAIL_FROM?.trim() ||
+    `${brandConfig.name} <noreply@truthdesire.app>`;
 
   const resendKey = process.env.RESEND_API_KEY?.trim();
   if (resendKey) {
@@ -61,7 +71,11 @@ export async function sendTransactionalEmail(payload: SendEmailPayload): Promise
       });
       if (!res.ok) {
         const body = await res.text();
-        return { ok: false, provider: "resend", error: `Resend API error (${res.status}): ${body}` };
+        return {
+          ok: false,
+          provider: "resend",
+          error: `Resend API error (${res.status}): ${body}`,
+        };
       }
       return { ok: true, provider: "resend" };
     } catch (err) {
@@ -80,6 +94,9 @@ export async function sendTransactionalEmail(payload: SendEmailPayload): Promise
     try {
       const transporter = nodemailer.createTransport({
         host: smtpHost,
+        connectionTimeout: 8000,
+        greetingTimeout: 8000,
+        socketTimeout: 15000,
         port: Number(process.env.SMTP_PORT || 587),
         secure: Number(process.env.SMTP_PORT || 587) === 465,
         auth: { user: smtpUser, pass: smtpPass },

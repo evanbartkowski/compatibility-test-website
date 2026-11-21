@@ -1,113 +1,94 @@
 rules_version = '2';
-
+// Assumed data model:
+// users/{uid}: uid (immutable, <=128 chars), email (null or own token email,
+// <=320 chars), displayName (null/string <=120), photoURL (null/HTTPS <=2048),
+// project (string <=120), lastSeenAt (server timestamp). No role fields.
+// Private submissions, drafts, invitations, compatibilities and shared lists:
+// ownership/participants set by trusted server operations, never client writes.
+// communityAggregates: published versioned dimension aggregates only; no answers,
+// identifiers, emails, tokens, or per-participant arrays. Threshold >=50.
+// sharedProfiles and access grants: server-only. HTTP routes return selected
+// projections after token, expiry, consent and revocation checks.
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isSignedIn() {
-      return request.auth != null;
+    function signedIn() { return request.auth != null; }
+    function owner(uid) { return signedIn() && request.auth.uid == uid; }
+    function admin() { return signedIn() && request.auth.token.get('admin',false) == true; }
+    function bounded(value, maximum) { return value is string && value.size() <= maximum; }
+    function validUser(data, uid) {
+      return data.keys().hasOnly(['uid','email','displayName','photoURL','project','lastSeenAt'])
+        && data.keys().hasAll(['uid','lastSeenAt'])
+        && bounded(data.uid,128) && data.uid == uid
+        && (data.get('email',null) == null || (bounded(data.email,320) && data.email == request.auth.token.get('email','')))
+        && (data.get('displayName',null) == null || bounded(data.displayName,120))
+        && (data.get('photoURL',null) == null || (bounded(data.photoURL,2048) && data.photoURL.matches('https://.*')))
+        && (!('project' in data) || bounded(data.project,120))
+        && data.lastSeenAt is timestamp && data.lastSeenAt == request.time;
     }
-
-    function isOwner(uid) {
-      return isSignedIn() && request.auth.uid == uid;
+    function participant(data) {
+      return signedIn() && data.get('participantUids',[]) is list
+        && data.participantUids.size() > 0 && data.participantUids.size() <= 2
+        && bounded(data.participantUids[0],128)
+        && (data.participantUids.size() == 1 || bounded(data.participantUids[1],128))
+        && request.auth.uid in data.participantUids && data.get('revoked',false) != true;
     }
-
-    function isAdmin() {
-      return isSignedIn() && request.auth.token.admin == true;
+    function bin(histogram,key,count) {return histogram[key] is int && histogram[key] >= 0 && histogram[key] <= count;}
+    function validHistogram(histogram,count) {
+      return histogram is map && histogram.keys().hasOnly(['b0','b1','b2','b3','b4','b5','b6','b7','b8','b9'])
+        && bin(histogram,'b0',count) && bin(histogram,'b1',count) && bin(histogram,'b2',count) && bin(histogram,'b3',count) && bin(histogram,'b4',count)
+        && bin(histogram,'b5',count) && bin(histogram,'b6',count) && bin(histogram,'b7',count) && bin(histogram,'b8',count) && bin(histogram,'b9',count)
+        && histogram.b0+histogram.b1+histogram.b2+histogram.b3+histogram.b4+histogram.b5+histogram.b6+histogram.b7+histogram.b8+histogram.b9 == count;
     }
-
-    // User profile & privacy preferences
-    match /users/{userId} {
-      allow read, write: if isOwner(userId);
+    function validAggregate(data) {
+      return data.keys().hasOnly(['assessmentSlug','assessmentVersion','scoringEngineVersion','mode','dimension','label','respondentCount','meanScore','stdDevScore','histogram','available','updatedAt'])
+        && data.keys().hasAll(['assessmentSlug','assessmentVersion','scoringEngineVersion','mode','dimension','label','respondentCount','meanScore','stdDevScore','histogram','available','updatedAt'])
+        && bounded(data.assessmentSlug,120) && bounded(data.assessmentVersion,40)
+        && bounded(data.scoringEngineVersion,40) && bounded(data.dimension,100) && bounded(data.label,160)
+        && data.mode in ['quick','complete'] && data.respondentCount is int && data.respondentCount >= 50
+        && data.meanScore is number && data.meanScore >= 0 && data.meanScore <= 100
+        && data.stdDevScore is number && data.stdDevScore >= 0 && data.stdDevScore <= 100
+        && validHistogram(data.histogram,data.respondentCount)
+        && data.available == true && data.updatedAt is timestamp;
     }
-
-    // Assessment drafts (autosaved private progress)
-    match /drafts/{draftId} {
-      allow read: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
-      allow create: if isSignedIn() && request.resource.data.ownerUid == request.auth.uid;
-      allow update, delete: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
+    match /users/{uid} {
+      allow read: if owner(uid);
+      allow create: if owner(uid) && validUser(request.resource.data,uid);
+      allow update: if owner(uid) && validUser(request.resource.data,uid)
+        && request.resource.data.uid == resource.data.uid;
+      allow delete: if owner(uid);
     }
-
-    // Private assessment submissions & scored results across all 30 assessments
-    match /submissions/{submissionId} {
-      allow read: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
-      allow create: if isSignedIn()
-        && request.resource.data.ownerUid == request.auth.uid
-        && request.resource.data.consent.confirmedAdult18Plus == true
-        && request.resource.data.consent.acceptedPrivacyTerms == true;
-      allow update, delete: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
-    }
-
-    // Partner invitations: never publicly queryable; token lookup happens strictly via server/Cloud Functions
-    match /invitations/{inviteId} {
-      allow get: if isSignedIn() && resource.data.creatorUid == request.auth.uid;
-      allow list: if isSignedIn() && resource.data.creatorUid == request.auth.uid;
-      allow update: if isSignedIn()
-        && resource.data.creatorUid == request.auth.uid
-        && request.resource.data.status in ['pending', 'revoked'];
-      allow create, delete: if false;
-    }
-
-    // Couple compatibility reports: visible only to the two participating accounts
-    match /compatibilities/{compatibilityId} {
-      allow read: if isSignedIn()
-        && request.auth.uid in resource.data.participantUids
-        && resource.data.revoked != true;
+    match /drafts/{id} {
+      allow read: if owner(resource.data.ownerUid);
       allow write: if false;
     }
-
-    // Shared persistent Couples Bucket List state (Test 26)
-    match /sharedBucketLists/{compatibilityId} {
-      allow read, write: if isSignedIn()
-        && exists(/databases/$(database)/documents/compatibilities/$(compatibilityId))
-        && request.auth.uid in get(/databases/$(database)/documents/compatibilities/$(compatibilityId)).data.participantUids;
-    }
-
-    // Multi-rater 360 feedback invites & submissions (Test 19): individual ratings are strictly server-only
-    match /multiRaterInvites/{feedbackInviteId} {
-      allow get, list: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
-      allow update: if isSignedIn()
-        && resource.data.ownerUid == request.auth.uid
-        && request.resource.data.revoked == true;
-      allow create, delete: if false;
-    }
-
-    match /multiRaterSubmissions/{responseId} {
-      allow read, write: if false;
-    }
-
-    // Expiring private result access grants, email verification OTPs & delivery audit: server-only
-    match /resultAccessGrants/{grantId} {
-      allow read, write: if false;
-    }
-
-    match /emailVerifications/{emailHash} {
-      allow read, write: if false;
-    }
-
-    match /emailDeliveries/{deliveryId} {
-      allow read: if isAdmin();
+    match /submissions/{id} {
+      allow read: if owner(resource.data.ownerUid);
       allow write: if false;
     }
-
-    match /auditEvents/{eventId} {
-      allow read: if isAdmin();
+    match /invitations/{id} {
+      allow read: if owner(resource.data.creatorUid);
       allow write: if false;
     }
-
-    // Public anonymized community aggregates: only readable when respondent threshold >= 50
-    match /communityAggregates/{aggregateId} {
-      allow read: if resource.data.respondentCount >= 50;
+    match /compatibilities/{id} {
+      allow read: if participant(resource.data);
       allow write: if false;
     }
-
-    // Extensible custom assessment catalog managed via Admin / Studio
-    match /assessments/{assessmentSlug} {
-      allow read: if resource.data.status == 'published' || isAdmin();
-      allow write: if isAdmin();
+    match /sharedBucketLists/{id} {
+      allow read: if exists(/databases/$(database)/documents/compatibilities/$(id))
+        && participant(get(/databases/$(database)/documents/compatibilities/$(id)).data);
+      allow write: if false;
     }
-
-    // Editorial audit flags for reference verification
-    match /editorialAudit/{auditId} {
-      allow read, write: if isAdmin();
+    match /multiRaterInvites/{id} { allow read: if owner(resource.data.ownerUid); allow write: if false; }
+    match /communityAggregates/{id} { allow read: if validAggregate(resource.data); allow write: if false; }
+    match /assessments/{id} {
+      allow read: if resource.data.status == 'published' || admin();
+      allow write: if false;
     }
+    match /emailDeliveries/{id} { allow read: if admin(); allow write: if false; }
+    match /auditEvents/{id} { allow read: if admin(); allow write: if false; }
+    match /editorialAudit/{id} { allow read: if admin(); allow write: if false; }
+    // All sensitive token, email verification, profile sharing, multi-rater
+    // response and internal records remain inaccessible to browser SDK clients.
+    match /{document=**} { allow read, write: if false; }
   }
 }

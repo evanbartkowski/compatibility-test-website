@@ -70,7 +70,7 @@ export default async function CouplesPage() {
 
   return (
     <>
-      <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:px-8">
+      <div className="site-shell pt-6">
         <OptionalSyncBanner compact />
       </div>
       <CouplesHubClient

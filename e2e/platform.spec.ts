@@ -1,356 +1,430 @@
-import path from "node:path";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import { getAssessmentBySlug } from "../src/data/assessments/catalog";
+const intimacyPartnerPreferencesAssessment = getAssessmentBySlug(
+  "intimacy-partner-preferences",
+)!;
 
-const SHOT_DIR =
-  "C:/Users/user-evan/.gemini/antigravity/brain/d137f3ea-7117-4d37-82d1-369a82bed0cb/scratch";
-
-test.describe("Truth Desire End-to-End Platform Verification", () => {
-  test("all core flows: noir pink theme, explore 30 tests, optional sign-in modal, BDSM & Kink tests, Test 1 + PDF export, compatibility, profile, couples, community, settings & admin", async ({
-    page,
-    browser,
-  }, testInfo) => {
-    test.setTimeout(150_000);
-    const errors: string[] = [];
-    page.on("pageerror", (e) => errors.push(e.message));
-    page.on("console", (msg) => {
-      if (msg.type() === "error") errors.push(msg.text());
-    });
-
-    // 1. Homepage: Obsidian Noir & Pink Default + Specimen Switcher + Light/Dark Toggle
-    await page.goto("/");
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-    await expect(page.getByRole("heading", { name: /Truth, desire/i })).toBeVisible();
-
-    const overflowHome = await page.evaluate(
-      () => document.documentElement.scrollWidth > window.innerWidth + 2
+async function consent(page: Page) {
+  await page.getByLabel(/confirm I am at least/i).check();
+  await page.getByLabel(/understand my responses are private/i).check();
+  await page.getByRole("button", { name: /Begin Questions/i }).click();
+}
+async function noOverflow(page: Page) {
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth + 1,
+    ),
+  ).toBe(true);
+}
+async function completeIntimacy(page: Page, partner = false) {
+  for (
+    let i = 0;
+    i <
+    intimacyPartnerPreferencesAssessment.questions.filter(
+      (q) => q.quickDiscovery,
+    ).length /
+      5;
+    i++
+  ) {
+    await expect(page.getByRole("heading", { level: 2 })).toHaveText(
+      `Questions ${i * 5 + 1}–${i * 5 + 5}`,
     );
-    expect(overflowHome).toBe(false);
-
-    if (testInfo.project.name === "Mobile") {
-      await page.screenshot({ path: path.join(SHOT_DIR, "mobile-home.png"), fullPage: true });
-    }
-    if (testInfo.project.name === "Tablet") {
-      await page.screenshot({ path: path.join(SHOT_DIR, "tablet-home.png"), fullPage: false });
-    }
-
-    if (testInfo.project.name === "Desktop Chrome") {
-      await page.screenshot({ path: path.join(SHOT_DIR, "desktop-dark-home.png"), fullPage: false });
-
-      // Exercise Interactive Report Folio specimen tabs
-      await page.getByRole("tab", { name: /Desire vs\. Experience/i }).click();
-      await expect(page.getByText(/Untapped Desire Zone/i)).toBeVisible();
-      await page.getByRole("tab", { name: /BDSM & Kink Reveal/i }).click();
-      await expect(page.getByText(/94% Polarity Fit/i)).toBeVisible();
-      await page.getByRole("button", { name: "Keep Private", exact: true }).click();
-      await expect(page.getByText(/Concealed from Partner View/i).first()).toBeVisible();
-      await page.getByRole("tab", { name: /Preference Radar/i }).click();
-
-      // Test Optional Firebase Sign-In Modal without gating guest flows
-      const signInBtn = page.getByRole("button", { name: "Sign In", exact: true });
-      await expect(signInBtn).toBeVisible();
-      await signInBtn.click();
-      await expect(page.getByRole("heading", { name: /Sign in to Truth Desire/i })).toBeVisible();
-      await expect(page.getByRole("button", { name: /Continue with Google/i })).toBeVisible();
-      await page.screenshot({ path: path.join(SHOT_DIR, "desktop-signin-modal.png"), fullPage: false });
-      await page.getByRole("button", { name: /Close sign-in dialog/i }).click();
-      await expect(page.getByRole("heading", { name: /Sign in to Truth Desire/i })).not.toBeVisible();
-    }
-
-    // Toggle theme (Dark default -> Light -> Dark)
-    const themeBtn = page.getByRole("button", { name: /Switch to (dark|light) theme/i });
-    await themeBtn.click();
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
-    if (testInfo.project.name === "Desktop Chrome") {
-      await page.screenshot({ path: path.join(SHOT_DIR, "desktop-light-home.png"), fullPage: true });
-    }
-    await themeBtn.click();
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-
-    // Interactive Compatibility Matcher Demo
-    await page.getByRole("button", { name: "Marks firm boundary" }).click();
-    await expect(page.getByText(/Boundary Protected/i)).toBeVisible();
-
-    // Responsive check across /explore & /assessments on Mobile & Tablet
-    if (testInfo.project.name !== "Desktop Chrome") {
-      await page.goto("/explore");
-      await expect(page.getByRole("heading", { name: /Explore Assessments \(30\)/i })).toBeVisible();
-      await page.screenshot({
-        path: path.join(SHOT_DIR, `${testInfo.project.name.toLowerCase()}-explore.png`),
-        fullPage: false,
+    const questions = intimacyPartnerPreferencesAssessment.questions
+      .filter((q) => q.quickDiscovery)
+      .slice(i * 5, i * 5 + 5);
+    for (const question of questions) {
+      const card = page.getByRole("article", {
+        name: partner ? question.partnerPrompt : question.prompt,
       });
-      const exploreOverflow = await page.evaluate(
-        () => document.documentElement.scrollWidth > window.innerWidth + 2
-      );
-      expect(exploreOverflow).toBe(false);
-
-      await page.goto("/assessments");
-      await expect(page.getByRole("heading", { name: "Assessment Library" })).toBeVisible();
-      const libOverflow = await page.evaluate(
-        () => document.documentElement.scrollWidth > window.innerWidth + 2
-      );
-      expect(libOverflow).toBe(false);
-      expect(errors).toEqual([]);
-      return;
+      await card.getByText("Agree", { exact: true }).click();
+      await expect(
+        card.getByRole("radio", { name: "Agree", exact: true }),
+      ).toBeChecked();
     }
-
-    // 2. Explore 30 Tests Catalog & Search Filter (incl. BDSM & Kink)
-    await page.goto("/explore");
-    await expect(page.getByRole("heading", { name: /Explore Assessments \(30\)/i })).toBeVisible();
-    await page.screenshot({ path: path.join(SHOT_DIR, "desktop-explore.png"), fullPage: false });
-
-    await page.getByPlaceholder(/Search by topic/i).fill("BDSM");
+    await page
+      .getByRole("button", { name: /^(Next page|Review & Finish)$/ })
+      .click();
+  }
+  await page
+    .getByRole("button", {
+      name: partner
+        ? /Generate Compatibility Report/i
+        : /Complete & View Results/i,
+    })
+    .click();
+}
+test("homepage previews, theme, navigation and test filters", async ({
+  page,
+}, info) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "Discover",
+  );
+  await noOverflow(page);
+  await page
+    .getByRole("group", { name: "Explore result previews" })
+    .getByRole("button", { name: "Compatibility", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Where two worlds meet." }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Hide partner", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Compatibility", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("slider", { name: "Example category score" }).fill("40");
+  await expect(page.locator(".orbit-score-control output")).toHaveText("40%");
+  await page.getByRole("button", { name: "Switch to light theme" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  await page.screenshot({
+    path: info.outputPath("home-light.png"),
+    fullPage: true,
+  });
+  await page.getByRole("button", { name: "Switch to dark theme" }).click();
+  if (info.project.name === "Mobile") {
+    await page.getByRole("button", { name: "Open menu" }).click();
     await expect(
-      page.getByRole("heading", { name: /BDSM Roles, Power Exchange & Dynamics Test/i })
+      page.getByRole("navigation", { name: "Mobile navigation" }),
     ).toBeVisible();
-    await page.getByPlaceholder(/Search by topic/i).fill("Kink & Fetish");
-    await expect(page.getByRole("heading", { name: /Kink & Fetish Exploration Map/i })).toBeVisible();
-    await page.getByPlaceholder(/Search by topic/i).fill("Bucket List");
-    await expect(page.getByRole("heading", { name: /Couples Bucket List Matcher/i })).toBeVisible();
-    await page.getByPlaceholder(/Search by topic/i).fill("");
+    await page.keyboard.press("Escape");
+    await expect(
+      page.getByRole("navigation", { name: "Mobile navigation" }),
+    ).not.toBeVisible();
+  }
+  await page.evaluate(() => {
+    if (document.activeElement instanceof HTMLElement)
+      document.activeElement.blur();
+    window.scrollTo({ top: 0, behavior: "instant" });
+  });
+  await page.screenshot({
+    path: info.outputPath("home-dark.png"),
+    fullPage: true,
+  });
+  await page
+    .getByRole("link", { name: "Discover your test", exact: true })
+    .click();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "discover",
+  );
+  const search = page.getByRole("searchbox", { name: "Search assessments" });
+  await search.fill("attachment");
+  await expect(page.locator(".test-card")).toHaveCount(1);
+  await expect(page.locator(".test-card")).toContainText("Attachment");
+  await search.fill("zz-no-matching-test");
+  await expect(
+    page.getByRole("button", { name: "Reset filters" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Reset filters" }).click();
+  // Another worker can temporarily publish a custom admin fixture.
+  await expect
+    .poll(() => page.locator(".test-card").count())
+    .toBeGreaterThanOrEqual(9);
+  await page
+    .getByRole("combobox", { name: "Filter by focus" })
+    .selectOption("general");
+  await expect(page.locator(".mature-tag")).toHaveCount(0);
+  await noOverflow(page);
+  await page.screenshot({
+    path: info.outputPath("library.png"),
+    fullPage: true,
+  });
+  expect(errors).toEqual([]);
+  await page.goto("/assessments");
+  await expect(page).toHaveURL(/\/explore$/);
+});
 
-    // 3. Take New Test 29: BDSM Roles, Power Exchange & Dynamics Test (Quick mode)
-    await page.goto("/assess/bdsm-power-dynamics-test?mode=quick");
-    await page.getByLabel(/confirm I am at least/i).check();
-    await page.getByLabel(/understand my responses are private/i).check();
-    await page.getByRole("button", { name: /Begin Questions/i }).click();
+test("answer progress, page navigation, upgrade and complete-mode draft resume", async ({
+  page,
+}, info) => {
+  await page.goto("/assess/attachment-style-discovery?mode=quick");
+  await consent(page);
+  await expect(page.getByRole("progressbar")).toHaveAttribute(
+    "aria-valuenow",
+    "0",
+  );
+  const first = page.getByRole("article").first();
+  const prompt = await first.getByRole("heading").innerText();
+  await first
+    .getByRole("radio", { name: "Somewhat disagree", exact: true })
+    .check();
+  await page.getByRole("button", { name: "Next page", exact: true }).click();
+  await expect(page.getByRole("heading", { level: 2 })).toHaveText(
+    "Questions 6–10",
+  );
+  await page
+    .getByRole("article")
+    .first()
+    .getByRole("radio", { name: "Somewhat agree", exact: true })
+    .check();
+  await page
+    .getByRole("button", { name: "Previous page", exact: true })
+    .click();
+  await expect(
+    page
+      .getByRole("article", { name: prompt })
+      .getByRole("radio", { name: "Somewhat disagree", exact: true }),
+  ).toBeChecked();
+  await page.getByRole("button", { name: /Switch to Complete/i }).click();
+  await expect(page.getByRole("progressbar")).toHaveAttribute(
+    "aria-valuetext",
+    `2 of ${getAssessmentBySlug("attachment-style-discovery")!.questions.length} questions answered`,
+  );
+  await page
+    .getByRole("article")
+    .first()
+    .getByText("Help with this question", { exact: true })
+    .click();
+  await expect(
+    page
+      .getByRole("article")
+      .first()
+      .getByText(/Think about your usual pattern/),
+  ).toBeVisible();
+  await page.reload();
+  await page.getByRole("button", { name: "Resume Draft", exact: true }).click();
+  await expect(
+    page
+      .getByRole("article", { name: prompt })
+      .getByRole("radio", { name: "Somewhat disagree", exact: true }),
+  ).toBeChecked();
+  await expect(page.getByRole("progressbar")).toHaveAttribute(
+    "aria-valuetext",
+    `2 of ${getAssessmentBySlug("attachment-style-discovery")!.questions.length} questions answered`,
+  );
+  await noOverflow(page);
+  await page.screenshot({
+    path: info.outputPath("assessment.png"),
+    fullPage: true,
+  });
+});
 
-    for (let stepIdx = 0; stepIdx < 12; stepIdx++) {
-      const reviewHeading = page.getByRole("heading", { name: /Review & Refine Your Answers/i });
-      if (await reviewHeading.isVisible().catch(() => false)) break;
-
-      const slider = page.locator('input[type="range"]');
-      const sixBtn = page.getByRole("button", { name: "6", exact: true });
-      const choiceBtn = page.getByRole("button", { name: /Slide the blindfold/i });
-
-      if (await slider.isVisible().catch(() => false)) {
-        await slider.fill("85");
-      } else if (await sixBtn.isVisible().catch(() => false)) {
-        await sixBtn.click();
-      } else if (await choiceBtn.isVisible().catch(() => false)) {
-        await choiceBtn.click();
-        await page.screenshot({ path: path.join(SHOT_DIR, "desktop-bdsm.png"), fullPage: false });
-      }
-      await page.getByRole("button", { name: /^(Next|Review & Finish)$/ }).click();
-    }
-
-    await expect(page.getByRole("heading", { name: /Review & Refine Your Answers/i })).toBeVisible();
-    await page.getByRole("button", { name: /Complete & View Results/i }).click();
-    await expect(page).toHaveURL(/\/results\/sub_/, { timeout: 15000 });
-
-    // 4. Take New Test 30: Kink & Fetish Exploration Map (Quick mode + Zero-Leak Privacy Rules)
-    await page.goto("/assess/kink-exploration-map?mode=quick");
-    await page.getByLabel(/confirm I am at least/i).check();
-    await page.getByLabel(/understand my responses are private/i).check();
-    await page.getByRole("button", { name: /Begin Questions/i }).click();
-
-    await expect(page.getByText(/Partner Privacy Rule/i)).toBeVisible();
-    await expect(page.getByRole("button", { name: /Reveal only if mutual/i })).toBeVisible();
-    await page.screenshot({ path: path.join(SHOT_DIR, "desktop-kink.png"), fullPage: false });
-
-    for (let stepIdx = 0; stepIdx < 14; stepIdx++) {
-      const reviewHeading = page.getByRole("heading", { name: /Review & Refine Your Answers/i });
-      if (await reviewHeading.isVisible().catch(() => false)) break;
-      await page.getByRole("button", { name: /Very interested/i }).click();
-      await page.getByRole("button", { name: /^(Next|Review & Finish)$/ }).click();
-    }
-    await expect(page.getByRole("heading", { name: /Review & Refine Your Answers/i })).toBeVisible();
-    await page.getByRole("button", { name: /Complete & View Results/i }).click();
-    await expect(page).toHaveURL(/\/results\/sub_/, { timeout: 15000 });
-
-    // 5. Assessment Library -> Quick Discovery Assessment (Test 1 Flagship)
-    await page.goto("/assessments");
-    await expect(page.getByRole("heading", { name: "Assessment Library" })).toBeVisible();
-    await page.getByRole("link", { name: /Start Quick Discovery/i }).first().click();
-    await expect(page).toHaveURL(/\/assess\/intimacy-partner-preferences\?mode=quick/, {
-      timeout: 15000,
+test("guest results, score explanations, exports, community and partner comparison", async ({
+  page,
+  browser,
+}, info) => {
+  test.setTimeout(120000);
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/assess/intimacy-partner-preferences?mode=quick");
+  await consent(page);
+  await completeIntimacy(page);
+  await expect(page).toHaveURL(/\/results\/sub_/);
+  await expect(
+    page.getByRole("region", { name: "Your category profile" }),
+  ).toBeVisible();
+  const resultId = new URL(page.url()).pathname.split("/").pop()!;
+  await page.getByText(/What shaped your .* score\?/).click();
+  await expect(page.getByText(/contribution/).first()).toBeVisible();
+  await noOverflow(page);
+  await page.screenshot({
+    path: info.outputPath("results.png"),
+    fullPage: false,
+  });
+  const pdf = await page.request.get(
+    `/api/results/${resultId}/export?format=pdf`,
+  );
+  expect(pdf.status()).toBe(200);
+  expect((await pdf.body()).subarray(0, 5).toString()).toBe("%PDF-");
+  const json = await page.request.get(
+    `/api/results/${resultId}/export?format=json`,
+  );
+  expect(json.status()).toBe(200);
+  await page
+    .getByRole("tab", { name: "Community comparison", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Your patterns in perspective" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/Not enough community responses yet/),
+  ).toBeVisible();
+  await page
+    .getByLabel(/Preview comparison charts using Synthetic Demo Data/i)
+    .check();
+  await expect(
+    page.getByText(/Synthetic example data\. These are demonstration rankings/),
+  ).toBeVisible();
+  await expect(
+    page.locator(".benchmark-stats").filter({ hasText: "Percentile" }).first(),
+  ).toBeVisible();
+  await noOverflow(page);
+  await page.getByRole("button", { name: /Compare With Partner/i }).click();
+  await page.getByPlaceholder("First name or nickname").fill("Alex");
+  await page
+    .getByRole("button", { name: /Create Private Invitation/i })
+    .click();
+  const invitation = page.locator("p").filter({ hasText: "/invite/" });
+  await expect(invitation).toBeVisible();
+  const inviteUrl = (await invitation.innerText()).trim();
+  const partnerContext = await browser.newContext({
+    reducedMotion: "reduce",
+    viewport: page.viewportSize()!,
+    baseURL: "http://127.0.0.1:3000",
+  });
+  try {
+    const partner = await partnerContext.newPage();
+    partner.on("pageerror", (e) => errors.push(e.message));
+    await partner.goto(inviteUrl);
+    await partner.getByRole("button", { name: /Continue to Consent/i }).click();
+    await consent(partner);
+    await completeIntimacy(partner, true);
+    await expect(partner).toHaveURL(/\/compatibility\/cmp_/);
+    await expect(
+      partner.getByRole("heading", {
+        name: "Your connection, in focus.",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      partner.getByRole("region", { name: "Side by side category comparison" }),
+    ).toBeVisible();
+    await noOverflow(partner);
+    await partner.screenshot({
+      path: info.outputPath("compatibility.png"),
+      fullPage: true,
     });
+    await page.goto(new URL(partner.url()).pathname);
+    await expect(
+      page.getByRole("heading", {
+        name: "Your connection, in focus.",
+        exact: true,
+      }),
+    ).toBeVisible();
+  } finally {
+    await partnerContext.close();
+  }
+  await page.goto("/results");
+  await expect(
+    page.getByRole("heading", { name: /^My Saved Results/ }),
+  ).toBeVisible();
+  await noOverflow(page);
+  expect(errors).toEqual([]);
+});
 
-    await page.getByLabel(/confirm I am at least/i).check();
-    await page.getByLabel(/understand my responses are private/i).check();
-    await page.getByRole("button", { name: /Begin Questions/i }).click();
-
-    // Q1: Strongly like + experience frequency Rarely + Essential
-    await page.getByRole("button", { name: /5\s*Strongly like/i }).click();
-    await page.getByRole("button", { name: /Add past experience frequency/i }).click();
-    await page.getByRole("button", { name: "Rarely", exact: true }).click();
-    await page.getByRole("button", { name: "Essential to me" }).click();
-    await page.screenshot({ path: path.join(SHOT_DIR, "desktop-quiz-question.png"), fullPage: false });
-    await page.getByRole("button", { name: "Next", exact: true }).click();
-
-    // Q2: Like + Often
-    await page.getByRole("button", { name: /4\s*Like/i }).click();
-    const expToggleQ2 = page.getByRole("button", { name: /Add past experience frequency/i });
-    if (await expToggleQ2.isVisible().catch(() => false)) {
-      await expToggleQ2.click();
-    }
-    await page.getByRole("button", { name: "Often", exact: true }).click();
-    await page.getByRole("button", { name: "Next", exact: true }).click();
-
-    // Q3: Curious
-    await page.getByRole("button", { name: "Curious about trying" }).click();
-    await page.getByRole("button", { name: "Next", exact: true }).click();
-
-    // Q4: Skip
-    await page.getByRole("button", { name: "Skip question" }).click();
-
-    // Q5: Firm boundary
-    await page.getByRole("button", { name: /Not something I want to do/i }).click();
-    await page.getByRole("button", { name: "Next", exact: true }).click();
-
-    // Q6..Q14
-    for (let i = 0; i < 9; i++) {
-      await page.getByRole("button", { name: /5\s*Strongly like/i }).click();
-      if (i === 0 || i === 1) {
-        const expToggleLoop = page.getByRole("button", { name: /Add past experience frequency/i });
-        if (await expToggleLoop.isVisible().catch(() => false)) {
-          await expToggleLoop.click();
-        }
-        await page.getByRole("button", { name: i === 0 ? "Never" : "Sometimes", exact: true }).click();
-      }
-      await page.getByRole("button", { name: /^(Next|Review & Finish)$/ }).click();
-    }
-
-    await expect(page.getByRole("heading", { name: /Review & Refine Your Answers/i })).toBeVisible();
-    await page.getByRole("button", { name: /Complete & View Results/i }).click();
-
-    // 6. Personal Results Dashboard + What You Are Into + Interactive Q&A Trace + Real Binary PDF Export API
-    await expect(page).toHaveURL(/\/results\/sub_/, { timeout: 15000 });
-    await expect(page.getByRole("heading", { name: "What You Are Into" })).toBeVisible();
-    await expect(page.getByText(/Interactive Preference Radar/i)).toBeVisible();
-    await expect(page.getByRole("heading", { name: "How Your Scores Connect" })).toBeVisible();
-    await page.screenshot({ path: path.join(SHOT_DIR, "desktop-results.png"), fullPage: false });
-
-    // Exercise "Inspect answer" jump into Full Question & Answer Breakdown
-    const inspectBtn = page.getByRole("button", { name: /Inspect answer/i }).first();
-    await expect(inspectBtn).toBeVisible();
-    await inspectBtn.click();
-    await expect(page.locator('[id^="qa-row-"]').first()).toBeVisible();
-
-    const resultIdMatch = page.url().match(/\/results\/(sub_[a-zA-Z0-9]+)/);
-    expect(resultIdMatch).not.toBeNull();
-    const pdfRes = await page.request.get(`/api/results/${resultIdMatch![1]}/export?format=pdf`);
-    expect(pdfRes.status()).toBe(200);
-    expect(pdfRes.headers()["content-type"]).toContain("application/pdf");
-    const pdfBuffer = await pdfRes.body();
-    expect(pdfBuffer.subarray(0, 5).toString("ascii")).toBe("%PDF-");
-
-    // Tab: Desire vs. Experience Scatterplot
-    await page.getByRole("tab", { name: /Desire vs\. Experience/i }).click();
-    await expect(page.getByText(/Your Personal Desire vs\. Experience Map/i)).toBeVisible();
-    await page.screenshot({ path: path.join(SHOT_DIR, "desktop-scatterplot.png"), fullPage: false });
-    await page.getByRole("button", { name: /Accessible Table/i }).click();
-    await expect(page.locator("table")).toBeVisible();
-
-    // Tab: Compare With Other Women
-    await page.getByRole("tab", { name: /Compare With Other Women/i }).click();
-    await expect(page.getByText(/Not enough community responses yet/i)).toBeVisible();
-    await page.getByLabel(/Preview comparison charts using Synthetic Demo Data/i).check();
-    await expect(page.getByText(/SYNTHETIC DEMO DATA ACTIVE/i)).toBeVisible();
-
-    // Tab: Ideal Partner Analysis
-    await page.getByRole("tab", { name: /Ideal Partner Analysis/i }).click();
-    await expect(page.getByText(/Your Ideal Partner's Characteristics/i)).toBeVisible();
-
-    // 7. Create Partner Invitation -> Separate Context -> Compatibility Report
-    await page.getByRole("button", { name: /Compare With Partner/i }).click();
-    await page.getByPlaceholder("First name or nickname").fill("Claire");
-    await page.getByRole("button", { name: /Create Private Invitation/i }).click();
-    const inviteLinkEl = page.locator("p").filter({ hasText: "/invite/" });
-    await expect(inviteLinkEl).toBeVisible();
-    const inviteLinkText = await inviteLinkEl.textContent();
-    const invitePath = new URL(inviteLinkText!.trim()).pathname;
-    await page.getByRole("button", { name: "Close modal" }).click();
-
-    const partnerContext = await browser.newContext({ viewport: { width: 1280, height: 800 } });
-    const partnerPage = await partnerContext.newPage();
-    await partnerPage.goto(invitePath);
-    await expect(partnerPage.getByText(/Claire invited you/i)).toBeVisible();
-    await partnerPage.getByRole("button", { name: /Continue to Consent/i }).click();
-    await partnerPage.getByLabel(/confirm I am at least/i).check();
-    await partnerPage.getByLabel(/understand my responses are private/i).check();
-    await partnerPage.getByRole("button", { name: /Begin Questions/i }).click();
-
-    for (let i = 0; i < 14; i++) {
-      const enjBtn = partnerPage.getByRole("button", { name: /Enthusiastically enjoy/i });
-      if (await enjBtn.isVisible().catch(() => false)) {
-        await enjBtn.click();
-      } else {
-        await partnerPage.getByRole("button", { name: /5\s*Strongly like/i }).click();
-      }
-      await partnerPage.getByRole("button", { name: /^(Next|Review & Finish)$/ }).click();
-    }
-
-    await partnerPage.getByRole("button", { name: /Generate Compatibility Report/i }).click();
-    await expect(partnerPage).toHaveURL(/\/compatibility\/cmp_/, { timeout: 15000 });
-    await expect(partnerPage.getByText(/Shared Compatibility Overview/i)).toBeVisible();
-    await expect(partnerPage.getByText(/Profile Overlay Radar/i)).toBeVisible();
-    await partnerPage.waitForTimeout(650);
-    await partnerPage.screenshot({
-      path: path.join(SHOT_DIR, "desktop-compatibility.png"),
+test("public comparison, account and empty states stay usable", async ({
+  page,
+}, info) => {
+  for (const route of ["/couples", "/results", "/community", "/settings"]) {
+    await page.goto(route);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await noOverflow(page);
+    await page.screenshot({
+      path: info.outputPath(`${route.slice(1)}.png`),
       fullPage: false,
     });
-    await partnerContext.close();
+  }
+  await page.goto("/community");
+  await expect(
+    page.getByRole("heading", { name: "Category averages", exact: true }),
+  ).toBeVisible();
+  const response = await page.request.get("/api/community");
+  const payload = await response.json();
+  expect(payload).not.toHaveProperty("rawRatingsByQuestion");
+  expect(payload.isSyntheticDemo).toBe(false);
+});
 
-    // 8. Take Attachment Style Discovery (Quick 12 items) -> Unlock Cross-Test Discovery Profile
-    await page.goto("/assess/attachment-style-discovery?mode=quick");
-    await page.getByLabel(/confirm I am at least/i).check();
-    await page.getByLabel(/understand my responses are private/i).check();
-    await page.getByRole("button", { name: /Begin Questions/i }).click();
-    for (let i = 0; i < 12; i++) {
-      await page.getByRole("button", { name: /^3\b/ }).first().click();
-      await page.getByRole("button", { name: /^(Next|Review & Finish)$/ }).click();
-    }
-    await page.getByRole("button", { name: /Complete & View Results/i }).click();
-    await expect(page).toHaveURL(/\/results\/sub_/, { timeout: 15000 });
-    await expect(page.getByText(/Attachment Dynamics Map/i)).toBeVisible();
+test("prior results comparison and email form validation", async ({ page }) => {
+  const created: string[] = [];
+  for (const rating of [2, 5]) {
+    const answers = Object.fromEntries(
+      intimacyPartnerPreferencesAssessment.questions
+        .filter((q) => q.quickDiscovery)
+        .map((q) => [
+          q.id,
+          {
+            questionId: q.id,
+            customValue: rating,
+            updatedAt: "2026-11-20T00:00:00Z",
+          },
+        ]),
+    );
+    const response = await page.request.post("/api/assessments/submit", {
+      data: {
+        assessmentSlug: "intimacy-partner-preferences",
+        mode: "quick",
+        perspective: "primary",
+        consent: {
+          confirmedAdult18Plus: true,
+          acceptedPrivacyTerms: true,
+          optInCommunityStats: false,
+          consentedAt: "2026-11-20T00:00:00Z",
+        },
+        answers,
+      },
+    });
+    expect(response.status()).toBe(200);
+    created.push((await response.json()).submissionId);
+  }
+  await page.goto(`/results/${created[1]}?compare=${created[0]}`);
+  await expect(
+    page.getByRole("heading", { name: /Change Since Your Attempt/ }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "Your category profile" }),
+  ).toContainText("pts");
+  await page.getByText("Export & email", { exact: true }).click();
+  await page.getByRole("button", { name: "Email Report", exact: true }).click();
+  await expect(page.getByPlaceholder("you@example.com")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Send Verification Code", exact: true }),
+  ).toBeDisabled();
+  await page.getByPlaceholder("you@example.com").fill("not-an-email");
+  await expect(
+    page.getByRole("button", { name: "Send Verification Code", exact: true }),
+  ).toBeDisabled();
+  await noOverflow(page);
+});
 
-    // 9. Verify Unified /profile, /couples, /results, /community, /settings
-    await page.goto("/profile");
-    await expect(page.getByRole("heading", { name: /Your Discovery Profile/i })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /What You Are Into Across Tests/i })).toBeVisible();
-    await expect(page.getByText(/Traceable Cross-Test Insights/i)).toBeVisible();
-    await page.screenshot({ path: path.join(SHOT_DIR, "desktop-profile.png"), fullPage: false });
-
-    await page.goto("/couples");
-    await expect(page.getByRole("heading", { name: /Couples & Partner Space/i })).toBeVisible();
-    await expect(page.getByText(/Shared Compatibility Reports \(1\)/i)).toBeVisible();
-
-    await page.goto("/results");
-    await expect(page.getByRole("heading", { name: /My Saved Results/i })).toBeVisible();
-
-    await page.goto("/community");
-    await expect(page.getByRole("heading", { name: /Anonymous Community Insights/i })).toBeVisible();
-    await expect(page.getByText(/Not enough community responses yet/i)).toBeVisible();
-
-    await page.goto("/settings");
-    await expect(page.getByRole("heading", { name: /Account & Privacy Settings/i })).toBeVisible();
-
-    // 10. Legacy Personal Dashboard & Complete Cleanup
-    await page.goto("/dashboard");
-    await expect(page.getByRole("heading", { name: "Personal Dashboard" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Completed Assessments" })).toBeVisible();
-    await page.getByRole("button", { name: /Delete All Stored Data/i }).click();
-    await expect(page.getByText(/No completed assessments stored/i)).toBeVisible();
-
-    // 11. Protected Admin / Studio Auth Gate + Reference Chart Editorial Queue + Simulator
-    const unauthStudio = await page.request.get("/api/studio");
-    expect(unauthStudio.status()).toBe(401);
-
-    await page.goto("/studio");
-    await expect(page.getByLabel(/Administrator Passphrase/i)).toBeVisible();
-    await page.getByLabel(/Administrator Passphrase/i).fill("between-us-playwright-admin-key");
-    await page.getByRole("button", { name: /Unlock Admin Workspace/i }).click();
-    await expect(page.getByRole("heading", { name: /Assessment Studio/i })).toBeVisible();
-    await page.getByRole("tab", { name: /Reference Chart Editorial Queue/i }).click();
-    await expect(page.getByText(/\[OBSCURED\]/).first()).toBeVisible();
-
-    await page.goto("/admin");
-    await expect(page.getByRole("heading", { name: /Admin & Scoring Console/i })).toBeVisible();
-    await page.getByRole("tab", { name: /Scoring Tester/i }).click();
-    await page.getByRole("button", { name: /Run Simulator/i }).click();
-    await expect(page.getByText(/Computed Archetype/i)).toBeVisible();
-    await page.screenshot({ path: path.join(SHOT_DIR, "desktop-admin.png"), fullPage: false });
-
-    expect(errors).toEqual([]);
-  });
+test("answer buttons support native arrows, numbered shortcuts, skipping and category navigation", async ({
+  page,
+}, info) => {
+  const assessment = getAssessmentBySlug("big-five-personality-profile")!;
+  await page.goto("/assess/big-five-personality-profile?mode=complete");
+  await consent(page);
+  await expect(page.getByRole("radio")).toHaveCount(35);
+  for (const radio of await page.getByRole("radio").all())
+    await expect(radio).not.toBeChecked();
+  const first = page.getByRole("article").first();
+  await first
+    .getByRole("radio", { name: "Neither agree nor disagree", exact: true })
+    .check();
+  await page.keyboard.press("ArrowRight");
+  await expect(
+    first.getByRole("radio", { name: "Somewhat agree", exact: true }),
+  ).toBeChecked();
+  await page.keyboard.press("7");
+  await expect(
+    first.getByRole("radio", { name: "Strongly agree", exact: true }),
+  ).toBeChecked();
+  await page
+    .getByRole("button", { name: "Skip question 2", exact: true })
+    .click();
+  await expect(page.getByRole("progressbar")).toHaveAttribute(
+    "aria-valuenow",
+    String(Math.round(100 / assessment.questions.length)),
+  );
+  await expect(page.getByRole("heading", { level: 2 })).toHaveText(
+    "Questions 1–5",
+  );
+  if (info.project.name === "Desktop Chrome") {
+    await page
+      .getByRole("navigation", { name: "Jump to a category" })
+      .getByRole("button", { name: /Social energy/ })
+      .click();
+    const question = assessment.questions.find((q) =>
+      q.sectionTitle.includes("Social energy"),
+    )!;
+    await expect(
+      page.getByRole("article", { name: question.prompt }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: question.prompt }),
+    ).toBeFocused();
+  }
+  await noOverflow(page);
 });

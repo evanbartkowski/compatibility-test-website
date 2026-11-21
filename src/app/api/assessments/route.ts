@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { listAllAssessments } from "@/lib/server/store";
+import { listPublishedAssessments } from "@/lib/server/store";
 
 export async function GET() {
-  const published = listAllAssessments()
+  const published = listPublishedAssessments()
     .filter((a) => a.status === "published" && a.questions.length > 0)
     .map((a) => ({
       ...a,

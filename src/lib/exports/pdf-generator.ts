@@ -1,6 +1,15 @@
-import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
+import {
+  PDFDocument,
+  StandardFonts,
+  rgb,
+  type PDFFont,
+  type PDFPage,
+} from "pdf-lib";
 import { brandConfig } from "@/config/brand";
-import type { CompatibilityReport, ScoredAssessmentResult } from "@/lib/assessment/types";
+import type {
+  CompatibilityReport,
+  ScoredAssessmentResult,
+} from "@/lib/assessment/types";
 
 function sanitizeWinAnsi(input: string): string {
   return (input || "")
@@ -13,7 +22,12 @@ function sanitizeWinAnsi(input: string): string {
     .replace(/[^\x20-\x7E\xA0-\xFF]/g, " ");
 }
 
-function wrapText(text: string, font: PDFFont, size: number, maxWidth: number): string[] {
+function wrapText(
+  text: string,
+  font: PDFFont,
+  size: number,
+  maxWidth: number,
+): string[] {
   const safe = sanitizeWinAnsi(text);
   const words = safe.split(/\s+/).filter(Boolean);
   if (words.length === 0) return [];
@@ -45,7 +59,7 @@ class PdfWriter {
   }
 
   async init() {
-    this.serif = await this.doc.embedFont(StandardFonts.TimesRomanBold);
+    this.serif = await this.doc.embedFont(StandardFonts.HelveticaBold);
     this.sans = await this.doc.embedFont(StandardFonts.Helvetica);
     this.sansBold = await this.doc.embedFont(StandardFonts.HelveticaBold);
     this.addPage();
@@ -53,19 +67,31 @@ class PdfWriter {
 
   addPage() {
     this.page = this.doc.addPage([612, 792]);
-    this.y = 742;
-    this.page.drawText(sanitizeWinAnsi(`${brandConfig.name} - Private Relationship & Self-Discovery`), {
-      x: 52,
-      y: 764,
-      size: 8.5,
-      font: this.sans,
-      color: rgb(0.45, 0.38, 0.42),
+    this.y = 722;
+    this.page.drawRectangle({
+      x: 0,
+      y: 750,
+      width: 612,
+      height: 42,
+      color: rgb(0.05, 0.04, 0.08),
     });
+    this.page.drawText(
+      sanitizeWinAnsi(
+        `${brandConfig.name} - Private Relationship & Self-Discovery`,
+      ),
+      {
+        x: 52,
+        y: 764,
+        size: 8.5,
+        font: this.sans,
+        color: rgb(0.8, 0.73, 0.96),
+      },
+    );
     this.page.drawLine({
       start: { x: 52, y: 756 },
       end: { x: 560, y: 756 },
       thickness: 0.6,
-      color: rgb(0.86, 0.81, 0.77),
+      color: rgb(0.81, 0.79, 0.87),
     });
   }
 
@@ -98,7 +124,7 @@ class PdfWriter {
       y: this.y,
       size: 12,
       font: this.sansBold,
-      color: rgb(0.71, 0.11, 0.35),
+      color: rgb(0.44, 0.25, 0.78),
     });
     this.y -= 18;
   }
@@ -121,20 +147,26 @@ class PdfWriter {
   }
 
   drawScoreRow(label: string, scoreText: string, pct: number | null) {
-    this.ensureSpace(26);
-    this.page.drawText(sanitizeWinAnsi(label), {
-      x: 52,
-      y: this.y,
+    const labelLines = wrapText(label, this.sansBold, 10, 350);
+    this.ensureSpace(labelLines.length * 14 + 20);
+    const rowTop = this.y;
+    for (const line of labelLines) {
+      this.page.drawText(line, {
+        x: 52,
+        y: this.y,
+        size: 10,
+        font: this.sansBold,
+        color: rgb(0.18, 0.15, 0.23),
+      });
+      this.y -= 14;
+    }
+    const safeScore = sanitizeWinAnsi(scoreText);
+    this.page.drawText(safeScore, {
+      x: 560 - this.sansBold.widthOfTextAtSize(safeScore, 10),
+      y: rowTop,
       size: 10,
       font: this.sansBold,
-      color: rgb(0.18, 0.15, 0.17),
-    });
-    this.page.drawText(sanitizeWinAnsi(scoreText), {
-      x: 492,
-      y: this.y,
-      size: 10,
-      font: this.sansBold,
-      color: rgb(0.71, 0.11, 0.35),
+      color: rgb(0.44, 0.25, 0.78),
     });
     this.y -= 9;
     this.page.drawRectangle({
@@ -142,7 +174,7 @@ class PdfWriter {
       y: this.y,
       width: 508,
       height: 5,
-      color: rgb(0.92, 0.89, 0.86),
+      color: rgb(0.92, 0.91, 0.96),
     });
     if (pct !== null && pct > 0) {
       this.page.drawRectangle({
@@ -150,7 +182,7 @@ class PdfWriter {
         y: this.y,
         width: Math.max(4, Math.min(508, (pct / 100) * 508)),
         height: 5,
-        color: rgb(0.71, 0.11, 0.35),
+        color: rgb(0.44, 0.25, 0.78),
       });
     }
     this.y -= 15;
@@ -164,14 +196,24 @@ class PdfWriter {
         start: { x: 52, y: 46 },
         end: { x: 560, y: 46 },
         thickness: 0.5,
-        color: rgb(0.86, 0.81, 0.77),
+        color: rgb(0.81, 0.79, 0.87),
       });
-      pg.drawText(`${safe}  |  Page ${idx + 1} of ${pages.length}`, {
-        x: 52,
+      const lines = wrapText(safe, this.sans, 7, 425).slice(0, 2);
+      lines.forEach((line, i) =>
+        pg.drawText(line, {
+          x: 52,
+          y: 32 - i * 9,
+          size: 7,
+          font: this.sans,
+          color: rgb(0.4, 0.38, 0.45),
+        }),
+      );
+      pg.drawText("Page " + (idx + 1) + " of " + pages.length, {
+        x: 502,
         y: 32,
         size: 8,
         font: this.sans,
-        color: rgb(0.45, 0.39, 0.42),
+        color: rgb(0.4, 0.38, 0.45),
       });
     });
   }
@@ -179,7 +221,7 @@ class PdfWriter {
 
 export async function generateResultPdf(
   result: ScoredAssessmentResult,
-  options?: { includeQaSummary?: boolean }
+  options?: { includeQaSummary?: boolean },
 ): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const writer = new PdfWriter(doc);
@@ -189,16 +231,18 @@ export async function generateResultPdf(
   writer.drawParagraph(
     `Result Archetype: ${result.profile.archetypeName} | Answered ${result.answeredCount}/${result.totalEligibleInMode} (${result.coveragePercent}%) | Completed ${result.createdAt.slice(0, 10)}`,
     9.5,
-    true
+    true,
   );
   writer.drawParagraph(result.profile.summaryParagraph, 10.5);
 
   if (result.whatYouAreInto) {
-    writer.drawSubheading(result.whatYouAreInto.headline || "What You Are Into");
+    writer.drawSubheading(
+      result.whatYouAreInto.headline || "What You Are Into",
+    );
     if (result.whatYouAreInto.roleOrDynamicLean) {
       writer.drawParagraph(
         `Role & Dynamic Lean: ${result.whatYouAreInto.roleOrDynamicLean.label} - ${result.whatYouAreInto.roleOrDynamicLean.detail}`,
-        9.5
+        9.5,
       );
     }
     if (result.whatYouAreInto.coreTurnOns.length > 0) {
@@ -210,7 +254,7 @@ export async function generateResultPdf(
             : "";
         writer.drawParagraph(
           `- ${item.shortLabel}: ${item.answerLabel}${dimNote}`,
-          9
+          9,
         );
       }
     }
@@ -219,13 +263,16 @@ export async function generateResultPdf(
       for (const item of result.whatYouAreInto.wantMoreOf.slice(0, 5)) {
         writer.drawParagraph(
           `- ${item.shortLabel} (${item.detail || item.answerLabel})`,
-          9
+          9,
         );
       }
     }
     if (result.whatYouAreInto.curiousExplorations.length > 0) {
       writer.drawParagraph("Curious To Explore:", 9.5);
-      for (const item of result.whatYouAreInto.curiousExplorations.slice(0, 5)) {
+      for (const item of result.whatYouAreInto.curiousExplorations.slice(
+        0,
+        5,
+      )) {
         writer.drawParagraph(`- ${item.shortLabel}`, 9);
       }
     }
@@ -233,7 +280,20 @@ export async function generateResultPdf(
 
   writer.drawSubheading("Dimension Scores");
   for (const dim of result.radar) {
-    writer.drawScoreRow(dim.label, `${dim.score} / 100`, dim.score);
+    writer.drawScoreRow(
+      dim.label,
+      dim.answeredCount ? `${dim.score} / 100` : "Not measured",
+      dim.answeredCount ? dim.score : null,
+    );
+  }
+
+  for (const dim of result.radar.filter(d => d.answeredCount > 0 && d.interpretation)) {
+    writer.drawSubheading(`${dim.label} - Category Detail`);
+    writer.drawParagraph(`${dim.answeredCount} of ${dim.eligibleCount} category statements answered. ${dim.answeredCount < 3 ? "Tentative reading with limited answers." : "An exploratory reading, not a diagnostic result."}`, 9);
+    writer.drawParagraph(dim.interpretation!.meaning, 10);
+    writer.drawParagraph(`A tension to notice: ${dim.interpretation!.possibleTradeoff}`, 9.5);
+    writer.drawParagraph(`Something to try: ${dim.interpretation!.experiment}`, 9.5);
+    writer.drawParagraph(`Reflection: ${dim.interpretation!.reflection}`, 9.5);
   }
 
   if (result.dimensionInteractions && result.dimensionInteractions.length > 0) {
@@ -249,7 +309,7 @@ export async function generateResultPdf(
       writer.drawScoreRow(
         `${ch.label} (Need ${ch.receiveOrNeedScore} vs Offer ${ch.expressOrOfferScore})`,
         `Gap ${ch.gap}`,
-        ch.receiveOrNeedScore
+        ch.receiveOrNeedScore,
       );
     }
   }
@@ -257,7 +317,10 @@ export async function generateResultPdf(
   if (result.priorityRanking && result.priorityRanking.length > 0) {
     writer.drawSubheading("Top Ranked Priorities & Non-Negotiables");
     for (const pr of result.priorityRanking.slice(0, 10)) {
-      writer.drawParagraph(`#${pr.rank} ${pr.label} (${pr.tier.toUpperCase()} - ${pr.score}/100)`, 9.5);
+      writer.drawParagraph(
+        `#${pr.rank} ${pr.label} (${pr.tier.toUpperCase()} - ${pr.score}/100)`,
+        9.5,
+      );
     }
   }
 
@@ -274,13 +337,19 @@ export async function generateResultPdf(
   }
 
   if (result.buckets.firmBoundaries.length > 0) {
-    writer.drawSubheading("Explicit Firm Boundaries (Protected Private Anchor)");
+    writer.drawSubheading(
+      "Explicit Firm Boundaries (Protected Private Anchor)",
+    );
     for (const b of result.buckets.firmBoundaries) {
       writer.drawParagraph(`- ${b.prompt}`, 9.5);
     }
   }
 
-  if (options?.includeQaSummary && result.qaSummary && result.qaSummary.length > 0) {
+  if (
+    options?.includeQaSummary &&
+    result.qaSummary &&
+    result.qaSummary.length > 0
+  ) {
     writer.addPage();
     writer.drawHeading("Question & Answer Record", 18);
     for (const row of result.qaSummary) {
@@ -288,7 +357,7 @@ export async function generateResultPdf(
       writer.drawParagraph(
         `Response: ${row.answerLabel}${row.firmBoundary ? " (Firm Boundary)" : ""}`,
         9,
-        true
+        true,
       );
     }
   }
@@ -297,7 +366,9 @@ export async function generateResultPdf(
   return await doc.save();
 }
 
-export async function generateCompatibilityPdf(report: CompatibilityReport): Promise<Uint8Array> {
+export async function generateCompatibilityPdf(
+  report: CompatibilityReport,
+): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const writer = new PdfWriter(doc);
   await writer.init();
@@ -306,7 +377,7 @@ export async function generateCompatibilityPdf(report: CompatibilityReport): Pro
   writer.drawParagraph(
     `Overall Compatibility: ${report.overallScore}/100 (${report.label}) | Coverage ${report.coveragePercent}% | Generated ${report.createdAt.slice(0, 10)}`,
     10,
-    true
+    true,
   );
   writer.drawParagraph(report.disclaimer, 9.5, true);
 
@@ -315,7 +386,7 @@ export async function generateCompatibilityPdf(report: CompatibilityReport): Pro
     writer.drawScoreRow(
       dim.dimension,
       dim.score !== null ? `${dim.score} / 100` : "Private",
-      dim.score
+      dim.score,
     );
   }
 
@@ -346,7 +417,9 @@ export async function generateCompatibilityPdf(report: CompatibilityReport): Pro
   }
 
   if (report.fantasyReveals) {
-    writer.drawSubheading("Mutually Matched Fantasy Items (Zero-Exposure Protocol)");
+    writer.drawSubheading(
+      "Mutually Matched Fantasy Items (Zero-Exposure Protocol)",
+    );
     for (const m of report.fantasyReveals.mutuallySelected) {
       writer.drawParagraph(`- [${m.category}] ${m.label}`, 9.5);
     }
@@ -357,12 +430,14 @@ export async function generateCompatibilityPdf(report: CompatibilityReport): Pro
     for (const item of report.bucketListMatches.sharedItems) {
       writer.drawParagraph(
         `- [${item.completed ? "DONE" : "TODO"}] ${item.label} (${item.category})`,
-        9.5
+        9.5,
       );
     }
   }
 
-  writer.drawFooterNote(`Generated deterministically by ${brandConfig.name} · Private couple report`);
+  writer.drawFooterNote(
+    `Generated deterministically by ${brandConfig.name} · Private couple report`,
+  );
   return await doc.save();
 }
 
@@ -372,10 +447,22 @@ function escapeCsvCell(val: unknown): string {
 }
 
 export function generateResultCsv(result: ScoredAssessmentResult): string {
-  const header = ["Section", "Dimension/Item", "Response/Score", "Importance", "Boundary"];
+  const header = [
+    "Section",
+    "Dimension/Item",
+    "Response/Score",
+    "Importance",
+    "Boundary",
+  ];
   const rows: string[][] = [];
   for (const d of result.radar) {
-    rows.push(["Dimension Score", d.label, `${d.score}/100`, `${d.answeredCount} items`, ""]);
+    rows.push([
+      "Dimension Score",
+      d.label,
+      d.answeredCount ? `${d.score}/100` : "Not measured",
+      `${d.answeredCount} items`,
+      "",
+    ]);
   }
   for (const qa of result.qaSummary || []) {
     rows.push([
@@ -386,22 +473,33 @@ export function generateResultCsv(result: ScoredAssessmentResult): string {
       qa.firmBoundary ? "Yes" : "No",
     ]);
   }
-  return [header.map(escapeCsvCell).join(","), ...rows.map((r) => r.map(escapeCsvCell).join(","))].join(
-    "\r\n"
-  );
+  return [
+    header.map(escapeCsvCell).join(","),
+    ...rows.map((r) => r.map(escapeCsvCell).join(",")),
+  ].join("\r\n");
 }
 
 export function generateCompatibilityCsv(report: CompatibilityReport): string {
   const header = ["Group", "Topic", "Note/Explanation", "Score"];
   const rows: string[][] = [];
   for (const d of report.dimensionScores) {
-    rows.push(["Dimension", d.dimension, d.note, d.score !== null ? String(d.score) : "Private"]);
+    rows.push([
+      "Dimension",
+      d.dimension,
+      d.note,
+      d.score !== null ? String(d.score) : "Private",
+    ]);
   }
   for (const a of report.whereYouAlign) {
     rows.push(["Aligned", a.promptSummary, a.explanation, "Match"]);
   }
   for (const c of report.whereYouComplement) {
-    rows.push(["Complementary", c.promptSummary, c.explanation, "Complementary"]);
+    rows.push([
+      "Complementary",
+      c.promptSummary,
+      c.explanation,
+      "Complementary",
+    ]);
   }
   for (const d of report.whereYouDiffer) {
     rows.push(["Difference", d.promptSummary, d.explanation, "Discuss"]);
@@ -409,7 +507,8 @@ export function generateCompatibilityCsv(report: CompatibilityReport): string {
   for (const b of report.boundaryConsiderations) {
     rows.push(["Boundary", b.promptSummary, b.explanation, "Protected"]);
   }
-  return [header.map(escapeCsvCell).join(","), ...rows.map((r) => r.map(escapeCsvCell).join(","))].join(
-    "\r\n"
-  );
+  return [
+    header.map(escapeCsvCell).join(","),
+    ...rows.map((r) => r.map(escapeCsvCell).join(",")),
+  ].join("\r\n");
 }

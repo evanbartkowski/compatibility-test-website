@@ -8,6 +8,13 @@ export function PersonalitySpectrumChart({
 }: {
   dimensions: RadarDimensionScore[];
 }) {
+  dimensions = dimensions.filter((d) => d.answeredCount > 0);
+  if (!dimensions.length)
+    return (
+      <p className="text-sm text-[var(--ink-muted)]">
+        No measured categories in this attempt. Skipped answers stay unknown.
+      </p>
+    );
   return (
     <div className="space-y-4">
       {dimensions.map((d) => (
@@ -20,7 +27,9 @@ export function PersonalitySpectrumChart({
           }}
         >
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h4 className="font-display text-xl text-[var(--ink-primary)]">{d.label}</h4>
+            <h4 className="font-display text-xl text-[var(--ink-primary)]">
+              {d.label}
+            </h4>
             <span className="font-mono-tabular text-sm font-semibold text-[var(--accent-plum)]">
               {d.score} / 100
             </span>
@@ -43,7 +52,9 @@ export function PersonalitySpectrumChart({
 
           <div className="mt-2 flex items-center justify-between gap-3 text-[11px] text-[var(--ink-muted)]">
             <span>{d.lowLabel || "Lower expression (0)"}</span>
-            <span className="text-right">{d.highLabel || "Stronger expression (100)"}</span>
+            <span className="text-right">
+              {d.highLabel || "Stronger expression (100)"}
+            </span>
           </div>
         </div>
       ))}

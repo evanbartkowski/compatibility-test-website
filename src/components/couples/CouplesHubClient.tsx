@@ -2,9 +2,19 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Check, Copy, HeartHandshake, Link2, Lock, Sparkles, Trash2 } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  Copy,
+  HeartHandshake,
+  Link2,
+  Lock,
+  Sparkles,
+  Trash2,
+} from "lucide-react";
 import type { PartnerInvitation } from "@/lib/assessment/types";
 import { formatShortDate } from "@/lib/utils";
+import { ComparisonExample } from "@/components/home/DiscoveryPreview";
 
 interface CompatibilitySummaryCard {
   compatibilityId: string;
@@ -45,12 +55,17 @@ export function CouplesHubClient({
   const handleRevoke = async (inviteId: string) => {
     setRevokingId(inviteId);
     try {
-      const res = await fetch(`/api/invitations?inviteId=${encodeURIComponent(inviteId)}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `/api/invitations?inviteId=${encodeURIComponent(inviteId)}`,
+        {
+          method: "DELETE",
+        },
+      );
       if (res.ok) {
         setInvitations((prev) =>
-          prev.map((i) => (i.inviteId === inviteId ? { ...i, status: "revoked" } : i))
+          prev.map((i) =>
+            i.inviteId === inviteId ? { ...i, status: "revoked" } : i,
+          ),
         );
         setReports((prev) => prev.filter((r) => r.inviteId !== inviteId));
       }
@@ -72,16 +87,71 @@ export function CouplesHubClient({
   const pendingInvites = invitations.filter((i) => i.status === "pending");
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+    <div className="site-shell py-12 sm:py-16">
       <div className="max-w-3xl space-y-3">
         <h1 className="font-display text-4xl tracking-tight text-[var(--ink-primary)] sm:text-5xl">
-          Couples &amp; Partner Space
+          A little closer to each other.
         </h1>
         <p className="text-base leading-relaxed text-[var(--ink-secondary)]">
-          Invite a partner with no accounts required, reveal mutual fantasies and bucket lists
-          privately, or compare how accurately you know one another.
+          Explore the patterns behind your connection. See your shared
+          strengths, understand your differences, and start a better
+          conversation.
         </p>
       </div>
+
+      {reports.length === 0 && (
+        <section className="comparison-grid mt-8">
+          <div className="comparison-panel">
+            <span className="panel-symbol">
+              <HeartHandshake size={20} />
+            </span>
+            <h2 className="font-display text-3xl">
+              Your connection, in focus.
+            </h2>
+            <p className="mt-4">
+              Two people bring two different stories. Compare your category
+              profiles and find the places where your stories meet.
+            </p>
+            <ComparisonExample />
+          </div>
+          <div className="comparison-panel">
+            <h2 className="font-display text-2xl">
+              Make room for a real conversation.
+            </h2>
+            <ol className="mt-6 space-y-6">
+              {[
+                {
+                  title: "Discover your own profile",
+                  text: "Choose a test below and answer at your own pace.",
+                },
+                {
+                  title: "Invite your person",
+                  text: "Open your result and create a private partner link. Choose what you share.",
+                },
+                {
+                  title: "See your connection together",
+                  text: "Your partner answers independently. You both get the same compatibility report.",
+                },
+              ].map((step, i) => (
+                <li className="flex gap-4" key={step.title}>
+                  <span className="flex items-center justify-center h-8 w-8 shrink-0 rounded-full border text-xs text-[var(--accent-plum)]">
+                    {i + 1}
+                  </span>
+                  <div>
+                    <h3 className="text-sm font-medium">{step.title}</h3>
+                    <p className="text-sm text-[var(--ink-muted)] leading-relaxed mt-2">
+                      {step.text}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+            <Link href="/explore" className="button button-primary mt-7">
+              Find a test for two
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* Completed Compatibility Reports */}
       <section className="mt-10">
@@ -100,8 +170,8 @@ export function CouplesHubClient({
               borderColor: "var(--border-hairline)",
             }}
           >
-            No completed couple reports yet. Finish any partner-enabled assessment below, open your
-            result, and send a private invite link.
+            No completed couple reports yet. Finish any partner-enabled
+            assessment below, open your result, and send a private invite link.
           </div>
         ) : (
           <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -128,7 +198,8 @@ export function CouplesHubClient({
                     {rep.label}
                   </h3>
                   <p className="mt-1 text-xs text-[var(--ink-secondary)]">
-                    {rep.bothAnsweredCount} of {rep.totalEligibleCount} matched prompts compared.
+                    {rep.bothAnsweredCount} of {rep.totalEligibleCount} matched
+                    prompts compared.
                   </p>
                 </div>
 
@@ -180,7 +251,8 @@ export function CouplesHubClient({
               >
                 <div className="text-xs">
                   <p className="font-semibold text-sm text-[var(--ink-primary)]">
-                    {inv.assessmentSlug.replace(/-/g, " ")} · For {inv.creatorDisplayName}
+                    {inv.assessmentSlug.replace(/-/g, " ")} · For{" "}
+                    {inv.creatorDisplayName}
                   </p>
                   <p className="mt-0.5 text-[var(--ink-muted)]">
                     Expires {formatShortDate(inv.expiresAt)} · {inv.mode} mode
@@ -198,7 +270,9 @@ export function CouplesHubClient({
                       ) : (
                         <Copy className="h-3.5 w-3.5" />
                       )}
-                      {copiedId === inv.inviteId ? "Copied" : "Copy Invite Link"}
+                      {copiedId === inv.inviteId
+                        ? "Copied"
+                        : "Copy Invite Link"}
                     </button>
                   )}
                   <button
@@ -223,12 +297,13 @@ export function CouplesHubClient({
               Couples Games &amp; Partner Assessments
             </h2>
             <p className="mt-1 text-xs text-[var(--ink-secondary)]">
-              Take your side privately first, then generate a revocable partner invitation from your
-              results page.
+              Take your side privately first, then generate a revocable partner
+              invitation from your results page.
             </p>
           </div>
           <span className="inline-flex items-center gap-1.5 text-xs text-[var(--ink-muted)]">
-            <Lock className="h-3.5 w-3.5 text-[var(--accent-sage)]" /> Mutual-only fantasy &amp; bucket list protection
+            <Lock className="h-3.5 w-3.5 text-[var(--accent-sage)]" />{" "}
+            Mutual-only fantasy &amp; bucket list protection
           </span>
         </div>
 
@@ -251,7 +326,9 @@ export function CouplesHubClient({
                         18+
                       </span>
                     )}
-                    <span className="font-mono-tabular">~{item.estimatedMinutesQuick} min</span>
+                    <span className="font-mono-tabular">
+                      ~{item.estimatedMinutesQuick} min
+                    </span>
                   </div>
                 </div>
                 <h3 className="mt-2 font-display text-2xl text-[var(--ink-primary)]">
@@ -262,7 +339,10 @@ export function CouplesHubClient({
                 </p>
               </div>
 
-              <div className="mt-5 flex flex-wrap gap-2 border-t pt-4" style={{ borderColor: "var(--border-hairline)" }}>
+              <div
+                className="mt-5 flex flex-wrap gap-2 border-t pt-4"
+                style={{ borderColor: "var(--border-hairline)" }}
+              >
                 <Link
                   href={`/assess/${item.slug}`}
                   className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium"

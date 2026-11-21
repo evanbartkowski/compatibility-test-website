@@ -1,4 +1,8 @@
+import { selectAssessmentQuestions } from "./definition";
+import { compareIntimacyProfiles } from "./intimacy-profile";
+import { attachPairAdvice } from "./advice";
 import { brandConfig } from "@/config/brand";
+import { hasMeaningfulAnswer } from "./answers";
 import {
   formatAnswerDisplayLabel,
   isNumericEnjoyment,
@@ -47,7 +51,9 @@ function partnerEffectiveEnthusiasm(ans: QuestionAnswer): {
     };
   }
 
-  const isBoundary = Boolean(ans.firmBoundary || ans.partnerWillingness === "firm_boundary");
+  const isBoundary = Boolean(
+    ans.firmBoundary || ans.partnerWillingness === "firm_boundary",
+  );
   if (isBoundary) {
     return {
       numeric: 1,
@@ -58,7 +64,10 @@ function partnerEffectiveEnthusiasm(ans: QuestionAnswer): {
     };
   }
 
-  if (ans.partnerWillingness === "curious_to_explore" || ans.enjoyment === "curious") {
+  if (
+    ans.partnerWillingness === "curious_to_explore" ||
+    ans.enjoyment === "curious"
+  ) {
     return {
       numeric: null,
       isWillingOnly: false,
@@ -68,7 +77,10 @@ function partnerEffectiveEnthusiasm(ans: QuestionAnswer): {
     };
   }
 
-  if (ans.partnerWillingness === "depends_on_context" || ans.enjoyment === "depends") {
+  if (
+    ans.partnerWillingness === "depends_on_context" ||
+    ans.enjoyment === "depends"
+  ) {
     return {
       numeric: null,
       isWillingOnly: false,
@@ -91,7 +103,9 @@ function partnerEffectiveEnthusiasm(ans: QuestionAnswer): {
 
   if (ans.partnerWillingness === "enthusiastically_enjoy") {
     return {
-      numeric: isNumericEnjoyment(ans.enjoyment) ? Math.max(ans.enjoyment, 4.5) : 5,
+      numeric: isNumericEnjoyment(ans.enjoyment)
+        ? Math.max(ans.enjoyment, 4.5)
+        : 5,
       isWillingOnly: false,
       isCurious: false,
       isDepends: false,
@@ -141,7 +155,7 @@ function evaluateCuriosityPair(
   q: QuestionDefinition,
   aLvl: CuriosityLevel,
   bLvl: CuriosityLevel,
-  weight: number
+  weight: number,
 ): PairEval {
   if (aLvl === "firm_boundary" || bLvl === "firm_boundary") {
     const otherInterested =
@@ -172,7 +186,8 @@ function evaluateCuriosityPair(
     };
   }
 
-  const positive = (l: CuriosityLevel) => l === "very_interested" || l === "interested";
+  const positive = (l: CuriosityLevel) =>
+    l === "very_interested" || l === "interested";
 
   if (positive(aLvl) && positive(bLvl)) {
     return {
@@ -180,7 +195,8 @@ function evaluateCuriosityPair(
       score: aLvl === "very_interested" && bLvl === "very_interested" ? 98 : 90,
       weight,
       classification: "strong_align",
-      explanation: "Strong mutual enthusiasm or shared interest in exploring this together.",
+      explanation:
+        "Strong mutual enthusiasm or shared interest in exploring this together.",
       boundaryConflict: false,
     };
   }
@@ -189,13 +205,19 @@ function evaluateCuriosityPair(
     const otherPositive = positive(aLvl) || positive(bLvl);
     return {
       question: q,
-      score: otherPositive || (aLvl === "curious_uncertain" && bLvl === "curious_uncertain") ? 82 : 64,
+      score:
+        otherPositive ||
+        (aLvl === "curious_uncertain" && bLvl === "curious_uncertain")
+          ? 82
+          : 64,
       weight,
       classification:
-        otherPositive || (aLvl === "curious_uncertain" && bLvl === "curious_uncertain")
+        otherPositive ||
+        (aLvl === "curious_uncertain" && bLvl === "curious_uncertain")
           ? "shared_curiosity"
           : "needs_discussion",
-      explanation: "Curiosity and openness for a calm, pressure-free conversation.",
+      explanation:
+        "Curiosity and openness for a calm, pressure-free conversation.",
       boundaryConflict: false,
     };
   }
@@ -228,7 +250,7 @@ function evaluateCuriosityPair(
 function evaluateQuestionPair(
   q: QuestionDefinition,
   aAns: QuestionAnswer | undefined,
-  bAns: QuestionAnswer | undefined
+  bAns: QuestionAnswer | undefined,
 ): PairEval {
   if (!aAns || !bAns || aAns.skipped || bAns.skipped) {
     return {
@@ -236,7 +258,8 @@ function evaluateQuestionPair(
       score: null,
       weight: 0,
       classification: "excluded",
-      explanation: "Excluded because one or both participants skipped this item.",
+      explanation:
+        "Excluded because one or both participants skipped this item.",
       boundaryConflict: false,
     };
   }
@@ -246,7 +269,12 @@ function evaluateQuestionPair(
   const weight = (IMPORTANCE_WEIGHT[aImp] + IMPORTANCE_WEIGHT[bImp]) / 2;
 
   if (aAns.curiosityLevel && bAns.curiosityLevel) {
-    return evaluateCuriosityPair(q, aAns.curiosityLevel, bAns.curiosityLevel, weight);
+    return evaluateCuriosityPair(
+      q,
+      aAns.curiosityLevel,
+      bAns.curiosityLevel,
+      weight,
+    );
   }
 
   if (
@@ -267,7 +295,8 @@ function evaluateQuestionPair(
         score: null,
         weight: 0,
         classification: "excluded",
-        explanation: "Excluded so untested or private responses are never penalized.",
+        explanation:
+          "Excluded so untested or private responses are never penalized.",
         boundaryConflict: false,
       };
     }
@@ -279,16 +308,27 @@ function evaluateQuestionPair(
   const aCurious = aAns.enjoyment === "curious";
   const aDepends = aAns.enjoyment === "depends";
 
+  const scaled = (answer: QuestionAnswer) =>
+    typeof answer.customValue === "number"
+      ? 1 +
+        (4 *
+          (answer.customValue -
+            (q.scaleConfig?.min ?? q.sliderConfig?.min ?? 1))) /
+          ((q.scaleConfig?.max ?? q.sliderConfig?.max ?? 5) -
+            (q.scaleConfig?.min ?? q.sliderConfig?.min ?? 1))
+      : null;
+  const aStrength = aNum ?? scaled(aAns),
+    bStrength = bState.numeric ?? scaled(bAns);
   // 1. BOUNDARY PRECEDENCE
   if (aBoundary || bState.isBoundary) {
     const otherHighDesire =
       (aBoundary &&
-        bState.numeric !== null &&
-        bState.numeric >= 4 &&
+        bStrength !== null &&
+        bStrength >= 4 &&
         (bImp === "essential" || bImp === "important")) ||
       (bState.isBoundary &&
-        aNum !== null &&
-        aNum >= 4 &&
+        aStrength !== null &&
+        aStrength >= 4 &&
         (aImp === "essential" || aImp === "important"));
 
     if (otherHighDesire) {
@@ -382,7 +422,11 @@ function evaluateQuestionPair(
         score: sc,
         weight,
         classification:
-          diffNorm <= 0.25 ? "strong_align" : diffNorm >= 0.55 ? "potential_mismatch" : "needs_discussion",
+          diffNorm <= 0.25
+            ? "strong_align"
+            : diffNorm >= 0.55
+              ? "potential_mismatch"
+              : "needs_discussion",
         explanation:
           diffNorm <= 0.25
             ? "Closely aligned along this spectrum."
@@ -472,13 +516,18 @@ function evaluateQuestionPair(
   // 4. DIRECTIONAL & RECIPROCAL MATCHING
   const diff = Math.abs(aNum - bState.numeric);
 
-  if (q.directionality === "receive_give" || q.directionality === "give_receive") {
+  if (
+    q.directionality === "receive_give" ||
+    q.directionality === "give_receive"
+  ) {
     if (aNum >= 4 && bState.numeric >= 4) {
       return {
         question: q,
         score: bState.isWillingOnly ? 83 : 95,
         weight,
-        classification: q.complementaryPartnerId ? "complementary" : "strong_align",
+        classification: q.complementaryPartnerId
+          ? "complementary"
+          : "strong_align",
         explanation: bState.isWillingOnly
           ? "One partner strongly enjoys this while the other is willingly supportive, with room to stay mindful of mutual enthusiasm."
           : "Strong complementary alignment: what one partner delights in experiencing, the other genuinely enjoys offering.",
@@ -515,7 +564,9 @@ function evaluateQuestionPair(
   if (aNum >= 4 && bState.numeric >= 4) {
     return {
       question: q,
-      score: bState.isWillingOnly ? Math.min(84, baseScore) : Math.max(88, baseScore),
+      score: bState.isWillingOnly
+        ? Math.min(84, baseScore)
+        : Math.max(88, baseScore),
       weight,
       classification: "strong_align",
       explanation: bState.isWillingOnly
@@ -628,9 +679,21 @@ function computeFantasyMutualCompatibility(params: {
     createdAt,
   });
 
-  const mutuallySelected: Array<{ questionId: string; label: string; category: string }> = [];
-  const openlySharedByCreatorOnly: Array<{ questionId: string; label: string; category: string }> = [];
-  const openlySharedByPartnerOnly: Array<{ questionId: string; label: string; category: string }> = [];
+  const mutuallySelected: Array<{
+    questionId: string;
+    label: string;
+    category: string;
+  }> = [];
+  const openlySharedByCreatorOnly: Array<{
+    questionId: string;
+    label: string;
+    category: string;
+  }> = [];
+  const openlySharedByPartnerOnly: Array<{
+    questionId: string;
+    label: string;
+    category: string;
+  }> = [];
   const categoryMatchCounts = new Map<string, number>();
 
   let privateProtectedCount = 0;
@@ -661,7 +724,10 @@ function computeFantasyMutualCompatibility(params: {
         label: cleanLabel,
         category: q.sectionTitle,
       });
-      categoryMatchCounts.set(q.sectionTitle, (categoryMatchCounts.get(q.sectionTitle) || 0) + 1);
+      categoryMatchCounts.set(
+        q.sectionTitle,
+        (categoryMatchCounts.get(q.sectionTitle) || 0) + 1,
+      );
     } else if (aOpen && aAns?.revealRule === "always_share_with_partner") {
       openlySharedByCreatorOnly.push({
         questionId: q.id,
@@ -686,19 +752,28 @@ function computeFantasyMutualCompatibility(params: {
 
   const sharedCategoryHighlights = Array.from(categoryMatchCounts.entries())
     .sort((a, b) => b[1] - a[1])
-    .map(([cat, count]) => `${cat} (${count} shared match${count === 1 ? "" : "es"})`);
+    .map(
+      ([cat, count]) =>
+        `${cat} (${count} shared match${count === 1 ? "" : "es"})`,
+    );
 
-  const allowCategories = creatorSharing.shareCategoryScores && params.partnerSharing.shareCategoryScores;
-  const dimensionScores: CompatibilityDimensionBreakdown[] = assessment.sections.map((sec) => {
-    const count = categoryMatchCounts.get(sec.title) || 0;
-    const secQuestions = questions.filter((q) => q.sectionTitle === sec.title).length || 1;
-    return {
-      dimension: sec.title,
-      score: allowCategories ? Math.min(100, Math.round((count / secQuestions) * 140)) : null,
-      pairCount: count,
-      note: `${count} mutual match${count === 1 ? "" : "es"} in this theme.`,
-    };
-  });
+  const allowCategories =
+    creatorSharing.shareCategoryScores &&
+    params.partnerSharing.shareCategoryScores;
+  const dimensionScores: CompatibilityDimensionBreakdown[] =
+    assessment.sections.map((sec) => {
+      const count = categoryMatchCounts.get(sec.title) || 0;
+      const secQuestions =
+        questions.filter((q) => q.sectionTitle === sec.title).length || 1;
+      return {
+        dimension: sec.title,
+        score: allowCategories
+          ? Math.min(100, Math.round((count / secQuestions) * 140))
+          : null,
+        pairCount: count,
+        note: `${count} mutual match${count === 1 ? "" : "es"} in this theme.`,
+      };
+    });
 
   const radarOverlay = primaryScored.radar.map((pDim, idx) => ({
     dimension: pDim.dimension,
@@ -708,7 +783,16 @@ function computeFantasyMutualCompatibility(params: {
   }));
 
   const overlapRatio =
-    questions.length > 0 ? Math.min(100, Math.round((mutuallySelected.length / Math.max(4, Math.floor(questions.length * 0.3))) * 100)) : 0;
+    questions.length > 0
+      ? Math.min(
+          100,
+          Math.round(
+            (mutuallySelected.length /
+              Math.max(4, Math.floor(questions.length * 0.3))) *
+              100,
+          ),
+        )
+      : 0;
 
   return {
     compatibilityId,
@@ -722,7 +806,9 @@ function computeFantasyMutualCompatibility(params: {
     overallScore: Math.max(20, Math.min(98, overlapRatio)),
     label: "Mutual Fantasy Discovery",
     coveragePercent:
-      questions.length > 0 ? Math.round((bothAnsweredCount / questions.length) * 100) : 0,
+      questions.length > 0
+        ? Math.round((bothAnsweredCount / questions.length) * 100)
+        : 0,
     bothAnsweredCount,
     totalEligibleCount: questions.length,
     provisional: bothAnsweredCount < 4,
@@ -739,7 +825,8 @@ function computeFantasyMutualCompatibility(params: {
       sectionTitle: m.category,
       promptSummary: m.label,
       classification: "strong_align" as const,
-      explanation: "Both partners independently expressed openness to exploring or discussing this.",
+      explanation:
+        "Both partners independently expressed openness to exploring or discussing this.",
     })),
     whereYouComplement: [],
     whereYouDiffer: [],
@@ -854,7 +941,13 @@ function computeBucketListCompatibility(params: {
 
   const overallScore = Math.min(
     99,
-    Math.max(30, Math.round((sharedItems.length / Math.max(5, Math.floor(questions.length * 0.4))) * 95))
+    Math.max(
+      30,
+      Math.round(
+        (sharedItems.length / Math.max(5, Math.floor(questions.length * 0.4))) *
+          95,
+      ),
+    ),
   );
 
   return {
@@ -869,7 +962,9 @@ function computeBucketListCompatibility(params: {
     overallScore,
     label: "Shared Couples Bucket List",
     coveragePercent:
-      questions.length > 0 ? Math.round((bothAnsweredCount / questions.length) * 100) : 0,
+      questions.length > 0
+        ? Math.round((bothAnsweredCount / questions.length) * 100)
+        : 0,
     bothAnsweredCount,
     totalEligibleCount: questions.length,
     provisional: bothAnsweredCount < 4,
@@ -881,7 +976,8 @@ function computeBucketListCompatibility(params: {
     ],
     dimensionScores: assessment.sections.map((sec) => {
       const count = sharedItems.filter((i) => i.category === sec.title).length;
-      const total = questions.filter((q) => q.sectionTitle === sec.title).length || 1;
+      const total =
+        questions.filter((q) => q.sectionTitle === sec.title).length || 1;
       return {
         dimension: sec.title,
         score: Math.min(100, Math.round((count / total) * 120)),
@@ -908,10 +1004,14 @@ function computeBucketListCompatibility(params: {
     boundaryConsiderations: [],
     coupleInsights: [
       `You created a shared bucket list of ${sharedItems.length} mutual experiences${
-        onePartnerOpenCount > 0 ? `, plus ${onePartnerOpenCount} areas where one partner is curious to pitch the idea` : ""
+        onePartnerOpenCount > 0
+          ? `, plus ${onePartnerOpenCount} areas where one partner is curious to pitch the idea`
+          : ""
       }.`,
     ],
-    conversationStarters: sharedItems.slice(0, 3).map((s) => `When should we plan "${s.label}" next?`),
+    conversationStarters: sharedItems
+      .slice(0, 3)
+      .map((s) => `When should we plan "${s.label}" next?`),
     bucketListMatches: {
       sharedItems,
       onePartnerOpenCount,
@@ -946,7 +1046,11 @@ function computePredictionGameCompatibility(params: {
   let correctCount = 0;
   let totalCompared = 0;
   const catStats = new Map<string, { correct: number; total: number }>();
-  const surprises: Array<{ prompt: string; primaryActual: string; partnerGuess: string }> = [];
+  const surprises: Array<{
+    prompt: string;
+    primaryActual: string;
+    partnerGuess: string;
+  }> = [];
   const nailedIt: Array<{ prompt: string; answer: string }> = [];
 
   for (const q of questions) {
@@ -970,7 +1074,10 @@ function computePredictionGameCompatibility(params: {
       typeof guess.customValue === "number"
     ) {
       isMatch = Math.abs(actual.customValue - guess.customValue) <= 1;
-    } else if (actual.enjoyment !== undefined && guess.enjoyment !== undefined) {
+    } else if (
+      actual.enjoyment !== undefined &&
+      guess.enjoyment !== undefined
+    ) {
       isMatch = actual.enjoyment === guess.enjoyment;
     } else {
       isMatch = aLabel === bLabel;
@@ -992,7 +1099,8 @@ function computePredictionGameCompatibility(params: {
     catStats.set(q.sectionTitle, stat);
   }
 
-  const accuracyPercent = totalCompared > 0 ? Math.round((correctCount / totalCompared) * 100) : 0;
+  const accuracyPercent =
+    totalCompared > 0 ? Math.round((correctCount / totalCompared) * 100) : 0;
 
   return {
     compatibilityId,
@@ -1006,7 +1114,9 @@ function computePredictionGameCompatibility(params: {
     overallScore: accuracyPercent,
     label: "Partner Knowledge & Trivia Accuracy",
     coveragePercent:
-      questions.length > 0 ? Math.round((totalCompared / questions.length) * 100) : 0,
+      questions.length > 0
+        ? Math.round((totalCompared / questions.length) * 100)
+        : 0,
     bothAnsweredCount: totalCompared,
     totalEligibleCount: questions.length,
     provisional: totalCompared < 5,
@@ -1056,18 +1166,23 @@ function computePredictionGameCompatibility(params: {
         surprises.length === 1 ? "" : "s"
       } to laugh about and swap stories over.`,
     ],
-    conversationStarters: surprises.slice(0, 3).map(
-      (s) => `What surprised you about "${s.prompt}" (guessed "${s.partnerGuess}", actual "${s.primaryActual}")?`
-    ),
+    conversationStarters: surprises
+      .slice(0, 3)
+      .map(
+        (s) =>
+          `What surprised you about "${s.prompt}" (guessed "${s.partnerGuess}", actual "${s.primaryActual}")?`,
+      ),
     predictionSummary: {
       accuracyPercent,
       correctCount,
       totalCompared,
-      categoryAccuracy: Array.from(catStats.entries()).map(([category, st]) => ({
-        category,
-        correct: st.correct,
-        total: st.total,
-      })),
+      categoryAccuracy: Array.from(catStats.entries()).map(
+        ([category, st]) => ({
+          category,
+          correct: st.correct,
+          total: st.total,
+        }),
+      ),
       surprises: surprises.slice(0, 12),
       nailedIt: nailedIt.slice(0, 12),
     },
@@ -1076,7 +1191,7 @@ function computePredictionGameCompatibility(params: {
 
 function normalizeVoteTarget(
   val: string,
-  perspective: "primary" | "partner"
+  perspective: "primary" | "partner",
 ): { canonical: string; display: string } {
   if (val === "me") {
     return perspective === "primary"
@@ -1124,7 +1239,8 @@ function computeVotingGameCompatibility(params: {
     const a = primaryAnswers[q.id];
     const b = partnerAnswers[q.id];
     if (!a || !b || a.skipped || b.skipped) continue;
-    if (typeof a.customValue !== "string" || typeof b.customValue !== "string") continue;
+    if (typeof a.customValue !== "string" || typeof b.customValue !== "string")
+      continue;
 
     const aNorm = normalizeVoteTarget(a.customValue, "primary");
     const bNorm = normalizeVoteTarget(b.customValue, "partner");
@@ -1172,7 +1288,10 @@ function computeVotingGameCompatibility(params: {
       const hits = secItems.filter((it) => it.agreed).length;
       return {
         dimension: sec.title,
-        score: secItems.length > 0 ? Math.round((hits / secItems.length) * 100) : null,
+        score:
+          secItems.length > 0
+            ? Math.round((hits / secItems.length) * 100)
+            : null,
         pairCount: secItems.length,
         note: `${hits}/${secItems.length} unanimous votes.`,
       };
@@ -1184,7 +1303,10 @@ function computeVotingGameCompatibility(params: {
       });
       const pct =
         secItems.length > 0
-          ? Math.round((secItems.filter((it) => it.agreed).length / secItems.length) * 100)
+          ? Math.round(
+              (secItems.filter((it) => it.agreed).length / secItems.length) *
+                100,
+            )
           : 50;
       return {
         dimension: sec.id,
@@ -1276,8 +1398,10 @@ function computeGiveReceiveCompatibility(params: {
   const pairings = aChannels.map((aCh) => {
     const bCh = bChannels.find((x) => x.channelKey === aCh.channelKey) || aCh;
     // How well B expresses what A needs, and how well A expresses what B needs
-    const aFit = 100 - Math.max(0, aCh.receiveOrNeedScore - bCh.expressOrOfferScore);
-    const bFit = 100 - Math.max(0, bCh.receiveOrNeedScore - aCh.expressOrOfferScore);
+    const aFit =
+      100 - Math.max(0, aCh.receiveOrNeedScore - bCh.expressOrOfferScore);
+    const bFit =
+      100 - Math.max(0, bCh.receiveOrNeedScore - aCh.expressOrOfferScore);
     const pairScore = Math.round((aFit + bFit) / 2);
     return {
       channel: aCh.label,
@@ -1293,11 +1417,17 @@ function computeGiveReceiveCompatibility(params: {
 
   const overallScore =
     pairings.length > 0
-      ? Math.round(pairings.reduce((s, p) => s + p.pairScore, 0) / pairings.length)
+      ? Math.round(
+          pairings.reduce((s, p) => s + p.pairScore, 0) / pairings.length,
+        )
       : 70;
-  const allowCategories = creatorSharing.shareCategoryScores && partnerSharing.shareCategoryScores;
+  const allowCategories =
+    creatorSharing.shareCategoryScores && partnerSharing.shareCategoryScores;
 
-  const bothAnsweredCount = Math.min(primaryScored.answeredCount, partnerScored.answeredCount);
+  const bothAnsweredCount = Math.min(
+    primaryScored.answeredCount,
+    partnerScored.answeredCount,
+  );
   const totalEligibleCount = assessment.questions.length;
 
   return {
@@ -1312,7 +1442,9 @@ function computeGiveReceiveCompatibility(params: {
     overallScore,
     label: "Give-vs-Receive Alignment",
     coveragePercent:
-      totalEligibleCount > 0 ? Math.round((bothAnsweredCount / totalEligibleCount) * 100) : 0,
+      totalEligibleCount > 0
+        ? Math.round((bothAnsweredCount / totalEligibleCount) * 100)
+        : 0,
     bothAnsweredCount,
     totalEligibleCount,
     provisional: bothAnsweredCount < 4,
@@ -1331,7 +1463,9 @@ function computeGiveReceiveCompatibility(params: {
       dimension: d.dimension,
       label: d.label,
       primaryScore: allowCategories ? d.score : 0,
-      partnerScore: allowCategories ? (partnerScored.radar[idx]?.score ?? 50) : 0,
+      partnerScore: allowCategories
+        ? (partnerScored.radar[idx]?.score ?? 50)
+        : 0,
     })),
     whereYouAlign: pairings
       .filter((p) => p.pairScore >= 80)
@@ -1363,16 +1497,20 @@ function computeGiveReceiveCompatibility(params: {
     sharedCuriosities: [],
     boundaryConsiderations: [],
     coupleInsights: pairings.slice(0, 3).map((p) => p.summary),
-    conversationStarters: pairings.slice(0, 2).map(
-      (p) =>
-        `What specific small gesture helps you feel ${p.channel.toLowerCase()} most clearly on a stressful week?`
+    conversationStarters: pairings
+      .slice(0, 2)
+      .map(
+        (p) =>
+          `What specific small gesture helps you feel ${p.channel.toLowerCase()} most clearly on a stressful week?`,
+      ),
+    giveReceivePairings: pairings.map(
+      ({ channel, aReceivesFromB, bReceivesFromA, summary }) => ({
+        channel,
+        aReceivesFromB,
+        bReceivesFromA,
+        summary,
+      }),
     ),
-    giveReceivePairings: pairings.map(({ channel, aReceivesFromB, bReceivesFromA, summary }) => ({
-      channel,
-      aReceivesFromB,
-      bReceivesFromA,
-      summary,
-    })),
   };
 }
 
@@ -1399,12 +1537,38 @@ function computeDimensionAlignmentCompatibility(params: {
     createdAt,
   } = params;
 
+  const pairedIds = new Set(
+    assessment.questions
+      .filter((q) => {
+        const a = primaryAnswers[q.id],
+          b = partnerAnswers[q.id];
+        return (
+          (mode !== "quick" ||
+            assessment.supportsQuickMode === false ||
+            q.quickDiscovery) &&
+          hasMeaningfulAnswer(a) &&
+          hasMeaningfulAnswer(b) &&
+          a.enjoyment !== "prefer_not_to_answer" &&
+          b.enjoyment !== "prefer_not_to_answer" &&
+          a.enjoyment !== "haven_t_experienced" &&
+          b.enjoyment !== "haven_t_experienced" &&
+          a.curiosityLevel !== "havent_considered" &&
+          b.curiosityLevel !== "havent_considered"
+        );
+      })
+      .map((q) => q.id),
+  );
+  const pairedAnswers = (answers: Record<string, QuestionAnswer>) =>
+    Object.fromEntries(
+      Object.entries(answers).filter(([id]) => pairedIds.has(id)),
+    );
+
   const primaryScored = scoreAssessmentSubmission({
     resultId: `${compatibilityId}-a`,
     assessment,
     mode,
     perspective: "primary",
-    answers: primaryAnswers,
+    answers: pairedAnswers(primaryAnswers),
     createdAt,
   });
   const partnerScored = scoreAssessmentSubmission({
@@ -1412,65 +1576,91 @@ function computeDimensionAlignmentCompatibility(params: {
     assessment,
     mode,
     perspective: "partner",
-    answers: partnerAnswers,
+    answers: pairedAnswers(partnerAnswers),
     createdAt,
   });
 
-  const allowCategories = creatorSharing.shareCategoryScores && partnerSharing.shareCategoryScores;
+  const allowCategories =
+    creatorSharing.shareCategoryScores && partnerSharing.shareCategoryScores;
   const isBdsmComplementary = assessment.slug === "bdsm-power-dynamics-test";
-  const aDomScore = primaryScored.radar.find((r) => r.dimension === "dominance_top")?.score ?? 50;
-  const aSubScore = primaryScored.radar.find((r) => r.dimension === "submission_bottom")?.score ?? 50;
-  const bDomScore = partnerScored.radar.find((r) => r.dimension === "dominance_top")?.score ?? 50;
-  const bSubScore = partnerScored.radar.find((r) => r.dimension === "submission_bottom")?.score ?? 50;
+  const aDomScore =
+    primaryScored.radar.find((r) => r.dimension === "dominance_top")?.score ??
+    50;
+  const aSubScore =
+    primaryScored.radar.find((r) => r.dimension === "submission_bottom")
+      ?.score ?? 50;
+  const bDomScore =
+    partnerScored.radar.find((r) => r.dimension === "dominance_top")?.score ??
+    50;
+  const bSubScore =
+    partnerScored.radar.find((r) => r.dimension === "submission_bottom")
+      ?.score ?? 50;
 
-  const dimensionScores: CompatibilityDimensionBreakdown[] = primaryScored.radar.map((pDim, idx) => {
-    const bScore = partnerScored.radar[idx]?.score ?? 50;
-    const pairCount = Math.min(
-      pDim.answeredCount,
-      partnerScored.radar[idx]?.answeredCount ?? pDim.answeredCount
-    );
+  const rawDimensionScores: CompatibilityDimensionBreakdown[] =
+    primaryScored.radar.map((pDim) => {
+      const partnerDimension = partnerScored.radar.find(
+        (d) =>
+          d.dimension ===
+          (isBdsmComplementary && pDim.dimension === "dominance_top"
+            ? "submission_bottom"
+            : isBdsmComplementary && pDim.dimension === "submission_bottom"
+              ? "dominance_top"
+              : pDim.dimension),
+      );
+      const bScore = partnerDimension?.score ?? 50;
+      const pairCount = Math.min(
+        pDim.answeredCount,
+        partnerDimension?.answeredCount ?? 0,
+      );
+      if (pairCount === 0)
+        return {
+          dimension: pDim.label,
+          score: null,
+          pairCount: 0,
+          note: "Not enough shared answers in this category yet.",
+        };
 
-    if (isBdsmComplementary && pDim.dimension === "dominance_top") {
-      // Complementary fit: Creator's Dominant/Top drive matched against Partner's Submissive/Bottom receptivity
-      const diff = Math.abs(aDomScore - bSubScore);
-      const fit = Math.max(15, Math.round(100 - diff * 1.05));
+      if (isBdsmComplementary && pDim.dimension === "dominance_top") {
+        // Complementary fit: Creator's Dominant/Top drive matched against Partner's Submissive/Bottom receptivity
+        const diff = Math.abs(aDomScore - bSubScore);
+        const fit = Math.max(0, Math.round(100 - diff));
+        return {
+          dimension: "Creator Lead ↔ Partner Surrender",
+          score: fit,
+          pairCount,
+          note:
+            diff <= 18
+              ? `Strong complementary polarity (Creator Top ${aDomScore} ↔ Partner Bottom ${bSubScore}).`
+              : `Gap between Creator's drive to command (${aDomScore}) and Partner's appetite to yield (${bSubScore}).`,
+        };
+      }
+
+      if (isBdsmComplementary && pDim.dimension === "submission_bottom") {
+        const diff = Math.abs(bDomScore - aSubScore);
+        const fit = Math.max(0, Math.round(100 - diff));
+        return {
+          dimension: "Partner Lead ↔ Creator Surrender",
+          score: fit,
+          pairCount,
+          note:
+            diff <= 18
+              ? `Balanced polarity when roles reverse (Partner Top ${bDomScore} ↔ Creator Bottom ${aSubScore}).`
+              : `Contrast between Partner's Top drive (${bDomScore}) and Creator's Bottom pull (${aSubScore}).`,
+        };
+      }
+
+      const diff = Math.abs(pDim.score - bScore);
+      const dimAlign = Math.max(0, Math.round(100 - diff));
       return {
-        dimension: "Creator Lead ↔ Partner Surrender",
-        score: allowCategories ? fit : null,
+        dimension: pDim.label,
+        score: dimAlign,
         pairCount,
         note:
-          diff <= 18
-            ? `Strong complementary polarity (Creator Top ${aDomScore} ↔ Partner Bottom ${bSubScore}).`
-            : `Gap between Creator's drive to command (${aDomScore}) and Partner's appetite to yield (${bSubScore}).`,
+          diff <= 14
+            ? `Very similar baseline (${pDim.score} vs ${bScore}).`
+            : `Notable contrast (${pDim.score} vs ${bScore}): helpful to discuss how you balance this.`,
       };
-    }
-
-    if (isBdsmComplementary && pDim.dimension === "submission_bottom") {
-      const diff = Math.abs(bDomScore - aSubScore);
-      const fit = Math.max(15, Math.round(100 - diff * 1.05));
-      return {
-        dimension: "Partner Lead ↔ Creator Surrender",
-        score: allowCategories ? fit : null,
-        pairCount,
-        note:
-          diff <= 18
-            ? `Balanced polarity when roles reverse (Partner Top ${bDomScore} ↔ Creator Bottom ${aSubScore}).`
-            : `Contrast between Partner's Top drive (${bDomScore}) and Creator's Bottom pull (${aSubScore}).`,
-      };
-    }
-
-    const diff = Math.abs(pDim.score - bScore);
-    const dimAlign = Math.max(15, Math.round(100 - diff * 1.1));
-    return {
-      dimension: pDim.label,
-      score: allowCategories ? dimAlign : null,
-      pairCount,
-      note:
-        diff <= 14
-          ? `Very similar baseline (${pDim.score} vs ${bScore}).`
-          : `Notable contrast (${pDim.score} vs ${bScore}): helpful to discuss how you balance this.`,
-    };
-  });
+    });
 
   const questions =
     mode === "quick" && assessment.supportsQuickMode !== false
@@ -1478,21 +1668,43 @@ function computeDimensionAlignmentCompatibility(params: {
       : assessment.questions;
 
   const evals = questions
-    .map((q) => evaluateQuestionPair(q, primaryAnswers[q.id], partnerAnswers[q.id]))
+    .map((q) =>
+      evaluateQuestionPair(q, primaryAnswers[q.id], partnerAnswers[q.id]),
+    )
     .filter((e) => e.score !== null && e.classification !== "excluded");
 
-  const validScores = dimensionScores
+  const dimensionScores = rawDimensionScores.map((d) =>
+    allowCategories
+      ? d
+      : {
+          ...d,
+          score: null,
+          note: "Hidden by participant sharing preferences.",
+        },
+  );
+  const validScores = rawDimensionScores
     .map((d) => d.score)
     .filter((s): s is number => typeof s === "number");
   const itemAvg =
     evals.length > 0
-      ? evals.reduce((s, e) => s + (e.score || 0), 0) / evals.length
+      ? evals.reduce((s, e) => s + (e.score || 0) * e.weight, 0) /
+        evals.reduce((s, e) => s + e.weight, 0)
       : null;
   const dimAvg =
     validScores.length > 0
       ? validScores.reduce((a, b) => a + b, 0) / validScores.length
-      : 70;
-  const overallScore = Math.round(itemAvg !== null ? dimAvg * 0.6 + itemAvg * 0.4 : dimAvg);
+      : 0;
+  const uncappedScore = Math.round(
+    itemAvg !== null
+      ? validScores.length
+        ? dimAvg * 0.6 + itemAvg * 0.4
+        : itemAvg
+      : dimAvg,
+  );
+
+  const overallScore = evals.some((e) => e.boundaryConflict)
+    ? Math.min(49, uncappedScore)
+    : uncappedScore;
 
   const whereYouAlign = evals
     .filter((e) => e.classification === "strong_align")
@@ -1506,7 +1718,11 @@ function computeDimensionAlignmentCompatibility(params: {
     }));
 
   const whereYouDiffer = evals
-    .filter((e) => e.classification === "potential_mismatch" || e.classification === "needs_discussion")
+    .filter(
+      (e) =>
+        e.classification === "potential_mismatch" ||
+        e.classification === "needs_discussion",
+    )
     .slice(0, 6)
     .map((e) => ({
       questionId: e.question.id,
@@ -1529,10 +1745,7 @@ function computeDimensionAlignmentCompatibility(params: {
       explanation: e.explanation,
     }));
 
-  const bothAnsweredCount = Math.max(
-    evals.length,
-    Math.min(primaryScored.answeredCount, partnerScored.answeredCount)
-  );
+  const bothAnsweredCount = pairedIds.size;
   const totalEligibleCount = questions.length;
 
   const whereYouComplement: CompatibilityPairItem[] = [];
@@ -1541,7 +1754,8 @@ function computeDimensionAlignmentCompatibility(params: {
       whereYouComplement.push({
         questionId: "bdsm-comp-a-top",
         sectionTitle: "Power Polarity",
-        promptSummary: "Creator Top / Dominant energy ↔ Partner Bottom / Submissive pull",
+        promptSummary:
+          "Creator Top / Dominant energy ↔ Partner Bottom / Submissive pull",
         classification: "complementary",
         explanation: `Natural D/s fit: Creator's commanding drive (${aDomScore}/100) meets Partner's surrender appetite (${bSubScore}/100).`,
       });
@@ -1550,7 +1764,8 @@ function computeDimensionAlignmentCompatibility(params: {
       whereYouComplement.push({
         questionId: "bdsm-comp-b-top",
         sectionTitle: "Power Polarity",
-        promptSummary: "Partner Top / Dominant energy ↔ Creator Bottom / Submissive pull",
+        promptSummary:
+          "Partner Top / Dominant energy ↔ Creator Bottom / Submissive pull",
         classification: "complementary",
         explanation: `Natural D/s fit: Partner's commanding drive (${bDomScore}/100) meets Creator's surrender appetite (${aSubScore}/100).`,
       });
@@ -1564,48 +1779,91 @@ function computeDimensionAlignmentCompatibility(params: {
     assessmentTitle: assessment.title,
     assessmentVersion: assessment.version,
     scoringEngineVersion: brandConfig.scoringEngineVersion,
-    compatibilityStrategy: assessment.compatibilityStrategy || "trait_similarity_complement",
+    compatibilityStrategy:
+      assessment.compatibilityStrategy || "trait_similarity_complement",
     createdAt,
     overallScore,
     label: `${assessment.shortTitle} Compatibility`,
     coveragePercent:
-      totalEligibleCount > 0 ? Math.round((bothAnsweredCount / totalEligibleCount) * 100) : 0,
+      totalEligibleCount > 0
+        ? Math.round((bothAnsweredCount / totalEligibleCount) * 100)
+        : 0,
     bothAnsweredCount,
     totalEligibleCount,
-    provisional: bothAnsweredCount < 4,
+    provisional: bothAnsweredCount < 4 || validScores.length === 0,
     disclaimer:
       assessment.scientificDisclaimer ||
       "Highlights similarities, complementary strengths, and conversation topics based on your answers, not a prediction of future success.",
     methodologyNotes: [
-      `Compares dimensional averages and individual response alignment across ${assessment.title}.`,
+      `Compares normalized dimensions (60%) and importance-weighted shared responses (40%) across ${assessment.title}. Unmeasured items are excluded.`,
+      "A conflict between a firm boundary and an important strong preference caps the exploratory composite at 49 until discussed. This is a conservative product rule, not a validated prediction.",
     ],
     dimensionScores,
-    radarOverlay: primaryScored.radar.map((d, idx) => ({
+    radarOverlay: (allowCategories
+      ? primaryScored.radar.filter(
+          (d) =>
+            d.answeredCount > 0 &&
+            (partnerScored.radar.find((p) => p.dimension === d.dimension)
+              ?.answeredCount ?? 0) > 0,
+        )
+      : []
+    ).map((d) => ({
       dimension: d.dimension,
       label: d.label,
       primaryScore: allowCategories ? d.score : 0,
-      partnerScore: allowCategories ? (partnerScored.radar[idx]?.score ?? 50) : 0,
+      partnerScore:
+        partnerScored.radar.find((p) => p.dimension === d.dimension)?.score ??
+        0,
     })),
-    whereYouAlign,
-    whereYouComplement,
-    whereYouDiffer,
+    whereYouAlign:
+      creatorSharing.shareAlignedHighlights &&
+      partnerSharing.shareAlignedHighlights
+        ? whereYouAlign
+        : [],
+    whereYouComplement:
+      creatorSharing.shareComplementaryHighlights &&
+      partnerSharing.shareComplementaryHighlights &&
+      allowCategories
+        ? whereYouComplement
+        : [],
+    whereYouDiffer:
+      creatorSharing.shareAlignedHighlights &&
+      partnerSharing.shareAlignedHighlights
+        ? whereYouDiffer
+        : [],
     sharedCuriosities: [],
-    boundaryConsiderations,
-    coupleInsights: [
-      `Creator leans toward "${primaryScored.profile.archetypeName}" while Partner leans toward "${partnerScored.profile.archetypeName}".`,
-      ...dimensionScores
-        .filter((d) => d.score !== null)
-        .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
-        .slice(0, 1)
-        .map((d) => `Strongest shared anchor: ${d.dimension} (${d.score}/100 alignment).`),
-    ],
-    conversationStarters: whereYouDiffer.slice(0, 2).map(
-      (w) => `We scored differently around "${w.promptSummary}". How do we each picture the best balance here?`
-    ),
+    boundaryConsiderations:
+      creatorSharing.shareHighLevelBoundariesWithoutDetails &&
+      partnerSharing.shareHighLevelBoundariesWithoutDetails
+        ? boundaryConsiderations
+        : [],
+    coupleInsights: allowCategories
+      ? [
+          `Creator leans toward "${primaryScored.profile.archetypeName}" while Partner leans toward "${partnerScored.profile.archetypeName}".`,
+          ...dimensionScores
+            .filter((d) => d.score !== null)
+            .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+            .slice(0, 1)
+            .map(
+              (d) =>
+                `Strongest shared anchor: ${d.dimension} (${d.score}/100 alignment).`,
+            ),
+        ]
+      : [],
+    conversationStarters: (creatorSharing.shareAlignedHighlights &&
+    partnerSharing.shareAlignedHighlights
+      ? whereYouDiffer
+      : []
+    )
+      .slice(0, 2)
+      .map(
+        (w) =>
+          `We scored differently around "${w.promptSummary}". How do we each picture the best balance here?`,
+      ),
   };
 }
 
-export function computeCoupleCompatibility(params: {
+function computeRawCompatibility(params: {
   compatibilityId: string;
   inviteId: string;
   assessment: AssessmentDefinition;
@@ -1617,7 +1875,61 @@ export function computeCoupleCompatibility(params: {
   createdAt?: string;
 }): CompatibilityReport {
   const createdAt = params.createdAt || new Date().toISOString();
-  const strategy = params.assessment.compatibilityStrategy || "intimacy_complementary";
+  const strategy =
+    params.assessment.compatibilityStrategy || "intimacy_complementary";
+  const modeQuestions = params.assessment.questions.filter(
+    (q) =>
+      params.mode !== "quick" ||
+      params.assessment.supportsQuickMode === false ||
+      q.quickDiscovery,
+  );
+  const canCompare = (answer: QuestionAnswer | undefined) =>
+    hasMeaningfulAnswer(answer) &&
+    answer?.enjoyment !== "prefer_not_to_answer" &&
+    answer?.enjoyment !== "haven_t_experienced" &&
+    answer?.curiosityLevel !== "havent_considered";
+  const sharedQuestions = modeQuestions.filter(
+    (q) =>
+      canCompare(params.primaryAnswers[q.id]) &&
+      canCompare(params.partnerAnswers[q.id]),
+  );
+  if (sharedQuestions.length === 0) {
+    return {
+      compatibilityId: params.compatibilityId,
+      inviteId: params.inviteId,
+      assessmentSlug: params.assessment.slug,
+      assessmentTitle: params.assessment.title,
+      assessmentVersion: params.assessment.version,
+      scoringEngineVersion: brandConfig.scoringEngineVersion,
+      compatibilityStrategy: strategy,
+      createdAt,
+      overallScore: 0,
+      label: `${params.assessment.shortTitle} Compatibility`,
+      coveragePercent: 0,
+      bothAnsweredCount: 0,
+      totalEligibleCount: modeQuestions.length,
+      provisional: true,
+      disclaimer:
+        "Answer the same questions independently to measure alignment. Unanswered profiles cannot be compared.",
+      methodologyNotes: [
+        "Skipped, private, and unexperienced answers are excluded. No shared evidence means no measured compatibility.",
+      ],
+      dimensionScores: (params.assessment.dimensions || []).map((d) => ({
+        dimension: d.label,
+        score: null,
+        pairCount: 0,
+        note: "Not enough shared answers in this category yet.",
+      })),
+      radarOverlay: [],
+      whereYouAlign: [],
+      whereYouComplement: [],
+      whereYouDiffer: [],
+      sharedCuriosities: [],
+      boundaryConsiderations: [],
+      coupleInsights: [],
+      conversationStarters: [],
+    };
+  }
 
   if (strategy === "fantasy_mutual_reveal") {
     return computeFantasyMutualCompatibility({ ...params, createdAt });
@@ -1634,7 +1946,10 @@ export function computeCoupleCompatibility(params: {
   if (strategy === "affection_give_receive") {
     return computeGiveReceiveCompatibility({ ...params, createdAt });
   }
-  if (strategy === "trait_similarity_complement" || strategy === "values_alignment") {
+  if (
+    strategy === "trait_similarity_complement" ||
+    strategy === "values_alignment"
+  ) {
     return computeDimensionAlignmentCompatibility({ ...params, createdAt });
   }
 
@@ -1674,10 +1989,12 @@ export function computeCoupleCompatibility(params: {
   });
 
   const evals = eligibleQuestions.map((q) =>
-    evaluateQuestionPair(q, primaryAnswers[q.id], partnerAnswers[q.id])
+    evaluateQuestionPair(q, primaryAnswers[q.id], partnerAnswers[q.id]),
   );
 
-  const validEvals = evals.filter((e) => e.score !== null && e.classification !== "excluded");
+  const validEvals = evals.filter(
+    (e) => e.score !== null && e.classification !== "excluded",
+  );
 
   let totalWeight = 0;
   let weightedSum = 0;
@@ -1689,7 +2006,8 @@ export function computeCoupleCompatibility(params: {
     if (ev.boundaryConflict) boundaryConflicts += 1;
   }
 
-  let overallScore = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
+  let overallScore =
+    totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
   if (boundaryConflicts > 0) {
     const cap = Math.max(40, 82 - boundaryConflicts * 12);
     overallScore = Math.min(overallScore, cap);
@@ -1698,7 +2016,9 @@ export function computeCoupleCompatibility(params: {
   const bothAnsweredCount = validEvals.length;
   const totalEligibleCount = eligibleQuestions.length;
   const coveragePercent =
-    totalEligibleCount > 0 ? Math.round((bothAnsweredCount / totalEligibleCount) * 100) : 0;
+    totalEligibleCount > 0
+      ? Math.round((bothAnsweredCount / totalEligibleCount) * 100)
+      : 0;
   const provisional = coveragePercent < 30 || bothAnsweredCount < 5;
 
   const sectionGroups = new Map<string, PairEval[]>();
@@ -1708,34 +2028,39 @@ export function computeCoupleCompatibility(params: {
     sectionGroups.get(title)!.push(ev);
   }
 
-  const allowCategories = creatorSharing.shareCategoryScores && partnerSharing.shareCategoryScores;
-  const dimensionScores: CompatibilityDimensionBreakdown[] = assessment.sections.map((sec) => {
-    const group = sectionGroups.get(sec.title) || [];
-    if (!allowCategories) {
+  const allowCategories =
+    creatorSharing.shareCategoryScores && partnerSharing.shareCategoryScores;
+  const dimensionScores: CompatibilityDimensionBreakdown[] =
+    assessment.sections.map((sec) => {
+      const group = sectionGroups.get(sec.title) || [];
+      if (!allowCategories) {
+        return {
+          dimension: sec.title,
+          score: null,
+          pairCount: group.length,
+          note: "Hidden by participant sharing preferences.",
+        };
+      }
+      if (group.length === 0) {
+        return {
+          dimension: sec.title,
+          score: null,
+          pairCount: 0,
+          note: "Insufficient shared answers in this category yet.",
+        };
+      }
+      const wSum = group.reduce(
+        (s, e) => s + (e.score as number) * e.weight,
+        0,
+      );
+      const wDen = group.reduce((s, e) => s + e.weight, 0);
       return {
         dimension: sec.title,
-        score: null,
+        score: Math.round(wSum / wDen),
         pairCount: group.length,
-        note: "Hidden by participant sharing preferences.",
+        note: `Computed from ${group.length} matched question pair${group.length === 1 ? "" : "s"}.`,
       };
-    }
-    if (group.length === 0) {
-      return {
-        dimension: sec.title,
-        score: null,
-        pairCount: 0,
-        note: "Insufficient shared answers in this category yet.",
-      };
-    }
-    const wSum = group.reduce((s, e) => s + (e.score as number) * e.weight, 0);
-    const wDen = group.reduce((s, e) => s + e.weight, 0);
-    return {
-      dimension: sec.title,
-      score: Math.round(wSum / wDen),
-      pairCount: group.length,
-      note: `Computed from ${group.length} matched question pair${group.length === 1 ? "" : "s"}.`,
-    };
-  });
+    });
 
   const radarOverlay = primaryScored.radar.map((pDim, idx) => ({
     dimension: pDim.dimension as RadarDimensionKey,
@@ -1744,11 +2069,15 @@ export function computeCoupleCompatibility(params: {
     partnerScore: allowCategories ? (partnerScored.radar[idx]?.score ?? 50) : 0,
   }));
 
-  const allowAlign = creatorSharing.shareAlignedHighlights && partnerSharing.shareAlignedHighlights;
+  const allowAlign =
+    creatorSharing.shareAlignedHighlights &&
+    partnerSharing.shareAlignedHighlights;
   const allowComp =
-    creatorSharing.shareComplementaryHighlights && partnerSharing.shareComplementaryHighlights;
+    creatorSharing.shareComplementaryHighlights &&
+    partnerSharing.shareComplementaryHighlights;
   const allowCuriosity =
-    creatorSharing.shareSharedCuriosities && partnerSharing.shareSharedCuriosities;
+    creatorSharing.shareSharedCuriosities &&
+    partnerSharing.shareSharedCuriosities;
   const allowBoundaries =
     creatorSharing.shareHighLevelBoundariesWithoutDetails &&
     partnerSharing.shareHighLevelBoundariesWithoutDetails;
@@ -1757,7 +2086,8 @@ export function computeCoupleCompatibility(params: {
     questionId: e.question.id,
     sectionTitle: e.question.sectionTitle,
     promptSummary: shortLabel(e.question.prompt),
-    classification: e.classification === "excluded" ? "needs_discussion" : e.classification,
+    classification:
+      e.classification === "excluded" ? "needs_discussion" : e.classification,
     explanation: e.explanation,
     safetySensitive: e.question.safetySensitive,
   });
@@ -1779,7 +2109,11 @@ export function computeCoupleCompatibility(params: {
 
   const whereYouDiffer = allowAlign
     ? validEvals
-        .filter((e) => e.classification === "potential_mismatch" || e.classification === "needs_discussion")
+        .filter(
+          (e) =>
+            e.classification === "potential_mismatch" ||
+            e.classification === "needs_discussion",
+        )
         .sort((a, b) => (a.score ?? 100) - (b.score ?? 100))
         .slice(0, 6)
         .map(toItem)
@@ -1810,28 +2144,30 @@ export function computeCoupleCompatibility(params: {
   const coupleInsights: string[] = [];
   if (whereYouComplement.length > 0) {
     coupleInsights.push(
-      "Natural complementary alignment on directional desires, where what one partner enjoys receiving matches what the other genuinely loves giving."
+      "Natural complementary alignment on directional desires, where what one partner enjoys receiving matches what the other genuinely loves giving.",
     );
   }
-  const commDim = dimensionScores.find((d) => d.dimension.includes("Communication"));
+  const commDim = dimensionScores.find((d) =>
+    d.dimension.includes("Communication"),
+  );
   if (commDim?.score !== null && commDim && commDim.score >= 75) {
     coupleInsights.push(
-      `Communication alignment scored ${commDim.score}/100, giving you an easy baseline for talking through differences openly.`
+      `Communication alignment scored ${commDim.score}/100, giving you an easy baseline for talking through differences openly.`,
     );
   }
   if (boundaryConflicts > 0) {
     coupleInsights.push(
-      `There ${boundaryConflicts === 1 ? "is 1 high priority area" : `are ${boundaryConflicts} areas`} where a firm boundary meets a preference on the other side. Honoring those boundaries takes priority over average compatibility.`
+      `There ${boundaryConflicts === 1 ? "is 1 high priority area" : `are ${boundaryConflicts} areas`} where a firm boundary meets a preference on the other side. Honoring those boundaries takes priority over average compatibility.`,
     );
   }
   if (sharedCuriosities.length > 0) {
     coupleInsights.push(
-      `You share ${sharedCuriosities.length} area${sharedCuriosities.length === 1 ? "" : "s"} of mutual curiosity to explore in relaxed conversation.`
+      `You share ${sharedCuriosities.length} area${sharedCuriosities.length === 1 ? "" : "s"} of mutual curiosity to explore in relaxed conversation.`,
     );
   }
   if (coupleInsights.length === 0) {
     coupleInsights.push(
-      `Based on ${bothAnsweredCount} matched responses (${coveragePercent}% of eligible items), this overview summarizes shared ground and areas to talk through.`
+      `Based on ${bothAnsweredCount} matched responses (${coveragePercent}% of eligible items), this overview summarizes shared ground and areas to talk through.`,
     );
   }
 
@@ -1883,4 +2219,91 @@ export function computeCoupleCompatibility(params: {
     coupleInsights,
     conversationStarters,
   };
+}
+
+/** Apply active-question and disclosure contracts uniformly across specialized matchers. */
+export function computeCoupleCompatibility(
+  params: Parameters<typeof computeRawCompatibility>[0],
+): CompatibilityReport {
+  if (params.assessment.compatibilityStrategy === "consent_complementary") {
+    const report = compareIntimacyProfiles(params);
+    attachPairAdvice(report, params.assessment);
+    return report;
+  }
+  const active = (answers: Record<string, QuestionAnswer>) =>
+    new Set(
+      selectAssessmentQuestions(params.assessment, params.mode, answers)
+        .filter((q) => q.eligibleForMatching)
+        .map((q) => q.id),
+    );
+  const aActive = active(params.primaryAnswers),
+    bActive = active(params.partnerAnswers);
+  const filter = (answers: Record<string, QuestionAnswer>, ids: Set<string>) =>
+    Object.fromEntries(
+      Object.entries(answers).filter(
+        ([id, answer]) =>
+          ids.has(id) && answer.revealRule !== "private_never_share",
+      ),
+    );
+  const safeParams = {
+    ...params,
+    primaryAnswers: filter(params.primaryAnswers, aActive),
+    partnerAnswers: filter(params.partnerAnswers, bActive),
+  };
+  const report = computeRawCompatibility(safeParams);
+  const a = params.creatorSharing,
+    b = params.partnerSharing;
+  const categories = a.shareCategoryScores && b.shareCategoryScores;
+  const highlights = a.shareAlignedHighlights && b.shareAlignedHighlights;
+  const complementary =
+    a.shareComplementaryHighlights && b.shareComplementaryHighlights;
+  const curiosity = a.shareSharedCuriosities && b.shareSharedCuriosities;
+  const boundaries =
+    a.shareHighLevelBoundariesWithoutDetails &&
+    b.shareHighLevelBoundariesWithoutDetails;
+  if (!categories) {
+    report.radarOverlay = [];
+    report.dimensionScores = report.dimensionScores.map((d) => ({
+      ...d,
+      score: null,
+      note: "Hidden by participant sharing preferences.",
+    }));
+    report.coupleInsights = [];
+    report.giveReceivePairings = undefined;
+  }
+  if (!highlights) {
+    report.whereYouAlign = [];
+    report.whereYouDiffer = [];
+    report.conversationStarters = [];
+    report.predictionSummary = undefined;
+    report.voteGameSummary = undefined;
+  }
+  if (!complementary) report.whereYouComplement = [];
+  if (!curiosity) {
+    report.sharedCuriosities = [];
+    report.fantasyReveals = undefined;
+    report.bucketListMatches = undefined;
+  }
+  report.boundaryConsiderations =
+    boundaries && report.boundaryConsiderations.length
+      ? [
+          {
+            questionId: "protected-limits",
+            sectionTitle: "Consent & limits",
+            promptSummary: "A private boundary needs a conversation",
+            classification: "boundary_protected",
+            explanation:
+              "At least one person reported a firm limit. Individual topics and answers stay private. Respect every limit; an alignment score never replaces consent.",
+          },
+        ]
+      : [];
+  if (!(a.shareGameAnswerDetails && b.shareGameAnswerDetails)) {
+    if (report.predictionSummary) {
+      report.predictionSummary.surprises = [];
+      report.predictionSummary.nailedIt = [];
+    }
+    if (report.voteGameSummary) report.voteGameSummary.items = [];
+  }
+  attachPairAdvice(report, params.assessment);
+  return report;
 }

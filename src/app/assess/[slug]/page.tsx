@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { consolidatedSlugRedirects } from "@/data/assessments/curated";
 import { brandConfig } from "@/config/brand";
-import { resolveAssessment } from "@/lib/server/store";
+import {
+  resolveAssessment,
+  getUserPrivacyPreferences,
+} from "@/lib/server/store";
+import { getReadOnlySessionKey } from "@/lib/server/session";
+import { getReadOnlyVerifiedUid } from "@/lib/server/firebase-auth";
 import { AssessmentRunner } from "@/components/assessment/AssessmentRunner";
 import type { AssessmentMode } from "@/lib/assessment/types";
 
@@ -12,7 +18,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const assessment = resolveAssessment(slug);
-  if (!assessment) {
+  if (!assessment || assessment.status !== "published") {
     return { title: `Assessment Not Found | ${brandConfig.name}` };
   }
   return {
@@ -31,12 +37,47 @@ export default async function AssessPage({
   const { slug } = await params;
   const { mode } = await searchParams;
   const assessment = resolveAssessment(slug);
+  if (!assessment && Object.hasOwn(consolidatedSlugRedirects, slug)) {
+    redirect(
+      `/assess/${consolidatedSlugRedirects[slug]}?mode=${mode === "complete" ? "complete" : "quick"}`,
+    );
+  }
 
-  if (!assessment || assessment.questions.length === 0) {
+  if (
+    !assessment ||
+    assessment.status !== "published" ||
+    assessment.questions.length === 0
+  ) {
     notFound();
   }
 
-  const initialMode: AssessmentMode = mode === "complete" ? "complete" : "quick";
+  const initialMode: AssessmentMode =
+    mode === "complete" ? "complete" : "quick";
+  const previous =
+    assessment.version === "4.0.0"
+      ? resolveAssessment(assessment.slug, "3.0.0")
+      : undefined;
 
-  return <AssessmentRunner assessment={assessment} initialMode={initialMode} />;
+  const prefs = getUserPrivacyPreferences(
+    await getReadOnlySessionKey(),
+    await getReadOnlyVerifiedUid(),
+  );
+  return (
+    <AssessmentRunner
+      assessment={assessment}
+      previousDraftVersion={
+        previous
+          ? {
+              version: previous.version,
+              quickIds: previous.questions
+                .filter((q) => q.quickDiscovery)
+                .map((q) => q.id),
+              completeIds: previous.questions.map((q) => q.id),
+            }
+          : undefined
+      }
+      initialMode={initialMode}
+      initialCommunityOptIn={prefs.defaultCommunityOptIn}
+    />
+  );
 }

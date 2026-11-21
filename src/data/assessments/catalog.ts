@@ -1,9 +1,19 @@
-import type { AssessmentCategorySlug, AssessmentDefinition } from "@/lib/assessment/types";
+import {
+  refineAssessment,
+  emotionalAvailabilityAssessment,
+} from "./refinements";
+import type {
+  AssessmentCategorySlug,
+  AssessmentDefinition,
+} from "@/lib/assessment/types";
 import { categoryAIntimacyAssessments } from "./category-a-intimacy";
 import { categoryBRomanceAssessments } from "./category-b-romance";
 import { categoryCPersonalityAssessments } from "./category-c-personality";
 import { categoryDCouplesAssessments } from "./category-d-couples";
 import { intimacyPartnerPreferencesAssessment } from "./intimacy-partner-preferences";
+import { curatedAssessments, versionThreeAssessments } from "./curated";
+import { intimacyAssessments } from "./intimacy";
+import { withAdviceProfile } from "./advice-profiles";
 
 export interface AssessmentCategoryMeta {
   slug: AssessmentCategorySlug;
@@ -22,9 +32,9 @@ export const assessmentCategories: AssessmentCategoryMeta[] = [
     description:
       "Desire, sensory pacing, BDSM dynamics, kinks, communication, and mutual pleasure.",
     subtopics: [
-      "Intimacy and partner preferences (56 questions)",
-      "BDSM roles, power exchange, and dynamics",
-      "Kink and fetish mutual exploration map",
+      "Desire, sensory pacing and aftercare",
+      "Initiative, chosen roles and negotiation",
+      "Fantasy, sensory curiosity and comfort",
       "Dominance, submission, and initiative styles",
       "Sexual chemistry, arousal, and initiation",
       "Sensuality, touch, aftercare, and private fantasies",
@@ -39,11 +49,11 @@ export const assessmentCategories: AssessmentCategoryMeta[] = [
     description:
       "Affection styles, attachment patterns, flirting cues, green and red flags, and dealbreakers.",
     subtopics: [
-      "Ideal partner priorities and ranking",
+      "Everyday affection and practical care",
       "Attachment rhythms (reassurance and autonomy)",
-      "Give vs. receive affection styles",
+      "Emotional awareness and capacity",
       "Dating discernment, green and red flags",
-      "Lover archetypes and flirting signals",
+      "Reassurance, trust and independence",
       "Romantic dates and shared dreaming",
     ],
     accentVar: "var(--accent-plum)",
@@ -54,7 +64,7 @@ export const assessmentCategories: AssessmentCategoryMeta[] = [
     slug: "personality",
     title: "Personality & Temperament",
     description:
-      "Big Five traits, emotional awareness, conflict habits, value tradeoffs, and peer perspective.",
+      "Everyday patterns in curiosity, structure, social energy, cooperation and stress.",
     subtopics: [
       "Big Five (OCEAN) balanced trait profile",
       "How others see you vs. self view",
@@ -70,13 +80,13 @@ export const assessmentCategories: AssessmentCategoryMeta[] = [
     slug: "compatibility",
     title: "Couples & Compatibility",
     description:
-      "Couples trivia, long term life alignment, conflict matching, shared bucket lists, and care style.",
+      "Communication, repair, relationship priorities and long-term agreements.",
     subtopics: [
-      "Partner trivia prediction game",
+      "Listening, clarity and difficult conversations",
       "Long term money, home, and future alignment",
       "Couples communication and apology matching",
-      "Shared interactive couples bucket list",
-      "Playful couple habits voting",
+      "Shared growth and exploration",
+      "Fairness, privacy and future expectations",
       "Need vs. offer emotional support match",
     ],
     accentVar: "var(--accent-sage)",
@@ -85,7 +95,7 @@ export const assessmentCategories: AssessmentCategoryMeta[] = [
   },
 ];
 
-export const builtInAssessments: AssessmentDefinition[] = [
+export const legacyAssessments: AssessmentDefinition[] = [
   // Category A — Sexuality & Intimacy (11 tests: #1 flagship + #2-#9 + #29 BDSM + #30 Kink)
   intimacyPartnerPreferencesAssessment,
   ...categoryAIntimacyAssessments,
@@ -97,10 +107,33 @@ export const builtInAssessments: AssessmentDefinition[] = [
   ...categoryDCouplesAssessments,
 ];
 
-export function getAssessmentBySlug(slug: string): AssessmentDefinition | undefined {
+export const versionTwoAssessments: AssessmentDefinition[] = [
+  ...legacyAssessments.map(refineAssessment),
+  emotionalAvailabilityAssessment,
+];
+
+export const archivedAssessments: AssessmentDefinition[] = [
+  ...legacyAssessments,
+  ...versionTwoAssessments,
+  ...versionThreeAssessments,
+];
+export const coreAssessments = curatedAssessments.map(withAdviceProfile);
+export const builtInAssessments = [...coreAssessments, ...intimacyAssessments].map(withAdviceProfile);
+
+export function getArchivedAssessmentBySlug(slug: string, version = "2.0.0") {
+  return archivedAssessments.find(
+    (a) => a.slug === slug && a.version === version,
+  );
+}
+
+export function getAssessmentBySlug(
+  slug: string,
+): AssessmentDefinition | undefined {
   return builtInAssessments.find((a) => a.slug === slug);
 }
 
-export function getCategoryMeta(slug: AssessmentCategorySlug): AssessmentCategoryMeta | undefined {
+export function getCategoryMeta(
+  slug: AssessmentCategorySlug,
+): AssessmentCategoryMeta | undefined {
   return assessmentCategories.find((c) => c.slug === slug);
 }

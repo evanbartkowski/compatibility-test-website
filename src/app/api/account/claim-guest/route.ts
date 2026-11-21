@@ -5,7 +5,10 @@ import {
   getReadOnlyVerifiedUid,
   verifyFirebaseIdToken,
 } from "@/lib/server/firebase-auth";
-import { attachSessionCookie, getOrCreateSessionKey } from "@/lib/server/session";
+import {
+  attachSessionCookie,
+  getOrCreateSessionKey,
+} from "@/lib/server/session";
 import { claimGuestSessionData } from "@/lib/server/store";
 
 const claimSchema = z.object({
@@ -14,24 +17,32 @@ const claimSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const { sessionKey, isNew } = await getOrCreateSessionKey(req.headers.get("x-between-us-sid"));
+  const { sessionKey, isNew } = await getOrCreateSessionKey(
+    req.headers.get("x-between-us-sid"),
+  );
   const json = await req.json().catch(() => ({}));
   const parsed = claimSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid claim payload." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid claim payload." },
+      { status: 400 },
+    );
   }
 
   let verifiedUid: string | null = null;
-  let verifiedEmail: string | undefined = parsed.data.email;
+  let verifiedEmail: string | undefined;
   let verifiedDisplayName: string | undefined;
 
   if (parsed.data.idToken) {
     const verified = await verifyFirebaseIdToken(parsed.data.idToken);
     if (!verified) {
-      return NextResponse.json({ error: "Invalid Firebase ID token." }, { status: 401 });
+      return NextResponse.json(
+        { error: "Invalid Firebase ID token." },
+        { status: 401 },
+      );
     }
     verifiedUid = verified.uid;
-    verifiedEmail = verified.email ?? verifiedEmail;
+    verifiedEmail = verified.email;
     verifiedDisplayName = verified.displayName;
   } else {
     verifiedUid = await getReadOnlyVerifiedUid(req);
@@ -40,7 +51,7 @@ export async function POST(req: NextRequest) {
   if (!verifiedUid) {
     return NextResponse.json(
       { error: "Verified account session required to link guest results." },
-      { status: 401 }
+      { status: 401 },
     );
   }
 

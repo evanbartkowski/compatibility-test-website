@@ -2,7 +2,16 @@
 
 import React, { useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { AlertCircle, CheckCircle2, KeyRound, Mail, ShieldCheck, X } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  KeyRound,
+  Mail,
+  ShieldCheck,
+  Eye,
+  EyeOff,
+  X,
+} from "lucide-react";
 import {
   isFirebaseConfigured,
   registerWithEmail,
@@ -31,11 +40,17 @@ function friendlyAuthError(err: unknown): string {
     case "auth/popup-closed-by-user":
       return "Google sign-in window closed before completing. You can continue as a guest anytime.";
     case "auth/operation-not-allowed":
-      return "This sign-in method isn't enabled yet in Firebase Console. Guest mode remains 100% active.";
+      return "This sign-in method is unavailable. Please try email and password.";
     case "auth/unauthorized-domain":
-      return "This host domain needs to be listed under Firebase Console Authorized Domains.";
+      return "Sign-in is not available at this address yet. You can continue as a guest.";
+    case "auth/too-many-requests":
+      return "There have been too many attempts. Wait a moment before trying again.";
+    case "auth/network-request-failed":
+      return "We could not connect. Check your internet connection and try again.";
     default:
-      return err instanceof Error ? err.message : "Could not complete sign-in right now.";
+      return err instanceof Error
+        ? err.message
+        : "Could not complete sign-in right now.";
   }
 }
 
@@ -56,6 +71,7 @@ export function SignInModal({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resetSent, setResetSent] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -77,9 +93,15 @@ export function SignInModal({
         return;
       }
       if (mode === "signin") {
-        await signInWithEmail(email, password);
+        if (!(await signInWithEmail(email.trim(), password)))
+          throw new Error(
+            "Sign-in is unavailable right now. Please try again later.",
+          );
       } else {
-        await registerWithEmail(email, password, displayName);
+        if (!(await registerWithEmail(email.trim(), password, displayName)))
+          throw new Error(
+            "Account creation is unavailable right now. Please try again later.",
+          );
       }
       setPassword("");
       onOpenChange(false);
@@ -111,7 +133,7 @@ export function SignInModal({
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out" />
         <Dialog.Content
           aria-describedby="auth-modal-description"
-          className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-3xl border p-6 sm:p-8 focus:outline-none"
+          className="auth-dialog fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto -translate-x-1/2 -translate-y-1/2 rounded-3xl border p-6 sm:p-8 focus:outline-none"
           style={{
             backgroundColor: "var(--bg-elevated)",
             borderColor: "var(--border-strong)",
@@ -122,7 +144,7 @@ export function SignInModal({
             <div>
               <Dialog.Title className="font-display text-3xl text-[var(--ink-primary)]">
                 {mode === "register"
-                  ? "Create an optional account"
+                  ? "Create your account"
                   : mode === "reset"
                     ? "Reset your password"
                     : `Sign in to ${brandConfig.name}`}
@@ -131,13 +153,13 @@ export function SignInModal({
                 id="auth-modal-description"
                 className="mt-1.5 text-xs leading-relaxed text-[var(--ink-secondary)]"
               >
-                Optional cross-device sync powered by Firebase. You can always take tests, view
-                reports, and invite partners completely as a guest.
+                Save your results and return to your private profile from
+                another device. You can also continue as a guest.
               </Dialog.Description>
             </div>
             <Dialog.Close
               aria-label="Close sign-in dialog"
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border-hairline)] text-[var(--ink-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--ink-primary)]"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--border-hairline)] text-[var(--ink-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--ink-primary)]"
             >
               <X className="h-4 w-4" />
             </Dialog.Close>
@@ -151,8 +173,8 @@ export function SignInModal({
                 borderColor: "var(--border-hairline)",
               }}
             >
-              Optional cloud login is waiting on Firebase configuration. Guest sessions remain saved
-              privately on this browser.
+              Accounts are temporarily unavailable here. You can still take
+              assessments and save your results as a guest.
             </div>
           ) : (
             <div className="mt-6 space-y-5">
@@ -175,7 +197,7 @@ export function SignInModal({
                         "rounded-full py-2 text-xs font-medium transition-colors",
                         mode === "signin"
                           ? "bg-[var(--accent-plum)] text-[var(--accent-plum-contrast)]"
-                          : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
+                          : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]",
                       )}
                     >
                       Sign In
@@ -190,32 +212,38 @@ export function SignInModal({
                         "rounded-full py-2 text-xs font-medium transition-colors",
                         mode === "register"
                           ? "bg-[var(--accent-plum)] text-[var(--accent-plum-contrast)]"
-                          : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
+                          : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]",
                       )}
                     >
                       Create Account
                     </button>
                   </div>
 
-                  <button
-                    type="button"
-                    disabled={submitting}
-                    onClick={handleGoogle}
-                    className="flex w-full items-center justify-center gap-2.5 rounded-full border py-2.5 text-xs font-medium text-[var(--ink-primary)] transition-colors hover:border-[var(--accent-plum)] hover:bg-[var(--bg-subtle)] disabled:opacity-50"
-                    style={{ borderColor: "var(--border-strong)" }}
-                  >
-                    <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" aria-hidden="true">
-                      <path
-                        fill="currentColor"
-                        d="M21.8 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.5a4.7 4.7 0 0 1-2 3.1v2.5h3.3c1.9-1.8 3-4.4 3-7.4ZM12 22c2.7 0 5-.9 6.6-2.4l-3.3-2.5c-.9.6-2 .9-3.3.9-2.5 0-4.7-1.7-5.5-4H3.1v2.6A10 10 0 0 0 12 22Zm-5.5-6a6 6 0 0 1 0-4V9.4H3.1a10 10 0 0 0 0 9.2l3.4-2.6ZM12 6c1.5 0 2.8.5 3.8 1.5l2.8-2.8C17 3.1 14.7 2 12 2A10 10 0 0 0 3.1 7.4L6.5 10c.8-2.3 3-4 5.5-4Z"
-                      />
-                    </svg>
-                    Continue with Google
-                  </button>
+                  {process.env.NEXT_PUBLIC_GOOGLE_SIGNIN_ENABLED === "true" && (
+                    <button
+                      type="button"
+                      disabled={submitting}
+                      onClick={handleGoogle}
+                      className="flex w-full items-center justify-center gap-2.5 rounded-full border py-2.5 text-xs font-medium text-[var(--ink-primary)] transition-colors hover:border-[var(--accent-plum)] hover:bg-[var(--bg-subtle)] disabled:opacity-50"
+                      style={{ borderColor: "var(--border-strong)" }}
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="h-4 w-4 shrink-0"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M21.8 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.5a4.7 4.7 0 0 1-2 3.1v2.5h3.3c1.9-1.8 3-4.4 3-7.4ZM12 22c2.7 0 5-.9 6.6-2.4l-3.3-2.5c-.9.6-2 .9-3.3.9-2.5 0-4.7-1.7-5.5-4H3.1v2.6A10 10 0 0 0 12 22Zm-5.5-6a6 6 0 0 1 0-4V9.4H3.1a10 10 0 0 0 0 9.2l3.4-2.6ZM12 6c1.5 0 2.8.5 3.8 1.5l2.8-2.8C17 3.1 14.7 2 12 2A10 10 0 0 0 3.1 7.4L6.5 10c.8-2.3 3-4 5.5-4Z"
+                        />
+                      </svg>
+                      Continue with Google
+                    </button>
+                  )}
 
                   <div className="relative flex items-center gap-3 text-[11px] text-[var(--ink-muted)]">
                     <span className="h-px flex-1 bg-[var(--border-hairline)]" />
-                    or continue with email
+                    Your email and password
                     <span className="h-px flex-1 bg-[var(--border-hairline)]" />
                   </div>
                 </>
@@ -290,16 +318,38 @@ export function SignInModal({
                       <KeyRound className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[var(--ink-muted)]" />
                       <input
                         id="auth-password"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         required
-                        minLength={6}
-                        autoComplete={mode === "register" ? "new-password" : "current-password"}
+                        minLength={mode === "register" ? 8 : 1}
+                        autoComplete={
+                          mode === "register"
+                            ? "new-password"
+                            : "current-password"
+                        }
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        placeholder="At least 6 characters"
-                        className="w-full rounded-xl border bg-[var(--bg-canvas)] py-2.5 pr-3.5 pl-10 text-sm text-[var(--ink-primary)] placeholder:text-[var(--ink-muted)]"
+                        placeholder={
+                          mode === "register"
+                            ? "At least 8 characters"
+                            : "Your password"
+                        }
+                        className="w-full rounded-xl border bg-[var(--bg-canvas)] py-2.5 pr-12 pl-10 text-sm text-[var(--ink-primary)] placeholder:text-[var(--ink-muted)]"
                         style={{ borderColor: "var(--border-strong)" }}
                       />
+                      <button
+                        type="button"
+                        className="absolute right-0 top-0 grid h-full w-11 place-items-center text-[var(--ink-secondary)]"
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
+                        onClick={() => setShowPassword((shown) => !shown)}
+                      >
+                        {showPassword ? (
+                          <EyeOff size={17} />
+                        ) : (
+                          <Eye size={17} />
+                        )}
+                      </button>
                     </div>
                   </div>
                 )}
@@ -309,7 +359,8 @@ export function SignInModal({
                     role="alert"
                     className="flex items-start gap-2 rounded-xl border p-3 text-xs text-[var(--accent-rose)]"
                     style={{
-                      backgroundColor: "color-mix(in srgb, var(--accent-rose) 10%, transparent)",
+                      backgroundColor:
+                        "color-mix(in srgb, var(--accent-rose) 10%, transparent)",
                       borderColor: "var(--accent-rose)",
                     }}
                   >
@@ -323,12 +374,16 @@ export function SignInModal({
                     role="status"
                     className="flex items-start gap-2 rounded-xl border p-3 text-xs text-[var(--accent-sage)]"
                     style={{
-                      backgroundColor: "color-mix(in srgb, var(--accent-sage) 10%, transparent)",
+                      backgroundColor:
+                        "color-mix(in srgb, var(--accent-sage) 10%, transparent)",
                       borderColor: "var(--accent-sage)",
                     }}
                   >
                     <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-                    <span>Password reset instructions sent if an account matches that address.</span>
+                    <span>
+                      Password reset instructions sent if an account matches
+                      that address.
+                    </span>
                   </div>
                 )}
 
@@ -344,10 +399,10 @@ export function SignInModal({
                   {submitting
                     ? "Connecting..."
                     : mode === "register"
-                      ? "Create Optional Account"
+                      ? "Create account"
                       : mode === "reset"
                         ? "Send Reset Email"
-                        : "Sign In & Sync Results"}
+                        : "Sign in"}
                 </button>
               </form>
 
@@ -371,7 +426,7 @@ export function SignInModal({
               >
                 <span className="inline-flex items-center gap-1.5">
                   <ShieldCheck className="h-3.5 w-3.5 text-[var(--accent-sage)]" />
-                  Guest progress auto-claims on login
+                  Your saved results come with you
                 </span>
                 <Dialog.Close className="font-medium text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]">
                   Continue as guest

@@ -40,27 +40,38 @@ export function CompatibilityDial({
           strokeWidth="12"
           strokeLinecap="round"
           strokeDasharray={circumference}
-          initial={prefersReducedMotion ? { strokeDashoffset } : { strokeDashoffset: circumference }}
+          initial={
+            prefersReducedMotion
+              ? { strokeDashoffset }
+              : { strokeDashoffset: circumference }
+          }
           animate={{ strokeDashoffset }}
           transition={
-            prefersReducedMotion ? { duration: 0 } : { duration: 0.55, ease: [0.16, 1, 0.3, 1] }
+            prefersReducedMotion
+              ? { duration: 0 }
+              : { duration: 0.55, ease: [0.16, 1, 0.3, 1] }
           }
         />
       </svg>
 
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
         <span className="font-mono-tabular text-5xl font-semibold tracking-tight text-[var(--ink-primary)]">
-          {clamped}
-          <span className="text-2xl text-[var(--ink-muted)]">%</span>
+          {coveragePercent === 0 ? "—" : clamped}
+          {coveragePercent > 0 && (
+            <span className="text-2xl text-[var(--ink-muted)]">%</span>
+          )}
         </span>
         <span className="mt-1 text-xs font-medium text-[var(--ink-secondary)]">
-          Coverage: {coveragePercent}%
+          {coveragePercent === 0
+            ? "Not measured yet"
+            : `Coverage: ${coveragePercent}%`}
         </span>
         {provisional && (
           <span
             className="mt-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-medium"
             style={{
-              backgroundColor: "color-mix(in srgb, var(--accent-gold) 18%, transparent)",
+              backgroundColor:
+                "color-mix(in srgb, var(--accent-gold) 18%, transparent)",
               color: "var(--accent-gold)",
             }}
           >

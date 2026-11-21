@@ -4,6 +4,8 @@ import {
   getAdminTelemetrySummary,
   getEmailTemplates,
   listAllAssessments,
+  unpublishAssessment,
+  listAssessmentVersions,
   listEditorialAuditItems,
   saveCustomAssessment,
   saveEmailTemplates,
@@ -16,12 +18,13 @@ export async function GET(req: NextRequest) {
   if (!authenticated) {
     return NextResponse.json(
       { authenticated: false, error: "Administrator authentication required." },
-      { status: 401 }
+      { status: 401 },
     );
   }
   return NextResponse.json({
     authenticated: true,
     assessments: listAllAssessments(),
+    versions: listAssessmentVersions(),
     editorialAudit: listEditorialAuditItems(),
     telemetry: getAdminTelemetrySummary(),
     emailTemplates: getEmailTemplates(),
@@ -33,20 +36,29 @@ export async function POST(req: NextRequest) {
   if (!authenticated) {
     return NextResponse.json(
       { error: "Unauthorized. Sign in with your administrator key first." },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
   try {
     const body = await req.json();
+    if (body.type === "unpublish_assessment") {
+      if (typeof body.slug !== "string" || body.slug.length > 100)
+        throw new Error("A valid assessment slug is required.");
+      unpublishAssessment(body.slug);
+      return NextResponse.json({ unpublished: true });
+    }
     if (body.type === "editorial_update") {
       const updated = updateEditorialAuditItem(
         String(body.chartId),
         body.editorialStatus,
-        String(body.editorialNotes || "")
+        String(body.editorialNotes || ""),
       );
       if (!updated) {
-        return NextResponse.json({ error: "Audit item not found." }, { status: 404 });
+        return NextResponse.json(
+          { error: "Audit item not found." },
+          { status: 404 },
+        );
       }
       return NextResponse.json({ updated });
     }
@@ -58,14 +70,20 @@ export async function POST(req: NextRequest) {
 
     const assessment = body.assessment as AssessmentDefinition;
     if (!assessment?.slug || !assessment?.title) {
-      return NextResponse.json({ error: "Assessment slug and title are required." }, { status: 400 });
+      return NextResponse.json(
+        { error: "Assessment slug and title are required." },
+        { status: 400 },
+      );
     }
     const saved = saveCustomAssessment(assessment);
     return NextResponse.json({ assessment: saved });
   } catch (err) {
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to save studio item." },
-      { status: 400 }
+      {
+        error:
+          err instanceof Error ? err.message : "Failed to save studio item.",
+      },
+      { status: 400 },
     );
   }
 }
