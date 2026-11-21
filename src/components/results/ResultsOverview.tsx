@@ -178,7 +178,7 @@ export function ResultsOverview({
                     </span>
                     <span
                       className={cn(
-                        "font-mono text-[10px] font-bold px-2 py-0.5 rounded-md border shrink-0",
+                        "font-mono text-xs font-bold px-2 py-0.5 rounded-md border shrink-0",
                         tier.badgeClass
                       )}
                     >

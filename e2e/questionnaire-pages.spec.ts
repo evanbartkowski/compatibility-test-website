@@ -4,11 +4,14 @@ import AxeBuilder from "@axe-core/playwright";
 test("question pages have readable tap targets, retain answers and support both themes", async ({
   page,
 }, info) => {
-  await page.goto("/assess/emotional-availability-reflection?mode=complete");
+  await page.goto("/assess/emotional-availability-reflection?mode=quick");
+  await expect(page.getByText("Choose Assessment Depth", { exact: true })).toHaveCount(0);
   await page.getByLabel(/confirm I am at least/i).check();
   await page.getByLabel(/understand my responses are private/i).check();
   await page.getByRole("button", { name: /Begin Test/ }).click();
   await expect(page.getByRole("article")).toHaveCount(10);
+  await expect(page.getByRole("button", { name: "Next page", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Switch to Complete/ })).toHaveCount(0);
   const first = page.getByRole("article").first();
   const firstPrompt = await first.getByRole("heading").innerText();
   // Click the visible wording to exercise the full answer target.

@@ -238,7 +238,9 @@ export function HomeResultPreview({
       // Draw Laser Filaments from center to vertices
       vertices.forEach((v) => {
         const pV = project(v.x, v.y, v.z);
-        ctx.strokeStyle = isPartner ? "rgba(6, 182, 212, 0.45)" : "rgba(244, 63, 94, 0.45)";
+        ctx.strokeStyle = palette.dark
+          ? (isPartner ? "rgba(6, 182, 212, 0.45)" : "rgba(244, 63, 94, 0.45)")
+          : primaryColor;
         ctx.lineWidth = 1.0;
         ctx.globalAlpha = 0.5;
         ctx.beginPath();
@@ -267,7 +269,9 @@ export function HomeResultPreview({
         ctx.closePath();
 
         const facetAlpha = (isPartner ? 0.16 : 0.24) * facing;
-        ctx.fillStyle = isPartner
+        ctx.fillStyle = !palette.dark
+          ? `rgba(${isPartner ? "0, 111, 133" : "99, 56, 173"}, ${facetAlpha * (f.normalY < 0 ? .9 : .5)})`
+          : isPartner
           ? `rgba(6, 182, 212, ${facetAlpha})`
           : f.normalY < 0
           ? `rgba(225, 29, 72, ${facetAlpha * 1.1})`
@@ -275,7 +279,7 @@ export function HomeResultPreview({
         ctx.fill();
 
         // Neon glowing facet edges
-        ctx.strokeStyle = isPartner ? "rgba(34, 211, 238, 0.75)" : "rgba(251, 113, 133, 0.75)";
+        ctx.strokeStyle = palette.dark ? (isPartner ? "rgba(34, 211, 238, 0.75)" : "rgba(251, 113, 133, 0.75)") : accentColor;
         ctx.lineWidth = isPartner ? 1.2 : 1.5;
         ctx.globalAlpha = Math.max(0.2, 0.7 - f.depth * 0.2);
         ctx.stroke();
@@ -309,22 +313,22 @@ export function HomeResultPreview({
           const tagX = p.x - textW / 2 - 8;
           const tagY = p.y - 28;
 
-          ctx.fillStyle = "rgba(18, 18, 28, 0.9)";
-          ctx.strokeStyle = "rgba(56, 189, 248, 0.8)";
+          ctx.fillStyle = palette.dark ? "rgba(18, 18, 28, 0.9)" : "rgba(255, 255, 255, 0.96)";
+          ctx.strokeStyle = palette.dark ? "rgba(56, 189, 248, 0.8)" : primaryColor;
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.roundRect(tagX, tagY, textW + 16, 20, 6);
           ctx.fill();
           ctx.stroke();
 
-          ctx.fillStyle = "#f3f1fa";
+          ctx.fillStyle = palette.dark ? "#f3f1fa" : palette.ink;
           ctx.fillText(tagText, tagX + 8, tagY + 14);
         }
       });
     };
 
     // Render User's 3D Crystal
-    renderCrystal(scores, palette.plum, "#f43f5e", false);
+    renderCrystal(scores, palette.plum, palette.dark ? "#f43f5e" : "#8560bc", false);
 
     // Render Partner's 3D Crystal in Compatibility Mode
     if (comparison && partner) {

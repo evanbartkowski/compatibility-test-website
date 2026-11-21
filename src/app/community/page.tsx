@@ -20,10 +20,11 @@ export default function CommunityPage() {
   const slug = "intimacy-partner-preferences";
   const initial = getGlobalCommunityAggregates({
     assessmentSlug: slug,
+    mode: "complete",
     includeSyntheticDemo: false,
   });
 
-  const readiness = getCommunityReadiness();
+  const readiness = getCommunityReadiness("complete");
 
   return (
     <CommunityInsightsClient

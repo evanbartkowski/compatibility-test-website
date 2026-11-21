@@ -13,8 +13,13 @@ export default defineConfig({
   },
   projects: [
     {
+      name: "iPhone Safari",
+      testMatch: ["**/light-mobile.spec.ts", "**/questionnaire-pages.spec.ts"],
+      use: { ...devices["iPhone 13"] },
+    },
+    {
       name: "Safari WebKit",
-      testMatch: ["**/security-compatibility.spec.ts", "**/profile-population.spec.ts", "**/questionnaire-pages.spec.ts"],
+      testMatch: ["**/security-compatibility.spec.ts", "**/profile-population.spec.ts", "**/questionnaire-pages.spec.ts", "**/light-mobile.spec.ts"],
       use: { ...devices["Desktop Safari"], viewport: { width: 1440, height: 900 } },
     },
     {
@@ -22,6 +27,8 @@ export default defineConfig({
       testMatch: [
         "**/security-compatibility.spec.ts",
         "**/profile-population.spec.ts",
+        "**/questionnaire-pages.spec.ts",
+        "**/light-mobile.spec.ts",
         "**/browser-experience.spec.ts",
         "**/home-experience.spec.ts",
         "**/intimacy-suite.spec.ts",
@@ -65,7 +72,7 @@ export default defineConfig({
       name: "Mobile",
       testIgnore: "**/library.spec.ts",
       use: {
-        ...devices["Desktop Chrome"],
+        ...devices["Pixel 7"],
         viewport: { width: 390, height: 844 },
       },
     },

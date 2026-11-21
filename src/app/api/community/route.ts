@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     "all") as CohortFilter["datingPreference"];
 
   const mode =
-    req.nextUrl.searchParams.get("mode") === "complete" ? "complete" : "quick";
+    req.nextUrl.searchParams.get("mode") === "quick" ? "quick" : "complete";
   const data = getGlobalCommunityAggregates({
     mode,
     assessmentSlug: slug,

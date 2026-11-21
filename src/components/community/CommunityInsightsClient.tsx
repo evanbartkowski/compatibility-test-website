@@ -47,7 +47,7 @@ export function CommunityInsightsClient({
   initialData: CommunityPayload;
 }) {
   const [slug, setSlug] = useState(initialData.assessmentSlug);
-  const [mode, setMode] = useState("quick");
+  const [mode, setMode] = useState("complete");
   const [error, setError] = useState("");
   const [demoPreview, setDemoPreview] = useState(false);
   const [ageGroup, setAgeGroup] = useState("all");
@@ -174,7 +174,7 @@ export function CommunityInsightsClient({
         <label className="form-field mt-6 max-w-xs">
           <span>Compare the same test depth</span>
           <select value={mode} onChange={(e) => setMode(e.target.value)}>
-            <option value="quick">Quick form</option>
+            <option value="quick">Earlier short tests</option>
             <option value="complete">Deep form</option>
           </select>
         </label>

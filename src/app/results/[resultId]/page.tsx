@@ -134,7 +134,7 @@ export default async function ResultsPage({
       title: a.title,
       shortTitle: a.shortTitle,
       category: getCategoryMeta(a.category)?.title || a.category,
-      estimatedMinutesQuick: a.estimatedMinutesQuick,
+      estimatedMinutesComplete: a.estimatedMinutesComplete,
       adultsOnly: Boolean(a.adultsOnly),
     }));
 

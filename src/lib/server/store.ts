@@ -841,7 +841,7 @@ export function submitPartnerInvitationResponse(params: {
       assessmentSlug: invite.assessmentSlug,
       assessmentVersion: invite.assessmentVersion,
       allowArchivedVersion: true,
-      mode: invite.mode,
+      mode: "complete",
       perspective: "partner",
       consent: params.consent,
       answers: params.answers || {},

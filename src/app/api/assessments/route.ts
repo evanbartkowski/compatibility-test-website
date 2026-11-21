@@ -6,6 +6,7 @@ export async function GET() {
     .filter((a) => a.status === "published" && a.questions.length > 0)
     .map((a) => ({
       ...a,
+      supportsQuickMode: false,
       // Omit exhaustive question objects for light catalog listing if desired,
       // or include question count cleanly while keeping catalog compatible.
       questionCount: a.questions.length,

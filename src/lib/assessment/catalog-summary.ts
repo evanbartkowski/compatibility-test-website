@@ -24,10 +24,7 @@ export function summarizeAssessment(
     questionCount: a.questions.length,
     collection: a.collection,
     marketingBlurb: a.marketingBlurb,
-    standardQuestionCount:
-      a.supportsQuickMode === false
-        ? a.questions.length
-        : a.questions.filter((q) => q.quickDiscovery).length,
+    standardQuestionCount: a.questions.length,
     slug: a.slug,
     title: a.title,
     shortTitle: a.shortTitle,
@@ -35,11 +32,28 @@ export function summarizeAssessment(
     status: a.status,
     audienceNote: a.audienceNote,
     adultsOnly: a.adultsOnly,
-    supportsQuickMode: a.supportsQuickMode,
-    estimatedMinutesQuick: a.estimatedMinutesQuick,
+    supportsQuickMode: false,
+    estimatedMinutesQuick: a.estimatedMinutesComplete,
     estimatedMinutesComplete: a.estimatedMinutesComplete,
     supportsPartnerMatching: a.supportsPartnerMatching,
     discoverPoints: a.discoverPoints,
     sections: a.sections.map((s) => ({ ...s, description: "", subtitle: "" })),
   };
 }
+
+export const standardsCard: AssessmentSummary = {
+  slug: "population-standards",
+  title: "The Standards Test",
+  shortTitle: "The Standards Test",
+  category: "romance",
+  status: "published",
+  audienceNote: "Set age, height, money, body, and the rest. See what share of adult men or women actually match.",
+  adultsOnly: true,
+  supportsQuickMode: false,
+  estimatedMinutesQuick: 3,
+  estimatedMinutesComplete: 3,
+  supportsPartnerMatching: false,
+  discoverPoints: ["Age", "Height", "Income"],
+  sections: [],
+  marketingBlurb: "A population filter, not a personality score.",
+};

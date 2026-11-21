@@ -17,7 +17,7 @@ import {
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 const assessment = getAssessmentBySlug("emotional-availability-reflection")!;
-const questions = assessment.questions.filter((q) => q.quickDiscovery);
+const questions = assessment.questions;
 
 function begin() {
   render(React.createElement(AssessmentRunner, { assessment }));
@@ -48,9 +48,6 @@ afterEach(cleanup);
 describe("Questionnaire pages", () => {
   it("focuses a requested category's first question even when it starts a new page", () => {
     begin();
-    fireEvent.click(
-      screen.getByRole("button", { name: /Switch to Complete/i }),
-    );
     const section = assessment.sections[2];
     const question = assessment.questions.find(
       (q) => q.sectionId === section.id,
@@ -88,7 +85,7 @@ describe("Questionnaire pages", () => {
     expect(fresh.answers[questions[0].id].customValue).toBe(6);
     expect(fresh.answers[old.questions[0].id]).toBeUndefined();
   });
-  it("keeps prior-version draft answers and relocates their old question index", () => {
+  it("keeps prior-version short draft answers while resuming the full question set", () => {
     const previous = getArchivedAssessmentBySlug(assessment.slug, "3.0.0")!;
     const quick = previous.questions.filter((q) => q.quickDiscovery);
     localStorage.setItem(
@@ -118,16 +115,15 @@ describe("Questionnaire pages", () => {
       }),
     );
     expect(
-      screen.getByText(/Your previous answers have been kept/),
+      screen.getByText(/saved answers have been kept/),
     ).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Resume Draft" }));
-    expect(
-      within(
-        screen.getByRole("article", { name: quick[7].prompt }),
-      ).getByRole<HTMLInputElement>("radio", { name: "Agree" }).checked,
-    ).toBe(true);
+    const resumed = JSON.parse(localStorage.getItem(`between_us_draft_${assessment.slug}_primary_self`)!);
+    expect(resumed.mode).toBe("complete");
+    expect(resumed.answers[quick[7].id].customValue).toBe(6);
+    expect(resumed.currentQuestionIndex).toBe(0);
     expect(document.activeElement).toBe(
-      screen.getByRole("heading", { name: quick[7].prompt }),
+      screen.getByRole("heading", { name: previous.questions[0].prompt }),
     );
   });
   it("shows ten independently answerable statements without a preselected response", () => {
@@ -166,9 +162,6 @@ describe("Questionnaire pages", () => {
 
   it("allows unanswered pages and preserves choices when navigating back", () => {
     begin();
-    fireEvent.click(
-      screen.getByRole("button", { name: /Switch to Complete/i }),
-    );
     const completeQuestions = assessment.questions;
     fireEvent.click(card(0).getByRole("radio", { name: "Agree" }));
     fireEvent.click(screen.getByRole("button", { name: "Next page" }));
@@ -190,6 +183,9 @@ describe("Questionnaire pages", () => {
   it("submits directly from the final question page without a review screen", () => {
     begin();
     expect(screen.queryByText(/Review & Refine Your Answers/i)).toBeNull();
+    for (let page = 1; page < Math.ceil(questions.length / 10); page++) {
+      fireEvent.click(screen.getByRole("button", { name: "Next page" }));
+    }
     const submitBtn = screen.getByRole("button", {
       name: /Complete & View Results/i,
     });
@@ -203,7 +199,7 @@ describe("Questionnaire pages", () => {
       `between_us_draft_${assessment.slug}_primary_self_${assessment.version}`,
       JSON.stringify({
         assessmentVersion: assessment.version,
-        mode: "quick",
+        mode: "complete",
         currentQuestionIndex: 7,
         consent: { confirmedAdult18Plus: true, acceptedPrivacyTerms: true },
         answers: {
@@ -224,12 +220,9 @@ describe("Questionnaire pages", () => {
     expect(screen.getAllByRole("article")).toHaveLength(10);
   });
 
-  it("keeps answers when switching to the full assessment", () => {
+  it("starts with full coverage and keeps selected answers without a mode switch", () => {
     begin();
     fireEvent.click(card(0).getByRole("radio", { name: "Agree" }));
-    fireEvent.click(
-      screen.getByRole("button", { name: /Switch to Complete/i }),
-    );
     expect(
       card(0).getByRole<HTMLInputElement>("radio", { name: "Agree" }).checked,
     ).toBe(true);

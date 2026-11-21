@@ -225,7 +225,7 @@ export function AssessmentBuilder({
               status: "draft",
               category: "romance",
               adultsOnly: false,
-              supportsQuickMode: true,
+              supportsQuickMode: false,
               purpose: "Reflect on a specific relationship tendency.",
               audienceNote: "Reflect on a specific relationship tendency.",
               estimatedMinutesQuick: 1,
@@ -377,13 +377,7 @@ export function AssessmentBuilder({
                 }
               />
               <Field
-                label="Quick minutes"
-                type="number"
-                value={draft.estimatedMinutesQuick}
-                onChange={(v) => patch({ estimatedMinutesQuick: Number(v) })}
-              />
-              <Field
-                label="Deep minutes"
+                label="Full test minutes"
                 type="number"
                 value={draft.estimatedMinutesComplete}
                 onChange={(v) => patch({ estimatedMinutesComplete: Number(v) })}
@@ -418,7 +412,7 @@ export function AssessmentBuilder({
                     >
                       {i + 1}. {question.prompt}
                       <small>
-                        {question.quickDiscovery ? "Quick + deep" : "Deep only"}
+                        Full test
                         {question.branchingCondition ? " · Adaptive" : ""}
                       </small>
                     </button>
@@ -593,16 +587,6 @@ export function AssessmentBuilder({
                       </select>
                     </label>
                     <div className="studio-checkbox-row">
-                      <label>
-                        <input
-                          type="checkbox"
-                          checked={q.quickDiscovery}
-                          onChange={(e) =>
-                            patchQuestion({ quickDiscovery: e.target.checked })
-                          }
-                        />
-                        Included in quick
-                      </label>
                       <label>
                         <input
                           type="checkbox"
@@ -814,16 +798,6 @@ export function AssessmentBuilder({
                     onChange={(e) => patch({ adultsOnly: e.target.checked })}
                   />
                   Mature topic: require explicit acknowledgement for exports
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={draft.supportsQuickMode !== false}
-                    onChange={(e) =>
-                      patch({ supportsQuickMode: e.target.checked })
-                    }
-                  />
-                  Offer a curated quick form
                 </label>
                 <label>
                   <input

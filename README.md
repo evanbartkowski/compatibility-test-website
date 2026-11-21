@@ -1,32 +1,39 @@
-# Truth Desire
+# SoulFlame
 
-A private self-discovery and compatibility platform for adults. Next.js 15, React 19, TypeScript, Tailwind and original SVG visualizations.
+Private self-discovery and compatibility tools for adults 18+. Built with Next.js 15, React 19, TypeScript, Tailwind CSS and original SVG/canvas artwork.
+
+**Website:** [truth-desire.web.app](https://truth-desire.web.app) | **Firebase project:** `truth-desire`
+
+## What is included
+
+- **Full tests only.** All 22 assessments use their full question sets, with ten questions per page, individual skip controls, keyboard support and saved progress. Earlier short-test links open the full test; compatible short drafts keep their answers. Historical results retain their original form and scoring context.
+- **My profile and history.** Saved results, category scores, advice, recent attempts and compatible retake comparisons are collected in one place. Guest results can remain on the device without an account.
+- **Useful comparisons.** Population research, opted-in website community averages, past attempts and private partner comparisons have distinct labels and data sources. U.S. interest percentages cite Herbenick et al. (2017), with the sample and 2014-2015 fieldwork shown. They are not worldwide population norms.
+- **The Standards Test.** A separate population-filter calculator includes age, height, income and additional filters, with labeled native controls and an expandable explanation of its estimate.
+- **Light and dark themes.** Light mode uses white surfaces, deeper purple accents and readable score/status colors. Both themes retain the site's illustrations and interactive profile graphic.
+- **Phone layouts.** Larger touch targets, visible answer grids, 16px form text, safe-area spacing, responsive navigation and scrollable account dialogs. Decorative background canvases are hidden on phones; reduced-motion preferences are respected.
+- **Private sharing and advice.** The full Node application supports selective profile links, invitation-based comparisons, downloads, verified-recipient email and advice based on measured answers. Participation in community statistics is optional, and cohorts below the privacy threshold are suppressed.
+
+Results are exploratory reflections, not diagnoses, validated IQ scores, consent to activities or predictions of relationship success. Synthetic previews are labeled and separate from participant data. Artwork and dependency notices are in [public/licenses](public/licenses).
+
+## Hosting and feature availability
+
+The public Firebase Hosting release serves prerendered pages and browser code. Full tests, the calculator, population research, device-local results and guest profiles can work there. **Firebase Hosting alone does not run the Next.js API routes.**
+
+Session-backed result storage, account result claiming, server-managed sharing/invitations, live community statistics, server erasure/export and transactional email require the supported Node backend and its configured services. These features must not be described as fully deployed merely because the static website is online. App Hosting currently requires a billing-plan upgrade for this Firebase project; this release does not provision it or deploy Functions/database rules.
+
+The server stores application records in `.between-us-data/store.json`, or the directory selected by `BETWEEN_US_DATA_DIR`. It does not automatically use Firestore for private results. Production needs a persistent private volume and a single Node writer. See [OPERATIONS.md](OPERATIONS.md) before deploying the backend or changing storage.
 
 ## Run locally
+
+Use Node.js 22 or newer:
 
 ```powershell
 npm ci
 npm run dev
 ```
 
-Open http://localhost:3000. Guest test-taking, local drafts, private saved results, comparisons, selective sharing and downloads work without account setup. Copy .env.example to .env.local for optional Firebase accounts and transactional email.
-
-The server repository stores results in .between-us-data/store.json. Browser drafts stay in the browser. Production saving requires BETWEEN_US_DATA_DIR on a persistent private volume and one Node writer. The app does not automatically store private results in Firestore; see OPERATIONS.md before choosing hosting.
-
-## Product and measurement
-
-- Forty assessments contain 2,060 authored full-form questions with direct wording and concrete situations. Nine core v5 tests and thirty-one adult v2 tests offer short and full forms, including a 100-question fantasy catalog, private synthesis and an original five-style blueprint. Earlier definitions remain available for saved results and invitations; rewritten questions use fresh answer IDs and separate drafts. See [the question editorial guide](docs/QUESTION_EDITORIAL_GUIDE.md).
-- Every published test produces a private advice guide: partner qualities, constructive friction, skills and environment changes, three or four optional graduated experiments, and explicit desire/experience gap paths where those fields are measured. Partner advice uses only mutually disclosed topics. See [the complete overview](docs/ASSESSMENTS_AND_ADVICE.md), [example advice](docs/ADVICE_EXAMPLES.md) and [scoring/privacy contracts](INTIMACY_COLLECTION.md).
-- A two-section homepage includes a draggable 3D profile, keyboard rotation, adjustable example scores, partner overlay and a pausable living background. Reduced motion is respected.
-- Five questions per page with labeled agreement buttons, individual skip controls, page navigation and saved drafts. Native radios support keyboard arrows and 1–7 shortcuts, with no preselected response.
-- Measured profiles, per-category explanations, compatible retake history and explicit sharing selections.
-- My profile combines browser and session results, account information, a short advice preview and recent attempts. Compare separates population research, opted-in community averages and matching retakes. Population interest percentages cite Herbenick et al. (2017), Tables 2 and 5, with the U.S. sample and 2014–2015 fieldwork visible; optional comparison choices stay on the device and can be cleared.
-- Private partner comparisons, ownership-checked saved-result reuse, independent disclosure controls and revocation.
-- Actual participant histograms, midrank percentiles, strict-below percentages and archetype frequencies, suppressed below cohort thresholds.
-- Draft authoring, validation, scoring previews, immutable published revisions and an independent live publication pointer.
-- Visible email/password registration and sign-in, guest-result claiming, sign-out isolation, account deletion, private exports, PNG/SVG cards and verified-recipient email.
-
-These are exploratory reflections, not diagnoses or validated predictions. Synthetic previews are labelled and kept separate from real participant data.
+Open [localhost:3000](http://localhost:3000). Copy `.env.example` to `.env.local` for optional Firebase and email configuration. Keep private credentials, runtime records, browser-test data and generated deployment files out of Git.
 
 ## Verify
 
@@ -34,12 +41,34 @@ These are exploratory reflections, not diagnoses or validated predictions. Synth
 npm test
 npm run typecheck
 npm run lint
-npx playwright install chromium firefox
-npm run test:e2e
+npx playwright install chromium firefox webkit
+npx playwright test e2e/library.spec.ts e2e/questionnaire-pages.spec.ts e2e/light-mobile.spec.ts --workers=1
 ```
 
-The browser suite builds the production application and uses isolated data under test-results. It covers desktop, tablet and mobile journeys, both forms of every published test, Firefox, and 1920px desktop layouts. Firebase rules and account cases require local emulators; the exact commands and explicit skips are documented in [OPERATIONS.md](OPERATIONS.md).
+The focused browser suite builds the production application and uses isolated data. It covers all 22 full assessments, retired short-form submission rejection, answer persistence, both themes, phone navigation/dialogs, saved profiles/reports, overflow and automated accessibility checks. Projects include Chromium, Firefox, WebKit, Android Chrome and iPhone Safari emulation, with widths from 320px to 1440px.
 
-See [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for delivered behavior, [ASSESSMENT_AUDIT.md](ASSESSMENT_AUDIT.md) for the library and scoring contract, [DESIGN.md](DESIGN.md) for UI guidance, and [QUALITY_REPORT.md](QUALITY_REPORT.md) for verification evidence and limits.
+The latest local release checks recorded **170 passing unit tests** and **59 browser scenarios verified across the full run and targeted reruns**. Seven Firestore-emulator unit cases were explicitly skipped in the ordinary unit run. The mobile Lighthouse lab run scored **100 performance, 100 accessibility and 100 best practices**; LCP was approximately 1.4 seconds and CLS was zero. The Lighthouse run used the default theme; light-mode contrast and theme switching were checked separately. These are local observations, not field performance or accessibility certification.
 
-The [November 21 site audit](docs/SITE_AUDIT_2026-11-21.md) records artwork, security, browser and privacy fixes, local measurements and remaining production/legal work. `security-headers.json` is shared by Next.js and the Firebase header synchronization script. These checks do not certify that the service is unhackable or compliant in every jurisdiction.
+Run emulator-dependent Firebase checks separately using [OPERATIONS.md](OPERATIONS.md). The additional legacy browser scenarios have broader coverage and are not all represented by the focused release results above.
+
+## Deploy the static website
+
+From a normal production configuration, without emulator flags:
+
+```powershell
+npm run build
+npm run deploy:prepare
+firebase deploy --only hosting --project truth-desire
+```
+
+`deploy:prepare` synchronizes security headers, renders site/share icons and copies prerendered pages plus public assets into `deploy-public/`. Deploy only that generated directory. Do not publish `.next/server`, `.env.local`, runtime stores, test results or QA artifacts. Confirm the live pages and their referenced asset hashes after publishing.
+
+For the complete application, follow the persistent Node-server deployment instructions in [OPERATIONS.md](OPERATIONS.md). Publishing the static site does not replace that backend setup.
+
+## Project references
+
+- [Assessment and advice overview](docs/ASSESSMENTS_AND_ADVICE.md), [advice examples](docs/ADVICE_EXAMPLES.md) and [question editorial guide](docs/QUESTION_EDITORIAL_GUIDE.md).
+- [Scoring and privacy contracts](INTIMACY_COLLECTION.md), [assessment audit](ASSESSMENT_AUDIT.md) and [implementation status](IMPLEMENTATION_STATUS.md).
+- [Design guidance](DESIGN.md), [quality report](QUALITY_REPORT.md) and [November 21 site audit](docs/SITE_AUDIT_2026-11-21.md).
+
+`security-headers.json` supplies shared Next.js/Firebase Hosting protections. Security, legal and production-readiness limits are documented in the audit; no automated check certifies that the service is unhackable or compliant in every jurisdiction. Operator contact details remain unpublished as requested.

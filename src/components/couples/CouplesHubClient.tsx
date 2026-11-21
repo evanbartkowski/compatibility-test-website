@@ -33,7 +33,7 @@ interface CouplesAssessmentTile {
   title: string;
   categoryTitle: string;
   description: string;
-  estimatedMinutesQuick: number;
+  estimatedMinutesComplete: number;
   adultsOnly: boolean;
   latestSubmissionId: string | null;
 }
@@ -327,7 +327,7 @@ export function CouplesHubClient({
                       </span>
                     )}
                     <span className="font-mono-tabular">
-                      ~{item.estimatedMinutesQuick} min
+                      ~{item.estimatedMinutesComplete} min
                     </span>
                   </div>
                 </div>

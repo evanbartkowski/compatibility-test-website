@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, Moon, Sun, X, User } from "lucide-react";
@@ -62,18 +62,35 @@ export function SiteHeader() {
   const { theme, toggleTheme, ready: themeReady } = useTheme();
   const { user, loading, openAuthModal } = useOptionalAuth();
   const [open, setOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
   useEffect(() => {
+    if (!open) return;
     const close = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+        toggleRef.current?.focus();
+      }
     };
+    const outside = (event: PointerEvent) => {
+      if (event.target instanceof Node && !headerRef.current?.contains(event.target)) setOpen(false);
+    };
+    const wider = window.matchMedia("(min-width: 901px)");
+    const resize = () => { if (wider.matches) setOpen(false); };
     window.addEventListener("keydown", close);
-    return () => window.removeEventListener("keydown", close);
-  }, []);
+    document.addEventListener("pointerdown", outside);
+    wider.addEventListener("change", resize);
+    return () => {
+      window.removeEventListener("keydown", close);
+      document.removeEventListener("pointerdown", outside);
+      wider.removeEventListener("change", resize);
+    };
+  }, [open]);
   return (
-    <header className="site-header">
+    <header className="site-header" ref={headerRef}>
       <div className="site-shell header-inner">
         <Link
           href="/"
@@ -138,6 +155,8 @@ export function SiteHeader() {
           <button
             type="button"
             className="icon-button mobile-menu-toggle"
+            ref={toggleRef}
+            disabled={!themeReady}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="mobile-menu"
@@ -158,6 +177,7 @@ export function SiteHeader() {
               <Link
                 key={link.href}
                 href={link.href}
+                aria-current={pathname.startsWith(link.href) ? "page" : undefined}
                 onClick={() => setOpen(false)}
               >
                 {link.label}

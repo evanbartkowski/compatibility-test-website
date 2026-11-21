@@ -25,7 +25,6 @@ export function PartnerInviteFlow({
   token,
   creatorDisplayName,
   expiresAt,
-  mode,
   assessment,
   existingCompatibilityId,
   savedResults = [],
@@ -83,7 +82,6 @@ export function PartnerInviteFlow({
     return (
       <AssessmentRunner
         assessment={assessment}
-        initialMode={mode}
         perspective="partner"
         inviteToken={token}
         creatorDisplayName={creatorDisplayName}
@@ -91,10 +89,7 @@ export function PartnerInviteFlow({
     );
   }
 
-  const itemCount =
-    mode === "quick" && assessment.supportsQuickMode !== false
-      ? assessment.questions.filter((q) => q.quickDiscovery).length
-      : assessment.questions.length;
+  const itemCount = assessment.questions.length;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6 sm:py-20">
@@ -113,9 +108,7 @@ export function PartnerInviteFlow({
         <p className="mt-4 text-sm leading-relaxed text-[var(--ink-secondary)]">
           You will answer a complementary perspective of the{" "}
           <strong>{assessment.title}</strong> questionnaire ({itemCount}{" "}
-          {mode === "quick" && assessment.supportsQuickMode !== false
-            ? "quick-discovery items"
-            : "complete items"}
+          full-test questions
           ). Your private responses are never sent straight to your partner;
           compatibility is calculated through mutual sharing filters that
           respect firm boundaries and private reveal locks unconditionally.

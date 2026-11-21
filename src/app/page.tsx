@@ -4,7 +4,7 @@ import { scoreAssessmentSubmission } from "@/lib/assessment/scoring";
 import { builtInAssessments, getAssessmentBySlug } from "@/data/assessments/catalog";
 import { HomeExperience } from "@/components/home/HomeExperience";
 import { TestCard } from "@/components/explore/TestCard";
-import { summarizeAssessment } from "@/lib/assessment/catalog-summary";
+import { standardsCard, summarizeAssessment } from "@/lib/assessment/catalog-summary";
 
 export default function HomePage() {
   const assessment = getAssessmentBySlug("emotional-availability-reflection")!;
@@ -79,17 +79,15 @@ export default function HomePage() {
               Which test are you actually curious about?
             </h2>
             <p>
-              The BDSM test, the kink test, the personality type test, the gay test, the bias test, and the standards calculator. Start with a teaser.
+              The BDSM test, the kink test, the personality type test, the gay test, the bias test, and the standards calculator. Every test includes the full question set.
             </p>
           </div>
-            <Link href="/standards" className="text-link">
-              The Standards Test <ArrowUpRight size={15} aria-hidden="true" />
-            </Link>
             <Link href="/explore" className="text-link">
             Explore all {builtInAssessments.length} tests <ArrowUpRight size={15} aria-hidden="true" />
           </Link>
         </div>
         <div className="home-start-grid">
+          <TestCard assessment={standardsCard} href="/standards" featured />
           {featured.map((a) => (
             <TestCard key={a.slug} assessment={summarizeAssessment(a)} />
           ))}

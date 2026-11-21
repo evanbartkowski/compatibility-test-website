@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Space_Grotesk, Figtree } from "next/font/google";
 import { brandConfig } from "@/config/brand";
@@ -8,6 +8,9 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { LivingBackdrop } from "@/components/home/LivingBackdrop";
 import "./globals.css";
+import "./light-mobile.css";
+
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", interactiveWidget: "resizes-content" };
 
 const figtree = Figtree({
   subsets: ["latin"],

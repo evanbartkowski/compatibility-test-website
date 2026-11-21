@@ -4,7 +4,6 @@ import { consolidatedSlugRedirects } from "@/data/assessments/curated";
 import { brandConfig } from "@/config/brand";
 import { resolveAssessment } from "@/lib/server/store";
 import { AssessmentRunner } from "@/components/assessment/AssessmentRunner";
-import type { AssessmentMode } from "@/lib/assessment/types";
 import { builtInAssessments } from "@/data/assessments/catalog";
 
 export const dynamic = "force-static";
@@ -85,8 +84,6 @@ export default async function AssessPage({
     notFound();
   }
 
-  const initialMode: AssessmentMode =
-    assessment.supportsQuickMode === false ? "complete" : "quick";
   const previous =
     assessment.version === "4.0.0"
       ? resolveAssessment(assessment.slug, "3.0.0")
@@ -106,7 +103,6 @@ export default async function AssessPage({
             }
           : undefined
       }
-      initialMode={initialMode}
       initialCommunityOptIn={false}
     />
   );

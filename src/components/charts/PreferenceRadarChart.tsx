@@ -344,9 +344,9 @@ export function PreferenceRadarChart({
               }}
             >
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h4 className="font-display text-2xl text-[var(--ink-primary)]">
+                <h3 className="font-display text-2xl text-[var(--ink-primary)]">
                   {overlay[selectedIndex]?.label}
-                </h4>
+                </h3>
                 <span className="font-mono-tabular shrink-0 text-xs text-[var(--ink-muted)]">
                   Dimension comparison
                 </span>
@@ -400,9 +400,9 @@ export function PreferenceRadarChart({
                   }}
                 >
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <h4 className="font-display text-2xl text-[var(--ink-primary)]">
+                    <h3 className="font-display text-2xl text-[var(--ink-primary)]">
                       {activeDim.label}
-                    </h4>
+                    </h3>
                     <span className="font-mono-tabular shrink-0 text-xl font-semibold text-[var(--accent-plum)]">
                       {activeDim.score}/100
                     </span>
@@ -439,7 +439,7 @@ export function PreferenceRadarChart({
                               </div>
                               <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] text-[var(--ink-secondary)]">
                                 <span className="inline-flex flex-wrap items-center gap-1.5">
-                                  <span>Response: {c.enjoymentLabel}</span>
+                                  <span className="text-[var(--ink-secondary)]">Response: {c.enjoymentLabel}</span>
                                   {c.direction === "inverse" && (
                                     <span
                                       className="rounded-full px-1.5 py-0.5 text-[10px] font-medium"

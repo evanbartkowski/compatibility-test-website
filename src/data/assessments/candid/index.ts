@@ -191,7 +191,7 @@ export function publishCandidRevision(
     const per = a.questions.filter((q) => q.sectionId === a.sections[0]?.id).length;
     a.scoringNotes = [
       a.scoringNotes[0],
-      `The short form samples two statements per category. The full form has ${per} per category. ${a.questions.some((q) => q.reverseScored) ? "Reverse-worded statements are scored in the category direction." : "Interest statements are scored directly."} Skips stay unmeasured.`,
+      `The full test has ${per} statements per category. ${a.questions.some((q) => q.reverseScored) ? "Reverse-worded statements are scored in the category direction." : "Interest statements are scored directly."} Skips stay unmeasured.`,
       a.scoringNotes[2],
     ];
   }

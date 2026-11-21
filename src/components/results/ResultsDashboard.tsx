@@ -163,7 +163,7 @@ interface ResultsDashboardProps {
     title: string;
     shortTitle: string;
     category: string;
-    estimatedMinutesQuick: number;
+    estimatedMinutesComplete: number;
     adultsOnly: boolean;
   }>;
   initialMultiRaterSummary?: MultiRaterSummaryPayload | null;
@@ -1868,7 +1868,7 @@ export function ResultsDashboard({
                     <div className="flex items-center justify-between gap-2 text-xs text-[var(--ink-muted)]">
                       <span>{rec.category}</span>
                       <span className="font-mono-tabular">
-                        ~{rec.estimatedMinutesQuick} min
+                        ~{rec.estimatedMinutesComplete} min
                       </span>
                     </div>
                     <p className="mt-2 font-display text-2xl text-[var(--ink-primary)] group-hover:text-[var(--accent-plum)]">

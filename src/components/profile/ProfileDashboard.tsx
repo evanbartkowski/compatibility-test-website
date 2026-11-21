@@ -218,7 +218,7 @@ export function ProfileDashboard({
           : firebaseEnabled ? <button type="button" className="text-link" onClick={() => openAuthModal("register")}>Create an account</button>
           : <Link href="/settings" className="text-link">Privacy settings</Link>}
       </section>}
-      {!ready && !submissions.length ? <p role="status" className="py-8">Loading your saved results…</p> : !submissions.length ? (
+      {!ready && !submissions.length ? <p role="status" className="py-8 text-[var(--ink-primary)]">Loading your saved results…</p> : !submissions.length ? (
         <section className="profile-empty">
           <div className="profile-empty-orbits" aria-hidden="true">
             <Fingerprint size={52} />
@@ -234,7 +234,7 @@ export function ProfileDashboard({
               measured category scores and the answers that shaped them.
             </p>
             <Link
-              href="/assess/attachment-style-discovery?mode=quick"
+              href="/assess/attachment-style-discovery?mode=complete"
               className="button button-primary"
             >
               Start with attachment tendencies
@@ -511,7 +511,7 @@ export function ProfileDashboard({
                   aria-pressed={selected?.submissionId === entry.submissionId}
                   onClick={() => setSelectedId(entry.submissionId)}
                 >
-                  <span>
+                  <span className="text-[var(--ink-primary)]">
                     <AssessmentArtwork slug={entry.assessmentSlug} variant="thumb" />
                     {entry.result.assessmentTitle || entry.assessmentSlug}
                   </span>

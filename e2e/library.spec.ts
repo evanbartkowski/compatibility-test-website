@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { builtInAssessments } from "../src/data/assessments/catalog";
-for (const assessment of builtInAssessments)
-  for (const mode of ["quick", "complete"] as const) {
+for (const assessment of builtInAssessments) {
+    const mode = "complete";
     test(`${assessment.slug} · ${mode} answers and scores in the browser`, async ({
       page,
     }, info) => {
@@ -11,17 +11,14 @@ for (const assessment of builtInAssessments)
       await page.setExtraHTTPHeaders({
         "x-forwarded-for": `library-${assessment.slug}-${mode}`,
       });
-      await page.goto(`/assess/${assessment.slug}?mode=${mode}`);
+      await page.goto(`/assess/${assessment.slug}`);
       await page.getByLabel(/confirm I am at least/i).check();
       await page.getByLabel(/understand my responses are private/i).check();
       await page.getByRole("button", { name: /Begin Test/i }).click();
       let answered = 0;
       for (let guard = 0; guard < 151; guard++) {
         const cards = page.getByRole("article");
-        const total =
-          mode === "quick" && assessment.supportsQuickMode !== false
-            ? assessment.questions.filter((q) => q.quickDiscovery).length
-            : assessment.questions.length;
+        const total = assessment.questions.length;
         await expect(cards).toHaveCount(Math.min(10, total - answered));
         for (const card of await cards.all()) {
           const prompt = await card.getByRole("heading").innerText();
@@ -93,6 +90,8 @@ for (const assessment of builtInAssessments)
       const payload = await response.json();
       expect(payload.result.assessmentVersion).toBe(assessment.version);
       expect(payload.result.answeredCount).toBe(answered);
+      expect(payload.result.mode).toBe("complete");
+      expect(payload.result.totalEligibleInMode).toBe(assessment.questions.length);
       expect(
         payload.result.radar.every(
           (d: { score: number }) =>
@@ -107,3 +106,17 @@ for (const assessment of builtInAssessments)
         });
     });
   }
+
+test("new submissions cannot use the retired short form", async ({ request }) => {
+  const response = await request.post("/api/assessments/submit", {
+    data: {
+      assessmentSlug: builtInAssessments[0].slug,
+      mode: "quick",
+      perspective: "primary",
+      consent: { confirmedAdult18Plus: true, acceptedPrivacyTerms: true, optInCommunityStats: false, consentedAt: new Date().toISOString() },
+      answers: {},
+    },
+  });
+  expect(response.status()).toBe(400);
+  expect((await response.json()).error).toMatch(/only full tests.*reload/i);
+});

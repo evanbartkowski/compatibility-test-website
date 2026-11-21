@@ -2,131 +2,124 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-
-type Gender = "men" | "women";
-
-const AGE_BANDS = [
-  { min: 18, max: 24, share: 0.12 },
-  { min: 25, max: 34, share: 0.18 },
-  { min: 35, max: 44, share: 0.17 },
-  { min: 45, max: 54, share: 0.16 },
-  { min: 55, max: 64, share: 0.16 },
-  { min: 65, max: 80, share: 0.21 },
-];
-
-const HEIGHT_MEN = [
-  { min: 60, max: 65, share: 0.15 },
-  { min: 66, max: 67, share: 0.18 },
-  { min: 68, max: 69, share: 0.27 },
-  { min: 70, max: 71, share: 0.22 },
-  { min: 72, max: 73, share: 0.12 },
-  { min: 74, max: 84, share: 0.06 },
-];
-const HEIGHT_WOMEN = [
-  { min: 58, max: 61, share: 0.22 },
-  { min: 62, max: 63, share: 0.28 },
-  { min: 64, max: 65, share: 0.26 },
-  { min: 66, max: 67, share: 0.16 },
-  { min: 68, max: 78, share: 0.08 },
-];
-
-function bandShare(bands: { min: number; max: number; share: number }[], min: number, max: number) {
-  const total = bands.reduce((sum, band) => sum + band.share, 0);
-  const hit = bands.reduce((sum, band) => {
-    const overlap = Math.max(0, Math.min(max, band.max) - Math.max(min, band.min) + 1);
-    const width = band.max - band.min + 1;
-    return sum + band.share * (overlap / width);
-  }, 0);
-  return Math.min(1, hit / total);
-}
-
-function inchesLabel(n: number) {
-  return `${Math.floor(n / 12)}'${n % 12}"`;
-}
+import { defaultFilters, estimate, inchesLabel, type Filters } from "./standards-model";
 
 export function StandardsCalculator() {
-  const [gender, setGender] = useState<Gender>("men");
-  const [ageMin, setAgeMin] = useState(22);
-  const [ageMax, setAgeMax] = useState(42);
-  const [heightMin, setHeightMin] = useState(68);
-  const [income, setIncome] = useState(150000);
-  const [eye, setEye] = useState("any");
-  const [religion, setReligion] = useState("any");
-  const [drinks, setDrinks] = useState("any");
-  const [smokes, setSmokes] = useState("any");
-  const [married, setMarried] = useState("no");
-  const [body, setBody] = useState("any");
-  const [kids, setKids] = useState("either");
-  const [education, setEducation] = useState("any");
-  const [ethnicity, setEthnicity] = useState("any");
-
-  const result = useMemo(() => {
-    const pool = gender === "men" ? 127_000_000 : 133_000_000;
-    const factors: Array<[string, number]> = [
-      ["Age", bandShare(AGE_BANDS, ageMin, ageMax)],
-      ["Height", bandShare(gender === "men" ? HEIGHT_MEN : HEIGHT_WOMEN, heightMin, 84)],
-      ["Income", income >= 150000 ? 0.08 : income >= 100000 ? 0.2 : income >= 75000 ? 0.32 : income >= 50000 ? 0.5 : 0.7],
-      ["Eyes", eye === "any" ? 1 : eye === "blue" ? 0.27 : eye === "green" ? 0.09 : eye === "hazel" ? 0.18 : 0.45],
-      ["Religion", religion === "any" ? 1 : religion === "christian" ? 0.63 : religion === "none" ? 0.29 : 0.08],
-      ["Drinks", drinks === "any" ? 1 : drinks === "never" ? 0.3 : 0.55],
-      ["Smokes", smokes === "any" ? 1 : smokes === "never" ? 0.8 : 0.12],
-      ["Married", married === "any" ? 1 : married === "no" ? 0.48 : 0.5],
-      ["Body", body === "any" ? 1 : body === "athletic" ? 0.15 : body === "slim" ? 0.2 : 0.25],
-      ["Kids", kids === "either" ? 1 : 0.35],
-      ["Education", education === "any" ? 1 : education === "college" ? 0.35 : 0.13],
-      ["Ethnicity", ethnicity === "any" ? 1 : ethnicity === "white" ? 0.59 : ethnicity === "black" ? 0.13 : ethnicity === "hispanic" ? 0.19 : ethnicity === "asian" ? 0.06 : 0.03],
-    ];
-    const share = factors.reduce((p, [, n]) => p * n, 1);
-    return { pool, share, count: Math.max(0, Math.round(pool * share)), factors };
-  }, [gender, ageMin, ageMax, heightMin, income, eye, religion, drinks, smokes, married, body, kids, education, ethnicity]);
-
-  const dots = 160;
-  const lit = Math.max(1, Math.round(dots * Math.min(result.share, 1)));
+  const [filters, setFilters] = useState<Filters>(defaultFilters);
+  const [advanced, setAdvanced] = useState(false);
+  const set = <K extends keyof Filters>(key: K, value: Filters[K]) =>
+    setFilters((current) => ({ ...current, [key]: value }));
+  const result = useMemo(() => estimate(filters), [filters]);
+  const lit = Math.max(1, Math.round(180 * Math.min(result.share, 1)));
+  const shown = formatPercent(result.share);
 
   return (
-    <div className="standards-page">
-      <aside>
-        <h1>What percent of {gender} meet your standards?</h1>
-        <label>Looking for
-          <span>
-            <button type="button" data-on={gender === "women"} onClick={() => setGender("women")}>Women</button>
-            <button type="button" data-on={gender === "men"} onClick={() => setGender("men")}>Men</button>
-          </span>
-        </label>
-        <label>Age {ageMin}–{ageMax}
-          <input type="range" min={18} max={80} value={ageMin} onChange={(e) => setAgeMin(Math.min(Number(e.target.value), ageMax))} />
-          <input type="range" min={18} max={80} value={ageMax} onChange={(e) => setAgeMax(Math.max(Number(e.target.value), ageMin))} />
-        </label>
-        <label>Height {inchesLabel(heightMin)}+
-          <input type="range" min={58} max={78} value={heightMin} onChange={(e) => setHeightMin(Number(e.target.value))} />
-        </label>
-        <label>Minimum income ${income.toLocaleString()}
-          <input type="range" min={0} max={250000} step={10000} value={income} onChange={(e) => setIncome(Number(e.target.value))} />
-        </label>
-        <Select label="Eye color" value={eye} set={setEye} options={[["any", "Any"], ["brown", "Brown"], ["blue", "Blue"], ["hazel", "Hazel"], ["green", "Green"]]} />
-        <Select label="Religion" value={religion} set={setReligion} options={[["any", "Any"], ["christian", "Christian"], ["none", "No religion"], ["other", "Another religion"]]} />
-        <Select label="Drinks" value={drinks} set={setDrinks} options={[["any", "Any"], ["never", "Never"], ["sometimes", "Sometimes or more"]]} />
-        <Select label="Smokes" value={smokes} set={setSmokes} options={[["any", "Any"], ["never", "Never"], ["yes", "Smokes"]]} />
-        <Select label="Exclude married" value={married} set={setMarried} options={[["no", "Yes, exclude"], ["any", "Include married"], ["yes", "Married only"]]} />
-        <Select label="Body type" value={body} set={setBody} options={[["any", "Any"], ["slim", "Slim"], ["athletic", "Athletic"], ["other", "A narrower type"]]} />
-        <Select label="Wants kids" value={kids} set={setKids} options={[["either", "Either"], ["yes", "Yes"], ["no", "No"]]} />
-        <Select label="Education" value={education} set={setEducation} options={[["any", "Any"], ["college", "College degree"], ["grad", "Graduate degree"]]} />
-        <Select label="Ethnicity" value={ethnicity} set={setEthnicity} options={[["any", "Any"], ["white", "White"], ["black", "Black"], ["hispanic", "Hispanic"], ["asian", "Asian"], ["other", "Another group"]]} />
-        <p>Adults 18+ only. Rough public estimates, not a live Census file. Traits are multiplied as if independent, so a narrow list looks rarer than real life.</p>
-      </aside>
-      <section>
-        <p className="standards-percent">{(result.share * 100).toFixed(2)}%</p>
-        <p>of adult American {gender} meet every filter you set.</p>
-        <p>That is about {result.count.toLocaleString()} of {result.pool.toLocaleString()}.</p>
-        <div className="standards-dots" aria-hidden="true">
-          {Array.from({ length: dots }, (_, i) => (
-            <span key={i} data-on={i < lit} />
-          ))}
+    <div className="standards-screen">
+      <header className="standards-heading">
+        <p className="standards-kicker">The Standards Test</p>
+        <h1>How rare is the person you are filtering for?</h1>
+      </header>
+      <aside className="standards-panel" aria-label="Your filters">
+        <div className="standards-toggle" role="group" aria-label="Looking for">
+          <button type="button" data-on={filters.gender === "women"} onClick={() => set("gender", "women")}>Women</button>
+          <button type="button" data-on={filters.gender === "men"} onClick={() => set("gender", "men")}>Men</button>
         </div>
-        <p>{result.share < 0.01 ? "Your list is doing the rejecting. The person can exist and still be a bad plan." : "The pool is not the problem. Meeting them still is."}</p>
-        <Link href="/explore">Back to the tests</Link>
+        <DualRange label="Age" min={18} max={80} lo={filters.ageMin} hi={filters.ageMax} format={(n) => String(n)} onChange={(lo, hi) => setFilters((f) => ({ ...f, ageMin: lo, ageMax: hi }))} />
+        <DualRange label="Height" min={58} max={80} lo={filters.heightMin} hi={filters.heightMax} format={inchesLabel} onChange={(lo, hi) => setFilters((f) => ({ ...f, heightMin: lo, heightMax: hi }))} />
+        <DualRange label="Income" min={0} max={400000} step={5000} lo={filters.incomeMin} hi={filters.incomeMax} format={(n) => (n >= 400000 ? "$400k+" : `$${Math.round(n / 1000)}k`)} onChange={(lo, hi) => setFilters((f) => ({ ...f, incomeMin: lo, incomeMax: hi }))} />
+        <div className="standards-grid">
+          <Select label="Eyes" value={filters.eye} set={(v) => set("eye", v)} options={[["any", "Any"], ["brown", "Brown"], ["blue", "Blue"], ["hazel", "Hazel"], ["green", "Green"], ["gray", "Gray"], ["amber", "Amber"], ["hetero", "Heterochromia"], ["other", "Other"]]} />
+          <Select label="Body" value={filters.body} set={(v) => set("body", v)} options={[["any", "Any"], ["slim", "Slim"], ["average", "Average"], ["athletic", "Athletic"], ["plus", "Plus"]]} />
+          <Select label="Kids" value={filters.kids} set={(v) => set("kids", v)} options={[["either", "Either"], ["yes", "Wants kids"], ["no", "Does not want kids"]]} />
+          <Select label="Married now" value={filters.married} set={(v) => set("married", v)} options={[["any", "Any"], ["not", "Not married"], ["never", "Never married"], ["yes", "Married"], ["divorced", "Divorced"], ["separated", "Separated"], ["widowed", "Widowed"]]} />
+          <Select label="Education" value={filters.education} set={(v) => set("education", v)} options={[["any", "Any"], ["less", "No high school diploma"], ["hs", "High school"], ["some", "Some college"], ["associate", "Associate degree"], ["college", "Bachelor's"], ["grad", "Master's"], ["professional", "Professional or doctorate"]]} />
+          <Select label="Ethnicity" value={filters.ethnicity} set={(v) => set("ethnicity", v)} options={[["any", "Any"], ["white", "White"], ["black", "Black"], ["hispanic", "Hispanic"], ["asian", "Asian"], ["native", "American Indian"], ["pacific", "Pacific Islander"], ["mena", "Middle Eastern"], ["multi", "Two or more races"], ["other", "Another group"]]} />
+          <Select label="Religion" value={filters.religion} set={(v) => set("religion", v)} options={[["any", "Any"], ["christian", "Christian"], ["protestant", "Protestant"], ["evangelical", "Evangelical"], ["catholic", "Catholic"], ["mormon", "Mormon"], ["orthodox", "Orthodox"], ["none", "No religion"], ["atheist", "Atheist"], ["agnostic", "Agnostic"], ["jewish", "Jewish"], ["muslim", "Muslim"], ["hindu", "Hindu"], ["buddhist", "Buddhist"], ["sikh", "Sikh"], ["other", "Another faith"]]} />
+          <Select label="Drinks" value={filters.drinks} set={(v) => set("drinks", v)} options={[["any", "Any"], ["never", "Does not drink"], ["rarely", "Rarely"], ["sometimes", "Sometimes"], ["weekly", "Weekly"], ["regularly", "Regularly"], ["daily", "Daily"]]} />
+        </div>
+        <button type="button" className="standards-advanced" aria-expanded={advanced} onClick={() => setAdvanced((v) => !v)}>
+          {advanced ? "Hide advanced options" : "Advanced options"}
+        </button>
+        {advanced && (
+          <div className="standards-grid">
+            <DualRange label="Weight, lb" min={90} max={320} lo={filters.weightMin} hi={filters.weightMax} format={(n) => String(n)} onChange={(lo, hi) => setFilters((f) => ({ ...f, weightMin: lo, weightMax: hi }))} />
+            <Select label="Hair" value={filters.hair} set={(v) => set("hair", v)} options={[["any", "Any"], ["black", "Black"], ["brown", "Brown"], ["blonde", "Blonde"], ["red", "Red"], ["gray", "Gray"], ["auburn", "Auburn"], ["bald", "Bald or shaved"]]} />
+            <Select label="Cigarettes" value={filters.smokes} set={(v) => set("smokes", v)} options={[["any", "Any"], ["never", "Never smoked"], ["former", "Former smoker"], ["occasional", "Occasional"], ["now", "Smokes now"], ["vape", "Vapes"]]} />
+            <Select label="Cannabis" value={filters.cannabis} set={(v) => set("cannabis", v)} options={[["any", "Any"], ["no", "Not in the past year"], ["yes", "Past-year use"]]} />
+            <Select label="Already a parent" value={filters.hasChildren} set={(v) => set("hasChildren", v)} options={[["any", "Any"], ["no", "No"], ["yes", "Yes"]]} />
+            <Select label="Wants marriage" value={filters.marriageIntent} set={(v) => set("marriageIntent", v)} options={[["any", "Any"], ["yes", "Yes"], ["no", "No"]]} />
+            <Select label="Politics" value={filters.politics} set={(v) => set("politics", v)} options={[["any", "Any"], ["liberal", "Liberal"], ["moderate", "Moderate"], ["conservative", "Conservative"], ["democrat", "Democrat"], ["republican", "Republican"], ["independent", "Independent"], ["libertarian", "Libertarian"], ["socialist", "Socialist"], ["apolitical", "Apolitical"]]} />
+            <Select label="Region" value={filters.region} set={(v) => set("region", v)} options={[["any", "Any"], ["northeast", "Northeast"], ["midwest", "Midwest"], ["south", "South"], ["west", "West"]]} />
+            <Select label="City or country" value={filters.urban} set={(v) => set("urban", v)} options={[["any", "Any"], ["urban", "Urban"], ["rural", "Rural"]]} />
+            <Select label="Employed" value={filters.employed} set={(v) => set("employed", v)} options={[["any", "Any"], ["yes", "Employed"], ["no", "Not employed"]]} />
+            <Select label="Exercise" value={filters.exercise} set={(v) => set("exercise", v)} options={[["any", "Any"], ["some", "Some leisure activity"], ["regular", "Meets both guidelines"]]} />
+            <Select label="Tattoos" value={filters.tattoos} set={(v) => set("tattoos", v)} options={[["any", "Any"], ["yes", "Has one"], ["no", "None"]]} />
+            <Select label="Disability" value={filters.disability} set={(v) => set("disability", v)} options={[["any", "Any"], ["no", "No disability"], ["yes", "Has a disability"]]} />
+            <Select label="Veteran" value={filters.veteran} set={(v) => set("veteran", v)} options={[["any", "Any"], ["yes", "Veteran"], ["no", "Not a veteran"]]} />
+            <Select label="Language at home" value={filters.language} set={(v) => set("language", v)} options={[["any", "Any"], ["english", "English only"], ["spanish", "Spanish"], ["chinese", "Chinese"], ["tagalog", "Tagalog"], ["vietnamese", "Vietnamese"], ["arabic", "Arabic"], ["french", "French"], ["korean", "Korean"], ["other", "Another language"]]} />
+          </div>
+        )}
+        <p className="standards-note">Adults 18 and older only. Marriage, work, degrees, and parenthood change with the age range. The combined number multiplies the separate shares, so a long list looks rarer than a real dating pool.</p>
+      </aside>
+      <section className="standards-result" aria-label="Your estimate">
+        <p className="standards-result-label">Your estimated match</p>
+        <output className="standards-percent" aria-label="Estimated share matching your filters" aria-live="polite">{shown}</output>
+        <p className="standards-lead">of adult American {filters.gender} land inside every filter.</p>
+        <p className="standards-count">About {result.count.toLocaleString()} of {result.pool.toLocaleString()}. Roughly 1 in {result.oneIn.toLocaleString()}.</p>
+        <div className="standards-dots" aria-hidden="true">
+          {Array.from({ length: 180 }, (_, i) => <span key={i} data-on={i < lit} />)}
+        </div>
+        <details className="standards-breakdown">
+        <summary>How this estimate is calculated</summary>
+        <ul className="standards-factors">
+          {result.factors.map((factor) => (
+            <li key={factor.label}>
+              <span>{factor.label}</span>
+              <strong>{formatPercent(factor.share)}</strong>
+              <i>{factor.note}</i>
+            </li>
+          ))}
+        </ul>
+        </details>
+        <Link href="/explore" className="text-link">Back to the tests</Link>
       </section>
     </div>
+  );
+}
+
+function formatPercent(share: number) {
+  if (!Number.isFinite(share) || share <= 0) return "0%";
+  const percent = share * 100;
+  if (percent >= 10) return `${percent.toFixed(1)}%`;
+  if (percent >= 1) return `${percent.toFixed(2)}%`;
+  const places = Math.min(8, Math.max(2, Math.ceil(-Math.log10(percent)) + 1));
+  return `${percent.toFixed(places)}%`;
+}
+
+function DualRange({
+  label, min, max, step = 1, lo, hi, format, onChange,
+}: {
+  label: string;
+  min: number;
+  max: number;
+  step?: number;
+  lo: number;
+  hi: number;
+  format: (n: number) => string;
+  onChange: (lo: number, hi: number) => void;
+}) {
+  return (
+    <fieldset className="dual-range">
+      <legend>{label}</legend>
+      <label className="range-control">
+      <span>Minimum <output>{format(lo)}</output></span>
+      <input aria-label={`${label} minimum`} type="range" min={min} max={max} step={step} value={lo} onChange={(e) => onChange(Math.min(Number(e.target.value), hi), hi)} />
+      </label>
+      <label className="range-control">
+      <span>Maximum <output>{format(hi)}</output></span>
+      <input aria-label={`${label} maximum`} type="range" min={min} max={max} step={step} value={hi} onChange={(e) => onChange(lo, Math.max(Number(e.target.value), lo))} />
+      </label>
+    </fieldset>
   );
 }
 

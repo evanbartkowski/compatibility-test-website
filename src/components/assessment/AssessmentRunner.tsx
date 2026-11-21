@@ -11,7 +11,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import {
-  matchesBranch as evaluateBranching,
   selectAssessmentQuestions,
 } from "@/lib/assessment/definition";
 import { hasMeaningfulAnswer } from "@/lib/assessment/answers";
@@ -40,7 +39,6 @@ import type {
   QuestionDefinition,
   SharingPreferences,
 } from "@/lib/assessment/types";
-import { cn } from "@/lib/utils";
 import { AssessmentQuestionCard } from "./AssessmentQuestionCard";
 
 interface AssessmentRunnerProps {
@@ -50,7 +48,6 @@ interface AssessmentRunnerProps {
     quickIds: string[];
     completeIds: string[];
   };
-  initialMode?: AssessmentMode;
   perspective?: "primary" | "partner";
   inviteToken?: string;
   creatorDisplayName?: string;
@@ -66,7 +63,6 @@ const QUESTIONS_PER_PAGE = 10;
 export function AssessmentRunner({
   assessment,
   previousDraftVersion,
-  initialMode = "quick",
   perspective = "primary",
   inviteToken,
   creatorDisplayName,
@@ -75,17 +71,14 @@ export function AssessmentRunner({
 }: AssessmentRunnerProps) {
   const router = useRouter();
   const reducedMotion = useReducedMotion();
-  const isIntimacySuite = assessment.collection === "intimacy-suite";
   const questionHeading = useRef<HTMLHeadingElement>(null);
   const draftStorageKey = `between_us_draft_${onPreviewSubmit ? "studio_" : ""}${assessment.slug}_${perspective}_${inviteToken || "self"}${assessment.editorialRevision ? `_${assessment.version}` : ""}`;
 
-  const effectiveDefaultMode: AssessmentMode =
-    assessment.supportsQuickMode === false ? "complete" : initialMode;
+  const mode = "complete" as const;
 
   const [step, setStep] = useState<
     "consent" | "questions" | "review" | "submitting"
   >("consent");
-  const [mode, setMode] = useState<AssessmentMode>(effectiveDefaultMode);
   const [consent, setConsent] = useState<ConsentSettings>({
     confirmedAdult18Plus: false,
     acceptedPrivacyTerms: false,
@@ -115,21 +108,6 @@ export function AssessmentRunner({
   const [pauseNotice, setPauseNotice] = useState(false);
   const [draftStorageAvailable, setDraftStorageAvailable] = useState(true);
   const [draftWasUpgraded, setDraftWasUpgraded] = useState(false);
-
-  useEffect(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const urlMode = params.get("mode");
-      if (
-        urlMode === "complete" ||
-        (urlMode === "quick" && assessment.supportsQuickMode !== false)
-      ) {
-        setMode(urlMode);
-      }
-    } catch {
-      // ignore in non-browser env
-    }
-  }, [assessment.supportsQuickMode]);
 
   // Restore saved draft if present
   useEffect(() => {
@@ -299,22 +277,18 @@ export function AssessmentRunner({
 
   const handleResumeDraft = () => {
     if (!savedDraftPrompt) return;
-    setMode(savedDraftPrompt.mode);
     setConsent(savedDraftPrompt.consent);
     setAnswers(savedDraftPrompt.answers);
-    const savedQuestions = assessment.questions.filter(
-      (q) =>
-        (savedDraftPrompt.mode !== "quick" ||
-          assessment.supportsQuickMode === false ||
-          q.quickDiscovery) &&
-        evaluateBranching(q.branchingCondition, savedDraftPrompt.answers),
+    const fullQuestions = selectAssessmentQuestions(assessment, mode, savedDraftPrompt.answers);
+    const firstMissing = fullQuestions.findIndex(
+      (q) => !hasMeaningfulAnswer(savedDraftPrompt.answers[q.id]) && !savedDraftPrompt.answers[q.id]?.skipped,
     );
     setCurrentIndex(
       Math.max(
         0,
-        Math.min(
+        savedDraftPrompt.mode === "quick" ? firstMissing : Math.min(
           savedDraftPrompt.currentQuestionIndex || 0,
-          savedQuestions.length - 1,
+          fullQuestions.length - 1,
         ),
       ),
     );
@@ -332,21 +306,6 @@ export function AssessmentRunner({
     setErrorMsg(null);
     setConsent((c) => ({ ...c, consentedAt: new Date().toISOString() }));
     setStep("questions");
-  };
-
-  const handleUpgradeToComplete = () => {
-    if (step === "questions" && currentQuestion) {
-      const full = assessment.questions.filter((q) =>
-        evaluateBranching(q.branchingCondition, answers),
-      );
-      setCurrentIndex(
-        Math.max(
-          0,
-          full.findIndex((q) => q.id === currentQuestion.id),
-        ),
-      );
-    }
-    setMode("complete");
   };
 
   const handleSubmit = async () => {
@@ -476,12 +435,9 @@ export function AssessmentRunner({
   const remainingMinutes = Math.max(1, Math.ceil((remainingCount * 14) / 60));
 
   // -------------------------------------------------------------------------
-  // STEP 1: OVERVIEW, DEPTH & CONSENT GATE
+  // STEP 1: OVERVIEW & CONSENT GATE
   // -------------------------------------------------------------------------
   if (step === "consent") {
-    const quickCount = assessment.questions.filter(
-      (q) => q.quickDiscovery,
-    ).length;
     return (
       <div className="site-shell assessment-consent py-10 sm:py-14">
         <div className="mx-auto w-full max-w-2xl">
@@ -506,7 +462,9 @@ export function AssessmentRunner({
                   responses)
                 </p>
                 <p className="mt-1 text-xs text-[var(--ink-secondary)]">
-                  {draftWasUpgraded
+                  {savedDraftPrompt.mode === "quick"
+                    ? "Your saved answers have been kept. Resume to continue with the full test."
+                    : draftWasUpgraded
                     ? "This test has more questions now. Your previous answers have been kept."
                     : "Resume right where you left off without losing any previous answers."}
                 </p>
@@ -590,61 +548,10 @@ export function AssessmentRunner({
                 : assessment.audienceNote || assessment.purpose || assessment.marketingBlurb}
             </p>
 
-            {/* Mode Choice (hidden for partner invites or single-depth modules) */}
-            {perspective === "primary" &&
-              assessment.supportsQuickMode !== false && (
-                <div className="mt-7">
-                  <p className="text-xs font-medium text-[var(--ink-secondary)]">
-                    Choose Assessment Depth
-                  </p>
-                  <div className="mt-2.5 grid gap-3 sm:grid-cols-2">
-                    {(
-                      [
-                        {
-                          key: "quick" as const,
-                          title: isIntimacySuite
-                            ? "Teaser"
-                            : "Standard Assessment",
-                          meta: `${quickCount} questions · ~${assessment.estimatedMinutesQuick} min`,
-                          desc: `Covers every category. You can expand to all ${assessment.questions.length} questions without losing your answers.`,
-                        },
-                        {
-                          key: "complete" as const,
-                          title: isIntimacySuite
-                            ? "Deep dive"
-                            : "Complete Assessment",
-                          meta: `${assessment.questions.length} questions · ~${assessment.estimatedMinutesComplete} min`,
-                          desc: "More situations in each category for a fuller picture of your patterns.",
-                        },
-                      ] as const
-                    ).map((item) => (
-                      <button
-                        key={item.key}
-                        type="button"
-                        onClick={() => setMode(item.key)}
-                        className={cn(
-                          "rounded-md border p-4 text-left transition-all",
-                          mode === item.key
-                            ? "border-[var(--accent-plum)] bg-[var(--bg-subtle)]"
-                            : "border-[var(--border-hairline)] bg-[var(--bg-canvas)] hover:border-[var(--border-strong)]",
-                        )}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-semibold text-[var(--ink-primary)]">
-                            {item.title}
-                          </span>
-                          <span className="font-mono-tabular text-xs text-[var(--accent-plum)]">
-                            {item.meta}
-                          </span>
-                        </div>
-                        <p className="mt-1.5 text-xs leading-relaxed text-[var(--ink-secondary)]">
-                          {item.desc}
-                        </p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+            <p className="mt-5 text-sm text-[var(--ink-secondary)]">
+              Full test · {assessment.questions.length} questions · about {assessment.estimatedMinutesComplete} minutes.
+              You can pause and resume your saved progress.
+            </p>
 
             {/* Consent Checkboxes */}
             <div
@@ -1003,10 +910,10 @@ export function AssessmentRunner({
               {answeredCount} of {activeQuestions.length} answered
             </span>
             <div className="flex items-center gap-3">
-              <span className="inline-flex items-center gap-1">
+              <span className="inline-flex items-center gap-1 text-[var(--ink-secondary)]">
                 <Clock className="h-3.5 w-3.5" /> ~{remainingMinutes} min left
               </span>
-              <span className="font-mono-tabular">
+              <span className="font-mono-tabular text-[var(--ink-secondary)]">
                 Page {pageIndex + 1} of {pageCount}
               </span>
               <button
@@ -1063,23 +970,7 @@ export function AssessmentRunner({
             </div>
           )}
 
-          {perspective === "primary" &&
-            mode === "quick" &&
-            assessment.supportsQuickMode !== false && (
-              <div className="assessment-depth-switch">
-                <span>
-                  {isIntimacySuite ? "Teaser" : "Standard version"} · 10
-                  questions per page
-                </span>
-                <button
-                  type="button"
-                  onClick={handleUpgradeToComplete}
-                  className="font-medium text-[var(--accent-plum)] hover:underline"
-                >
-                  Switch to Complete ({assessment.questions.length} questions)
-                </button>
-              </div>
-            )}
+
         </div>
 
         <section

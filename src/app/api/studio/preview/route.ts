@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     const result = scoreAssessmentSubmission({
       assessment,
       answers,
-      mode: body.mode === "quick" ? "quick" : "complete",
+      mode: "complete",
       perspective: "primary",
       createdAt: new Date().toISOString(),
       resultId: "unsaved-admin-preview",

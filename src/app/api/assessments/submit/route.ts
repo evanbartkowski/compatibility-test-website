@@ -16,7 +16,7 @@ import { saveAssessmentSubmission } from "@/lib/server/store";
 const submissionSchema = z.object({
   assessmentSlug: z.string().min(1),
   assessmentVersion: z.string().max(40).optional(),
-  mode: z.enum(["quick", "complete"]),
+  mode: z.literal("complete"),
   perspective: z.enum(["primary", "partner"]).default("primary"),
   consent: consentSettingsSchema,
   answers: z.record(z.string(), questionAnswerSchema),
@@ -34,6 +34,12 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await readJsonBody(req);
+    if (body.mode === "quick") {
+      return NextResponse.json(
+        { error: "Only full tests are available. Reload this test to continue with all questions." },
+        { status: 400 },
+      );
+    }
     const parsed = submissionSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(

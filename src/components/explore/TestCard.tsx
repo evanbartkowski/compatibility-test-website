@@ -93,15 +93,16 @@ export function ProfileGlyph({ kind = 0 }: { kind?: number }) {
 }
 export function TestCard({
   assessment,
-  featured = false,
+  featured,
   resultId,
+  href,
 }: {
   assessment: AssessmentSummary;
   featured?: boolean;
   resultId?: string;
+  href?: string;
 }) {
   const category = categories[assessment.category];
-  const supportsQuick = assessment.supportsQuickMode !== false;
   return (
     <article
       className="test-card"
@@ -123,12 +124,10 @@ export function TestCard({
         <div className="test-card-meta">
           <span>
             <Clock size={13} />
-            {supportsQuick
-              ? assessment.estimatedMinutesQuick
-              : assessment.estimatedMinutesComplete}{" "}
+            {assessment.estimatedMinutesComplete}{" "}
             min
             {assessment.questionCount
-              ? ` · ${assessment.standardQuestionCount} questions`
+              ? ` · ${assessment.questionCount} questions`
               : ""}
           </span>
           <span>
@@ -141,20 +140,10 @@ export function TestCard({
         <div className="test-card-actions">
           <Link
             className="button button-primary button-small"
-            href={`/assess/${assessment.slug}?mode=${supportsQuick ? "quick" : "complete"}`}
+            href={href || `/assess/${assessment.slug}?mode=complete`}
           >
-            {resultId ? "Take again" : assessment.collection ? "Try the teaser" : "Take the test"}
+            {resultId ? "Take again" : "Take the test"}
           </Link>
-          {supportsQuick && (
-            <Link
-              className="button button-quiet button-small"
-              href={`/assess/${assessment.slug}?mode=complete`}
-            >
-              {assessment.questionCount
-                ? `All ${assessment.questionCount} questions`
-                : "Go deeper"}
-            </Link>
-          )}
         </div>
         {resultId && (
           <Link href={`/results/${resultId}`} className="text-link mt-3">

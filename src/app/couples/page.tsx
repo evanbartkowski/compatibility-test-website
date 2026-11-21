@@ -47,7 +47,7 @@ export default function CouplesPage() {
     title: a.title,
     categoryTitle: getCategoryMeta(a.category)?.title ?? a.category,
     description: a.audienceNote,
-    estimatedMinutesQuick: a.estimatedMinutesQuick,
+    estimatedMinutesComplete: a.estimatedMinutesComplete,
     adultsOnly: Boolean(a.adultsOnly),
     latestSubmissionId: null,
   }));

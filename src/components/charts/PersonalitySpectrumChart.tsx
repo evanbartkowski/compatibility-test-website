@@ -27,9 +27,9 @@ export function PersonalitySpectrumChart({
           }}
         >
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h4 className="font-display text-xl text-[var(--ink-primary)]">
+            <h3 className="font-display text-xl text-[var(--ink-primary)]">
               {d.label}
-            </h4>
+            </h3>
             <span className="font-mono-tabular text-sm font-semibold text-[var(--accent-plum)]">
               {d.score} / 100
             </span>

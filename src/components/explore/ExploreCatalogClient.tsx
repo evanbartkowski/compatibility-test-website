@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Search, LockKeyhole } from "lucide-react";
-import type { AssessmentSummary } from "@/lib/assessment/catalog-summary";
+import { standardsCard, type AssessmentSummary } from "@/lib/assessment/catalog-summary";
 const assessmentCategories = [
   { slug: "romance" },
   { slug: "personality" },
@@ -56,8 +56,7 @@ export function ExploreCatalogClient({
         (a) =>
           a.status === "published" &&
           (category === "all" || a.category === category) &&
-          (duration !== "quick" ||
-            (a.supportsQuickMode !== false && a.estimatedMinutesQuick <= 5)) &&
+          (duration !== "quick" || a.estimatedMinutesComplete <= 5) &&
           (duration !== "deep" || a.estimatedMinutesComplete >= 10) &&
           (focus !== "matching" || a.supportsPartnerMatching) &&
           (focus !== "general" || !a.adultsOnly) &&
@@ -77,6 +76,14 @@ export function ExploreCatalogClient({
       ),
     [assessments, category, duration, focus, search],
   );
+  const query = search.trim().toLowerCase();
+  const showStandards =
+    (category === "all" || category === "romance") &&
+    duration !== "deep" &&
+    focus !== "matching" &&
+    focus !== "general" &&
+    focus !== "collection" &&
+    "the standards test age height income money body men women population".includes(query);
   const ordered = [...filtered].sort(
     (a, b) =>
       Number(b.slug === "attachment-style-discovery") -
@@ -165,11 +172,16 @@ export function ExploreCatalogClient({
           ))}
       </div>
       <p className="library-count" role="status">
-        {ordered.length} {ordered.length === 1 ? "test" : "tests"} to explore{" "}
+        {ordered.length + (showStandards ? 1 : 0)}{" "}
+        {ordered.length + (showStandards ? 1 : 0) === 1 ? "test" : "tests"} to explore{" "}
         <span aria-hidden="true">·</span> Progress saves in this browser
       </p>
-      {ordered.length ? (
+      {ordered.length || showStandards ? (
         <div className="test-grid">
+          <h2 className="sr-only">Available tests</h2>
+          {showStandards && (
+            <TestCard assessment={standardsCard} href="/standards" featured />
+          )}
           {ordered.map((a) => (
             <TestCard
               key={a.slug}
