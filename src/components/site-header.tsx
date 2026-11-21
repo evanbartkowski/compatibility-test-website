@@ -15,16 +15,38 @@ export function BrandMark() {
       fill="none"
       aria-hidden="true"
     >
+      <defs>
+        <linearGradient
+          id="sf-brand-grad"
+          x1="9"
+          y1="31"
+          x2="27"
+          y2="4"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0%" stopColor="#FF1361" />
+          <stop offset="50%" stopColor="#FF5722" />
+          <stop offset="100%" stopColor="#FFA000" />
+        </linearGradient>
+        <linearGradient
+          id="sf-brand-core"
+          x1="15"
+          y1="25"
+          x2="21"
+          y2="12"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0%" stopColor="#FF8F00" />
+          <stop offset="100%" stopColor="#FFF8E1" />
+        </linearGradient>
+      </defs>
       <path
-        d="M18 31S4 23 4 13a8 8 0 0 1 14-5 8 8 0 0 1 14 5c0 10-14 18-14 18Z"
-        stroke="currentColor"
-        strokeWidth="1.6"
+        d="M18 4C19 8.5 22 11.5 24.5 14.5C27 17.5 28 20.8 26.8 24C25 28.5 20.5 31 18 31C15.5 31 11 28.5 9.2 24C8 20.8 9 17.5 11.5 14.5C14 11.5 17 8.5 18 4Z"
+        fill="url(#sf-brand-grad)"
       />
       <path
-        d="M18 26s-8-7-8-13a4 4 0 0 1 8 0 4 4 0 0 1 8 0c0 6-8 13-8 13Z"
-        stroke="currentColor"
-        strokeWidth="1.3"
-        opacity=".5"
+        d="M18 12.5C19 15 21 17.5 21 20C21 23 19.5 25 18 25C16.5 25 15 23 15 20C15 17.5 17 15 18 12.5Z"
+        fill="url(#sf-brand-core)"
       />
     </svg>
   );

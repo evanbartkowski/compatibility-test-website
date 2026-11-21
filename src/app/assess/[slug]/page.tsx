@@ -23,9 +23,46 @@ export async function generateMetadata({
   if (!assessment || assessment.status !== "published") {
     return { title: `Assessment Not Found | ${brandConfig.name}` };
   }
+  const canonicalUrl = `https://truth-desire.web.app/assess/${assessment.slug}`;
+  const title = `${assessment.title} | ${brandConfig.name}`;
+  const description = `${assessment.marketingBlurb || assessment.audienceNote} Take the free, candid ${assessment.title} on ${brandConfig.name}.`;
   return {
-    title: `${assessment.title} | ${brandConfig.name}`,
-    description: assessment.audienceNote,
+    title,
+    description,
+    keywords: [
+      assessment.title,
+      assessment.shortTitle,
+      "SoulFlame test",
+      "soulflame quiz",
+      "viral quiz",
+      "compatibility test",
+      "relationship assessment",
+      assessment.category,
+    ],
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: brandConfig.name,
+      type: "website",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: `${assessment.title} - ${brandConfig.name}`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/og-image.png"],
+    },
   };
 }
 

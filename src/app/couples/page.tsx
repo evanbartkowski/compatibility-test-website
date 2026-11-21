@@ -12,9 +12,28 @@ import {
 } from "@/lib/server/store";
 
 export const metadata: Metadata = {
-  title: `Couples & Partner Space | ${brandConfig.name}`,
+  title: `Couple & Partner Compatibility Test | ${brandConfig.name}`,
   description:
-    "Compare shared fantasies, kink exploration, BDSM power dynamics, bucket lists, and compatibility reports privately with a partner.",
+    "Compare shared desires, kink exploration, BDSM dynamics, love languages, and relationship compatibility privately with a partner on SoulFlame.",
+  keywords: [
+    "couples compatibility test",
+    "partner test",
+    "SoulFlame couples",
+    "relationship test",
+    "kink compatibility",
+    "love language compare",
+  ],
+  alternates: {
+    canonical: "https://truth-desire.web.app/couples",
+  },
+  openGraph: {
+    title: `Couple & Partner Compatibility Test | ${brandConfig.name}`,
+    description:
+      "Compare shared desires, kink exploration, BDSM dynamics, love languages, and relationship compatibility privately with a partner on SoulFlame.",
+    url: "https://truth-desire.web.app/couples",
+    siteName: brandConfig.name,
+    images: ["/og-image.png"],
+  },
 };
 
 export default async function CouplesPage() {

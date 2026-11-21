@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Heart } from "lucide-react";
+import { Flame } from "lucide-react";
 import { brandConfig } from "@/config/brand";
 export function SiteFooter() {
   return (
@@ -7,8 +7,8 @@ export function SiteFooter() {
       <div className="site-shell">
         <div className="footer-top">
           <div className="footer-brand">
-            <Link href="/" className="brand-link">
-              <Heart size={23} className="text-[var(--accent-plum)]" />
+            <Link href="/" className="brand-link" aria-label={`${brandConfig.name} home`}>
+              <Flame size={23} className="text-[#FF5722]" />
               {brandConfig.name}
             </Link>
             <p>

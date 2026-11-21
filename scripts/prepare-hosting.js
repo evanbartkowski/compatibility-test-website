@@ -85,9 +85,17 @@ if (fs.existsSync(assessSrcDir)) {
 }
 console.log(`Copied ${assessCount} assessment static pages to deploy-public/assess/`);
 
-// 5. Copy metadata files: robots.txt, sitemap.xml, icon.svg
+// 5. Copy public folder assets (e.g. og-image.png, og-image.svg)
+const publicDir = path.join(ROOT_DIR, 'public');
+if (fs.existsSync(publicDir)) {
+  copyDirRecursive(publicDir, DEPLOY_DIR);
+  console.log('Copied public/ assets to deploy-public/');
+}
+
+// 6. Copy metadata files: robots.txt, sitemap.xml, icon.svg, manifest
 safeCopyFile(path.join(appServerDir, 'robots.txt.body'), path.join(DEPLOY_DIR, 'robots.txt'));
 safeCopyFile(path.join(appServerDir, 'sitemap.xml.body'), path.join(DEPLOY_DIR, 'sitemap.xml'));
+safeCopyFile(path.join(appServerDir, 'manifest.webmanifest.body'), path.join(DEPLOY_DIR, 'manifest.webmanifest'));
 
 const iconSrc = path.join(ROOT_DIR, 'src', 'app', 'icon.svg');
 safeCopyFile(iconSrc, path.join(DEPLOY_DIR, 'icon.svg'));

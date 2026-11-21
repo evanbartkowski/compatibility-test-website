@@ -17,12 +17,12 @@ export interface BrandConfig {
 }
 
 export const brandConfig: BrandConfig = {
-  name: process.env.NEXT_PUBLIC_BRAND_NAME || "Truth Desire",
+  name: process.env.NEXT_PUBLIC_BRAND_NAME || "SoulFlame",
   tagline:
     process.env.NEXT_PUBLIC_BRAND_TAGLINE ||
-    "Romantic, candid, and boundary-first self-discovery, desire mapping, and couples compatibility for curious adults.",
-  domain: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-  supportEmail: "privacy@truthdesire.app",
+    "The viral compatibility, love, kink, and personality tests for curious souls.",
+  domain: process.env.NEXT_PUBLIC_APP_URL || "https://truth-desire.web.app",
+  supportEmail: "hello@soulflame.app",
   minimumAge: 18,
   scoringEngineVersion: "1.2.0",
   communityMinimumThreshold: 50,

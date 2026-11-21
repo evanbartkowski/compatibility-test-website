@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "deploy:prepare": "node scripts/prepare-hosting.js",
+    "deploy:prepare": "node scripts/generate-og-png.js && node scripts/prepare-hosting.js",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",

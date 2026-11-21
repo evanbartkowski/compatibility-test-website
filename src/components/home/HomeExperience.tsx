@@ -43,11 +43,11 @@ export function HomeExperience({
             <h1 id="home-title" className="font-display">
               Discover what
               <br />
-              makes you, you.
+              sparks your flame.
             </h1>
             <p>
-              Understand your personality, relationships and desires through
-              thoughtful questions and a private, visual profile.
+              SoulFlame brings you candid, viral tests for love compatibility, kinks,
+              personality, desires, and connection. Private by default.
             </p>
             <div className="hero-actions">
               <Link href="/explore" className="button button-primary">

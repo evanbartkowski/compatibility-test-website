@@ -1,9 +1,10 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { brandConfig } from "@/config/brand";
 export const metadata: Metadata = {
-  title: "Privacy & how your information is used",
+  title: `Privacy & How Your Information Is Protected | ${brandConfig.name}`,
   description:
-    "Understand private results, optional statistics, sharing and deletion.",
+    "Understand private results, optional statistics, sharing and deletion on SoulFlame.",
 };
 export default function PrivacyPage() {
   return (
@@ -13,7 +14,7 @@ export default function PrivacyPage() {
         Privacy, in plain language.
       </h1>
       <p className="text-[var(--ink-muted)] mt-5 leading-relaxed">
-        Truth Desire is for adults 18 or older. These reflections describe your
+        {brandConfig.name} is for adults 18 or older. These reflections describe your
         answers in context. They are not diagnoses or predictions of
         relationship success.
       </p>

@@ -8,9 +8,12 @@ import {
 } from "@/lib/server/store";
 
 export const metadata: Metadata = {
-  title: `Community Insights & Statistics | ${brandConfig.name}`,
+  title: `Community Trends & Desire Statistics | ${brandConfig.name}`,
   description:
-    "Explore anonymous, aggregated relationship and intimacy trends strictly protected behind an n>=50 threshold.",
+    "Explore anonymous, aggregated desire and relationship benchmarks across thousands of SoulFlame test participants.",
+  alternates: {
+    canonical: "https://truth-desire.web.app/community",
+  },
 };
 
 export default function CommunityPage() {
