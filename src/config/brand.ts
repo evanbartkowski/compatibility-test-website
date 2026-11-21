@@ -22,7 +22,7 @@ export const brandConfig: BrandConfig = {
     process.env.NEXT_PUBLIC_BRAND_TAGLINE ||
     "The viral compatibility, love, kink, and personality tests for curious souls.",
   domain: process.env.NEXT_PUBLIC_APP_URL || "https://truth-desire.web.app",
-  supportEmail: "hello@soulflame.app",
+  supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "",
   minimumAge: 18,
   scoringEngineVersion: "1.2.0",
   communityMinimumThreshold: 50,

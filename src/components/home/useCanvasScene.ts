@@ -32,6 +32,7 @@ export function useCanvasScene(
     const canvas = canvasRef.current,
       context = canvas?.getContext("2d");
     if (!canvas || !context) return;
+    const motionPreference = window.matchMedia?.("(prefers-reduced-motion: reduce)");
     canvas.dataset.ready = "true";
     let width = 0,
       height = 0,
@@ -66,7 +67,7 @@ export function useCanvasScene(
     };
     const schedule = () => {
       cancelAnimationFrame(frame);
-      if (moving && visible && !document.hidden)
+      if (moving && visible && !document.hidden && !motionPreference?.matches && width > 0 && height > 0)
         frame = requestAnimationFrame(tick);
       else paint();
     };
@@ -81,8 +82,9 @@ export function useCanvasScene(
       paint();
     };
     colors();
-    const sizeObserver = new ResizeObserver(resize);
-    sizeObserver.observe(canvas);
+    const sizeObserver = typeof ResizeObserver !== "undefined" ? new ResizeObserver(resize) : null;
+    sizeObserver?.observe(canvas);
+    if (!sizeObserver) window.addEventListener("resize", resize);
     const themeObserver = new MutationObserver(() => {
       colors();
       paint();
@@ -91,20 +93,23 @@ export function useCanvasScene(
       attributes: true,
       attributeFilter: ["data-theme"],
     });
-    const intersection = new IntersectionObserver(([entry]) => {
+    const intersection = typeof IntersectionObserver !== "undefined" ? new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
       schedule();
-    });
-    intersection.observe(canvas);
+    }) : null;
+    intersection?.observe(canvas);
+    motionPreference?.addEventListener?.("change", schedule);
     document.addEventListener("visibilitychange", schedule);
     redrawRef.current = () => paint();
     resize();
     schedule();
     return () => {
       cancelAnimationFrame(frame);
-      sizeObserver.disconnect();
+      sizeObserver?.disconnect();
+      window.removeEventListener("resize", resize);
       themeObserver.disconnect();
-      intersection.disconnect();
+      intersection?.disconnect();
+      motionPreference?.removeEventListener?.("change", schedule);
       document.removeEventListener("visibilitychange", schedule);
       redrawRef.current = null;
     };

@@ -1420,7 +1420,13 @@ export function ResultsDashboard({
             )}
 
           {/* Profile Narrative Breakdown */}
-          <section className="grid gap-6 md:grid-cols-2">
+          <section
+            className={
+              result.unmetPreferences && result.unmetPreferences.length > 0
+                ? "grid gap-6 md:grid-cols-2"
+                : "grid gap-6"
+            }
+          >
             <div
               className="rounded-3xl border p-6 sm:p-8"
               style={{
@@ -1430,7 +1436,7 @@ export function ResultsDashboard({
             >
               <h2 className="font-display text-3xl text-[var(--ink-primary)]">
                 {isCategoryReport
-                  ? "Your category summary"
+                  ? "Your Category Summary"
                   : "Your Preference Landscape"}
               </h2>
               <p className="mt-3 text-sm leading-relaxed text-[var(--ink-secondary)]">
@@ -1474,89 +1480,44 @@ export function ResultsDashboard({
               )}
             </div>
 
-            <div
-              className="rounded-3xl border p-6 sm:p-8"
-              style={{
-                backgroundColor: "var(--bg-subtle)",
-                borderColor: "var(--border-hairline)",
-              }}
-            >
-              <h2 className="font-display text-3xl text-[var(--ink-primary)]">
-                {isCategoryReport
-                  ? "Patterns worth reflecting on"
-                  : "Grounded Cross-Answer Insights"}
-              </h2>
-              <ul className="mt-4 space-y-3.5 text-sm leading-relaxed text-[var(--ink-primary)]">
-                {result.groundedInsights.map((insight, i) => (
-                  <li
-                    key={i}
-                    className="rounded-2xl border p-4"
-                    style={{
-                      backgroundColor: "var(--bg-elevated)",
-                      borderColor: "var(--border-hairline)",
-                    }}
-                  >
-                    {insight}
-                  </li>
-                ))}
-              </ul>
-
-              {result.growthReflections &&
-                result.growthReflections.length > 0 && (
-                  <div className="mt-6">
-                    <h3 className="font-display text-2xl text-[var(--ink-primary)]">
-                      Personal Growth Reflections
-                    </h3>
-                    <ul className="mt-3 space-y-2.5 text-xs leading-relaxed text-[var(--ink-secondary)]">
-                      {result.growthReflections.map((g, i) => (
-                        <li
-                          key={i}
-                          className="rounded-xl border p-3.5"
-                          style={{
-                            backgroundColor: "var(--bg-elevated)",
-                            borderColor: "var(--border-hairline)",
-                          }}
+            {result.unmetPreferences && result.unmetPreferences.length > 0 && (
+              <div
+                className="rounded-3xl border p-6 sm:p-8"
+                style={{
+                  backgroundColor: "var(--bg-subtle)",
+                  borderColor: "var(--border-hairline)",
+                }}
+              >
+                <h3 className="font-display text-2xl text-[var(--ink-primary)]">
+                  Unmet Preferences &amp; Opportunities
+                </h3>
+                <ul className="mt-4 space-y-3 text-xs leading-relaxed text-[var(--ink-secondary)]">
+                  {result.unmetPreferences.slice(0, 4).map((u) => (
+                    <li
+                      key={u.questionId}
+                      className="rounded-xl border p-3.5"
+                      style={{
+                        backgroundColor: "var(--bg-elevated)",
+                        borderColor: "var(--border-hairline)",
+                      }}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span>{u.message}</span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            jumpToQaQuestion(u.questionId, "into")
+                          }
+                          className="shrink-0 font-medium text-[var(--accent-plum)] hover:underline"
                         >
-                          {g}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-              {result.unmetPreferences.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="font-display text-2xl text-[var(--ink-primary)]">
-                    Unmet Preferences &amp; Opportunities
-                  </h3>
-                  <ul className="mt-3 space-y-2.5 text-xs leading-relaxed text-[var(--ink-secondary)]">
-                    {result.unmetPreferences.slice(0, 4).map((u) => (
-                      <li
-                        key={u.questionId}
-                        className="rounded-xl border p-3.5"
-                        style={{
-                          backgroundColor: "var(--bg-elevated)",
-                          borderColor: "var(--border-hairline)",
-                        }}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <span>{u.message}</span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              jumpToQaQuestion(u.questionId, "into")
-                            }
-                            className="shrink-0 font-medium text-[var(--accent-plum)] hover:underline"
-                          >
-                            View Q&amp;A
-                          </button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
+                          View Q&amp;A
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </section>
 
           {/* Ranked Preference Buckets */}

@@ -33,7 +33,10 @@ console.log('Preparing Firebase Hosting static distribution in:', DEPLOY_DIR);
 
 // 1. Clean and initialize deploy-public
 if (fs.existsSync(DEPLOY_DIR)) {
-  fs.rmSync(DEPLOY_DIR, { recursive: true, force: true });
+  const resolvedRoot = fs.realpathSync(ROOT_DIR);
+  const resolvedDeploy = fs.realpathSync(DEPLOY_DIR);
+  if (resolvedDeploy !== path.join(resolvedRoot, 'deploy-public')) throw new Error('Refusing to clear an unexpected deployment directory.');
+  fs.rmSync(resolvedDeploy, { recursive: true, force: true });
 }
 fs.mkdirSync(DEPLOY_DIR, { recursive: true });
 
@@ -52,6 +55,7 @@ const topLevelPages = [
   'community',
   'dashboard',
   'privacy',
+  'terms',
   'results',
   'history',
   'compare',
@@ -126,6 +130,5 @@ safeCopyFile(path.join(appServerDir, 'manifest.webmanifest.body'), path.join(DEP
 
 const iconSrc = path.join(ROOT_DIR, 'src', 'app', 'icon.svg');
 safeCopyFile(iconSrc, path.join(DEPLOY_DIR, 'icon.svg'));
-safeCopyFile(iconSrc, path.join(DEPLOY_DIR, 'favicon.ico'));
 
 console.log('Firebase Hosting static distribution prepared successfully!');

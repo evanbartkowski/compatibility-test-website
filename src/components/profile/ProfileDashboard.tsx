@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
@@ -105,6 +105,17 @@ export function ProfileDashboard({
     [error, setError] = useState(""),
     [copied, setCopied] = useState(false);
   const sharing = search.get("view") === "sharing";
+  useEffect(() => {
+    if (!sharing) return;
+    const controller = new AbortController();
+    fetch("/api/profile/shares", { signal: controller.signal })
+      .then(async response => {
+        if (!response.ok || !response.headers.get("content-type")?.includes("application/json")) return;
+        const data = await response.json();
+        if (!controller.signal.aborted && Array.isArray(data?.shares)) setShares(data.shares);
+      }).catch(() => { /* Existing local results remain available offline. */ });
+    return () => controller.abort();
+  }, [sharing]);
   const activeSelections = Object.entries(selections)
     .filter(
       ([, s]) =>

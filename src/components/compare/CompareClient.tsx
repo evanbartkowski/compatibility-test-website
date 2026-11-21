@@ -164,11 +164,13 @@ export function CompareClient({ initialSubmissions }: { initialSubmissions?: Sav
     [selectedArchetype],
   );
 
-  const handleCopyInvite = () => {
+  const handleCopyInvite = async () => {
     const url = `${window.location.origin}/couples`;
-    navigator.clipboard.writeText(url).catch(() => {});
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2200);
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2200);
+    } catch { setPartnerComparisonResult("Copy is unavailable. Open the partner invitation page directly."); }
   };
 
   const handleParsePartnerCode = async () => {
@@ -190,10 +192,12 @@ export function CompareClient({ initialSubmissions }: { initialSubmissions?: Sav
           you: "",
           try: [],
         })) || [];
+    setPartnerCompare(null);
+    try {
     const res = await fetch(`/api/results/${id}/profile`);
-    if (!res.ok) {
+    if (!res.ok || !res.headers.get("content-type")?.includes("application/json")) {
       setPartnerCompare(null);
-      setPartnerComparisonResult("That result ID was not found. They have to save the test first.");
+      setPartnerComparisonResult("This result is unavailable or belongs to another person. Use a private partner invitation to compare with someone else.");
       return;
     }
     const data = await res.json();
@@ -206,6 +210,7 @@ export function CompareClient({ initialSubmissions }: { initialSubmissions?: Sav
     const report = compareRoleSets(mine, theirs);
     setPartnerCompare(report);
     setPartnerComparisonResult(`${data.title}: fit ${report.score}%. ${report.summary}`);
+    } catch { setPartnerComparisonResult("The comparison service could not be reached. Try again when connected."); }
   };
 
   // Archetypes are authored examples, separate from personal measurements.

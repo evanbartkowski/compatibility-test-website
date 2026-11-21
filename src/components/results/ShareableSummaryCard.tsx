@@ -48,7 +48,7 @@ export function ShareableSummaryCard({
       if (format === "svg")
         download(
           new Blob([svg], { type: "image/svg+xml;charset=utf-8" }),
-          "truth-desire-selected-profile.svg",
+          "soulflame-selected-profile.svg",
         );
       else {
         const image = new window.Image(),

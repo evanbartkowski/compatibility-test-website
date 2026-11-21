@@ -13,8 +13,15 @@ export default defineConfig({
   },
   projects: [
     {
+      name: "Safari WebKit",
+      testMatch: ["**/security-compatibility.spec.ts", "**/profile-population.spec.ts", "**/questionnaire-pages.spec.ts"],
+      use: { ...devices["Desktop Safari"], viewport: { width: 1440, height: 900 } },
+    },
+    {
       name: "Desktop Firefox",
       testMatch: [
+        "**/security-compatibility.spec.ts",
+        "**/profile-population.spec.ts",
         "**/browser-experience.spec.ts",
         "**/home-experience.spec.ts",
         "**/intimacy-suite.spec.ts",

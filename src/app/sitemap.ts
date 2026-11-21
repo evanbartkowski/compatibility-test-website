@@ -27,6 +27,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/assessments`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
     { url: `${BASE_URL}/community`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE_URL}/privacy`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE_URL}/terms`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
   ];
 
   const assessmentPages: MetadataRoute.Sitemap = builtInAssessments.map((a) => ({

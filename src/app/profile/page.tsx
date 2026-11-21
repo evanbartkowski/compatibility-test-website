@@ -7,6 +7,9 @@ import {
   listSharedProfiles,
   listPublishedAssessments,
 } from "@/lib/server/store";
+// Private data is hydrated through the ownership-checked APIs. The empty shell
+// can also be served on static hosting for browser-only saved results.
+export const dynamic = "force-static";
 export const metadata: Metadata = {
   title: "My discovery profile",
   description:

@@ -6,7 +6,8 @@ export const ADMIN_COOKIE_NAME = "between_us_admin";
 
 function getConfiguredAdminKey(): string | null {
   const key = process.env.BETWEEN_US_ADMIN_KEY?.trim();
-  if (key && key.length >= 8) return key;
+  const minimumLength = process.env.NODE_ENV === "production" && process.env.ALLOW_HTTP_LOCALHOST !== "true" ? 32 : 8;
+  if (key && key.length >= minimumLength) return key;
   if (process.env.NODE_ENV !== "production") {
     return "between-us-local-dev-admin";
   }

@@ -687,9 +687,9 @@ export function AssessmentRunner({
                   className="mt-1 h-4 w-4 accent-[var(--accent-plum)]"
                 />
                 <span className="text-sm leading-relaxed text-[var(--ink-primary)]">
-                  I understand my responses are private, scored
-                  deterministically without third-party AI tools, and can be
-                  deleted at any time from my results or settings.{" "}
+                  I understand my responses are private and scored without third-party AI tools.
+                  I consent to saving my answers, including any intimacy preferences, in this browser
+                  and on the server when available. I can skip questions and delete saved results.{" "}
                   <Link
                     href="/privacy"
                     target="_blank"
