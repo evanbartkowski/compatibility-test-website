@@ -1,4 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
+test.use({
+  extraHTTPHeaders: async ({}, use, info) => {
+    await use({
+      "x-forwarded-for": `intimacy-${info.project.name}-${info.title}`,
+    });
+  },
+});
 import AxeBuilder from "@axe-core/playwright";
 import { getAssessmentBySlug } from "../src/data/assessments/catalog";
 const a = getAssessmentBySlug("desire-reality-map")!;
@@ -241,7 +248,10 @@ test("new collection can be filtered and binary choices do not invent desire", a
   await begin(page);
   const first = page.getByRole("article").first();
   await first
-    .getByRole("radio", { name: "Put a date in the calendar", exact: true })
+    .getByRole("radio", {
+      name: "Talk about the possibility of sex before the date",
+      exact: true,
+    })
     .check();
   await expect(
     first.getByRole("radio", { name: "Very appealing", exact: true }),

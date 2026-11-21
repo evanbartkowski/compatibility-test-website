@@ -10,15 +10,13 @@ import {
 
 describe("Substantial assessment question banks", () => {
   it("offers 50–150 useful, distinct questions for every published test", () => {
-    const lengths = new Set<number>();
     for (const assessment of builtInAssessments) {
-      expect(assessment.version).toBe("4.0.0");
+      expect(assessment.version).toBe("6.0.0");
       expect(assessment.questions.length).toBeGreaterThanOrEqual(50);
       expect(assessment.questions.length).toBeLessThanOrEqual(150);
-      lengths.add(assessment.questions.length);
       expect(inspectAssessmentDefinition(assessment).errors).toEqual([]);
       expect(selectAssessmentQuestions(assessment, "quick", {})).toHaveLength(
-        50,
+        10,
       );
       const prompts = assessment.questions.map((q) =>
         q.prompt.toLowerCase().replace(/[^a-z0-9]/g, ""),
@@ -29,7 +27,7 @@ describe("Substantial assessment question banks", () => {
           (q) => q.sectionId === dimension.key,
         );
         expect(questions.length).toBeGreaterThanOrEqual(10);
-        expect(questions.filter((q) => q.quickDiscovery)).toHaveLength(10);
+        expect(questions.filter((q) => q.quickDiscovery)).toHaveLength(2);
         expect(
           questions.filter((q) => q.reverseScored).length,
         ).toBeGreaterThanOrEqual(2);
@@ -42,7 +40,6 @@ describe("Substantial assessment question banks", () => {
         ).toBe(true);
       }
     }
-    expect(lengths.size).toBeGreaterThanOrEqual(4);
   });
 
   it("retains the original 30-question definitions for saved results and existing invitations", () => {
@@ -52,7 +49,10 @@ describe("Substantial assessment question banks", () => {
       expect(original?.questions.filter((q) => q.quickDiscovery)).toHaveLength(
         15,
       );
-      expect(original?.questions[0].id).toBe(assessment.questions[0].id);
+      expect(original?.questions[0].id).not.toBe(assessment.questions[0].id);
+      const v4 = getArchivedAssessmentBySlug(assessment.slug, "4.0.0")!;
+      expect(v4.questions[0].id).toBe(original!.questions[0].id);
+      expect(v4.questions.length).toBeGreaterThanOrEqual(50);
     }
   });
 });

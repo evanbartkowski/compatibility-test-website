@@ -1,4 +1,11 @@
 import { expect, test } from "@playwright/test";
+test.use({
+  extraHTTPHeaders: async ({}, use, info) => {
+    await use({
+      "x-forwarded-for": `advice-${info.project.name}-${info.title}`,
+    });
+  },
+});
 import AxeBuilder from "@axe-core/playwright";
 import { getAssessmentBySlug } from "../src/data/assessments/catalog";
 const a = getAssessmentBySlug("erotic-blueprint-style")!;

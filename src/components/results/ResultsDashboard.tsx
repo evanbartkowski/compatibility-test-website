@@ -756,11 +756,11 @@ export function ResultsDashboard({
             >
               <div className="mb-5">
                 <h2 className="font-display text-3xl text-[var(--ink-primary)]">
-                  Receiving vs. Giving Symmetry Matrix
+                  Receive vs. give
                 </h2>
                 <p className="mt-1 text-sm text-[var(--ink-secondary)]">
-                  Highlights where what makes you feel cared for differs from
-                  what you instinctively express.
+                  Where what you want done to you splits from what you want to
+                  do. A gap is a clue, not a duty to reciprocate.
                 </p>
               </div>
               <GiveReceiveMatrixChart channels={result.dualChannelScores} />
@@ -1915,11 +1915,9 @@ export function ResultsDashboard({
                   Your Personal Desire vs. Experience Map
                 </h2>
                 <p className="mt-1.5 max-w-2xl text-sm text-[var(--ink-secondary)]">
-                  Inspired by the{" "}
-                  <span className="italic">Marketplace of Sex Acts</span>{" "}
-                  framework, this chart plots your rated enjoyment against how
-                  often you experience each act, highlighting strong desires you
-                  want more of.
+                  Want against experience. The interesting corner is high desire
+                  and low experience — a craving, not an assignment. A hard
+                  limit stays a limit.
                 </p>
               </div>
               <DesireExperienceScatterplot

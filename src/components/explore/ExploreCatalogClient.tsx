@@ -92,7 +92,7 @@ export function ExploreCatalogClient({
         </span>
         <h1 className="font-display mt-5">What would you like to discover?</h1>
         <p>
-          Start with a short reflection or go deeper. The new adult intimacy collection explores desire, care, imagination and chosen roles, five questions at a time.
+          The BDSM test, the kink test, the love compatibility test, the IQ test, the friendship test, the love language test, the sexual desire test, the husband/wife test, the partner finding test, the icks test, and more. Start with a teaser or explore the full collection.
         </p>
       </div>
       <div className="library-toolbar">
@@ -101,7 +101,7 @@ export function ExploreCatalogClient({
           <input
             type="search"
             aria-label="Search assessments"
-            placeholder="Search attachment, affection, personality…"
+            placeholder="Search tests: BDSM, kink, love language, IQ, icks, desires…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -169,7 +169,12 @@ export function ExploreCatalogClient({
             <TestCard
               key={a.slug}
               assessment={a}
-              featured={a.slug === "attachment-style-discovery"}
+              featured={[
+                "bdsm-power-dynamics-test",
+                "sexual-interests-curiosity-map",
+                "relationship-dealbreakers-boundaries",
+                "love-affection-preferences",
+              ].includes(a.slug)}
               resultId={completed[a.slug]}
             />
           ))}

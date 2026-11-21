@@ -1,8 +1,8 @@
 # Truth Desire: the intimacy collection
 
-Thirty-one original, non-graphic adult reflections add **1,710 full-form questions** and **312 teaser questions** to the existing nine assessments. The complete library now contains **40 assessments and 2,360 full-form questions**. The new definitions use version `1.0.0`; existing v4 tests and archived results keep their versions. Every published assessment now has a personalized advice guide; see [the complete advice overview](docs/ASSESSMENTS_AND_ADVICE.md) and [three generated example profiles](docs/ADVICE_EXAMPLES.md).
+Thirty-one original adult reflections contain **1,610 full-form questions** and **312 teaser questions** alongside nine core assessments. The complete library has **40 assessments, 2,060 full-form questions and 402 short-form questions**. Adult definitions now use version `2.0.0`; core definitions use `5.0.0`. Earlier published definitions remain archived for saved results and invitations. Every published assessment has a personalized advice guide; see [the complete advice overview](docs/ASSESSMENTS_AND_ADVICE.md), [three generated example profiles](docs/ADVICE_EXAMPLES.md) and [the question editorial guide](docs/QUESTION_EDITORIAL_GUIDE.md).
 
-All forms show five questions per page. Teasers sample every category; deep dives include the whole authored bank. Most new tests have ten teaser questions and fifty deep questions. The fantasy catalog has two hundred questions; the blueprint has sixty. There is no engine question-count ceiling. Time estimates allow roughly twenty-five seconds per item, including reflection: most teasers take about five minutes and deep dives about twenty-one minutes; the catalog deep dive is intentionally long, around eighty-four minutes, and supports browser drafts.
+All forms show five questions per page. Teasers sample every category; deep dives include the whole authored bank. Most adult tests have ten teaser questions and fifty deep questions. The fantasy catalog has one hundred questions; the blueprint has sixty. Time estimates allow roughly twenty-five seconds per adult item: most teasers take about five minutes and deep dives about twenty-one minutes; the catalog takes roughly forty-two minutes and supports browser drafts.
 
 ## Assessments
 
@@ -11,7 +11,7 @@ The hook appears in the catalog. Each definition also includes its own “why pe
 | Assessment | Hook | Teaser / deep | Main insights |
 |---|---|---:|---|
 | Desire vs Reality Map | Notice the difference between interest, experience and a freely chosen next conversation. | 10 / 50 | Invitation, conditions, novelty, attention and voice; private desire/experience gaps. |
-| The Fantasy Catalog | Two hundred invitations into atmosphere, story and chosen roles. | 10 / 200 | One hundred distinct themes, each with receiving and offering roles; imagination can remain private and unacted upon. |
+| The Fantasy Catalog | Find the fantasy behind the setting, the role and the attention you want. | 10 / 100 | Fifty distinct themes, each with receiving and offering roles; imagination can remain private and unacted upon. |
 | Attraction & Sensory Cues | Discover the small sensory and relational cues that draw you closer. | 10 / 50 | Contact, visual atmosphere, sound, pace and recognition. |
 | Aftercare & Recovery Style | Discover the care that helps you land softly after intensity. | 10 / 50 | Comfort through contact, words, practical care, space and follow-up. |
 | Intimate Language & Communication | Find the words, tone and quiet that make you feel understood. | 10 / 50 | Affection, direction, playfulness, quiet and naming preferences. |
@@ -44,11 +44,10 @@ The hook appears in the catalog. Each definition also includes its own “why pe
 
 ## Data and registration
 
-- `src/data/assessments/intimacy/index.ts` registers the collection in `catalog.ts` alongside `coreAssessments`.
-- `factory.ts` defines typed receiving/offering pairs and shared metadata. `roleScale` expands a category's authored topics into distinct role prompts.
-- `maps-discovery.ts`, `care-connection.ts`, `communication-roles.ts`, `agreements-boundaries.ts` and `fantasy-blueprint.ts` group related banks.
-- `would-you-rather.ts` supplies fifty real binary choices. Choice direction and appeal are independent.
-- Existing v1/v2/v3 definitions remain archived. Existing core v4 definitions, saved records and invitations are preserved.
+- `src/data/assessments/candid/index.ts` publishes the revised question banks in `catalog.ts` alongside `coreAssessments`.
+- `helpers.ts` builds receiving/offering pairs from concrete authored topics. `desire-senses.ts`, `care-connection.ts`, `communication-roles.ts`, `agreements.ts` and `fantasy-blueprint.ts` group related banks.
+- `choices.ts` supplies fifty real binary choices. Choice direction and appeal are independent; role direction now distinguishes fluid versus explicitly assigned roles.
+- `src/data/assessments/intimacy/` retains the original adult v1 publications and metadata. Core v1–v4 definitions also remain archived. Revised answer IDs and version-specific browser drafts prevent old answers being applied to different questions.
 
 ## Answer and scoring contract
 

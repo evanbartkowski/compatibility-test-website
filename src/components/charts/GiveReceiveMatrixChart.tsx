@@ -13,11 +13,11 @@ export function GiveReceiveMatrixChart({
       <div className="flex flex-wrap items-center gap-5 text-xs text-[var(--ink-secondary)]">
         <span className="inline-flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full bg-[var(--accent-plum)]" />
-          What Makes You Feel Desired / Cared For (Receiving)
+          Want to receive
         </span>
         <span className="inline-flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full bg-[var(--accent-gold)]" />
-          What You Instinctively Express / Offer (Giving)
+          Want to give
         </span>
       </div>
 
@@ -43,7 +43,7 @@ export function GiveReceiveMatrixChart({
             <div className="mt-3 space-y-2">
               <div>
                 <div className="flex justify-between text-[11px] text-[var(--ink-secondary)]">
-                  <span>Receiving sensitivity</span>
+                  <span>Receive</span>
                   <span className="font-mono-tabular font-semibold">{ch.receiveOrNeedScore}/100</span>
                 </div>
                 <div className="mt-1 h-2 overflow-hidden rounded-full bg-[var(--bg-inset)]">
@@ -59,7 +59,7 @@ export function GiveReceiveMatrixChart({
 
               <div>
                 <div className="flex justify-between text-[11px] text-[var(--ink-secondary)]">
-                  <span>Giving instinct</span>
+                  <span>Give</span>
                   <span className="font-mono-tabular font-semibold">{ch.expressOrOfferScore}/100</span>
                 </div>
                 <div className="mt-1 h-2 overflow-hidden rounded-full bg-[var(--bg-inset)]">

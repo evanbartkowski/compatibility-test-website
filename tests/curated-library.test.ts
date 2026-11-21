@@ -9,14 +9,14 @@ describe("Focused agreement-scale library", () => {
   it("replaces overlapping surveys with nine distinct, substantial assessments", () => {
     expect(builtInAssessments).toHaveLength(9);
     for (const a of builtInAssessments) {
-      expect(a.version).toBe("4.0.0");
+      expect(a.version).toBe("6.0.0");
       expect(a.dimensions!.length).toBeGreaterThanOrEqual(5);
       for (const d of a.dimensions!) {
         const questions = a.questions.filter((q) => q.dimensionWeights[d.key]);
         expect(questions).toHaveLength(
           a.questions.length / a.dimensions!.length,
         );
-        expect(questions.filter((q) => q.quickDiscovery)).toHaveLength(10);
+        expect(questions.filter((q) => q.quickDiscovery)).toHaveLength(2);
         expect(questions.some((q) => q.reverseScored)).toBe(true);
       }
       expect(

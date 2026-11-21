@@ -25,18 +25,6 @@ const categories = {
     kind: 3,
   },
 };
-const descriptions: Record<string, string> = {
-  "attachment-style-discovery":
-    "Understand how you connect, seek reassurance, and find your space in a relationship.",
-  "love-affection-preferences":
-    "Understand which forms of appreciation, attention, practical help and emotional comfort matter to you.",
-  "big-five-personality-profile":
-    "Explore the five dimensions behind your everyday choices and natural tendencies.",
-  "intimacy-partner-preferences":
-    "Understand how desire emerges, the pace you enjoy and what helps you communicate and reconnect.",
-  "couples-bucket-list-matcher":
-    "Find the experiences you both want to share, from small adventures to big dreams.",
-};
 export function ProfileGlyph({ kind = 0 }: { kind?: number }) {
   return (
     <svg viewBox="0 0 190 110" fill="none" aria-hidden="true">
@@ -129,7 +117,7 @@ export function TestCard({
         <p className="card-category">{assessment.collection ? "The intimacy collection · 18+" : category.label}</p>
         <h3>{assessment.shortTitle}</h3>
         <p className="test-card-description">
-          {descriptions[assessment.slug] || assessment.audienceNote}
+          {assessment.audienceNote}
         </p>
         <div className="test-card-meta">
           <span>

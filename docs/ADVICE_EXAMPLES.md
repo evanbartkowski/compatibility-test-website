@@ -18,7 +18,7 @@ Sensual leads at 100, Energetic is secondary at 75. Other styles are 25. Avery s
 
 ### Who to look for
 
-**Someone high in attentive sensory preferences, comfortable with your chosen sound, lighting and pace.** Attentive sensory atmosphere is prominent in your answers. Your receiving interest is 100/100 and offering interest is 100/100 in this category. These are different roles, not an obligation to reciprocate. If you choose to discuss it, ask about the corresponding offer or preference behind “Receiving a carefully chosen soundtrack in a freely chosen private setting.”.
+**Someone high in attentive sensory preferences, comfortable with your chosen sound, lighting and pace.** Attentive sensory atmosphere is prominent in your answers. Your receiving interest is 100/100 and offering interest is 100/100 in this category. These are different roles, not an obligation to reciprocate. If you choose to discuss it, ask about the corresponding offer or preference behind “A partner invites you to choose the bedroom lighting before sex.”.
 
 **Look for a freely offered counterpart, not an identical score.** Your receiving interest is 100/100 and offering interest is 100/100 in this category. These are different roles, not an obligation to reciprocate. Ask what the other person actually enjoys giving or receiving; labels alone cannot establish fit.
 
@@ -58,15 +58,15 @@ A very direct, fast invitation may miss the atmosphere you enjoy; ask about timi
 
    **Stop:** Keep it private, change the topic or stop. Curiosity supplies no permission.
 
-3. **A style-to-conditions conversation** (partnered; preparation level 2). You rated this topic appealing and stated willingness: Receiving a carefully chosen soundtrack in a freely chosen private setting.
+3. **A style-to-conditions conversation** (partnered; preparation level 2). You rated this topic appealing and stated willingness: A partner invites you to choose the bedroom lighting before sex.
 
    - Ask whether the conversation and its specific topic are welcome now. Either person can decline.
-   - Stay with this eligible topic only: “Receiving a carefully chosen soundtrack in a freely chosen private setting.”. What would your preferred style look like in an ordinary, freely chosen moment together? If both people separately want a small ordinary comfort or communication step connected to it, choose that step; no other activity is implied.
+   - Stay with this eligible topic only: “A partner invites you to choose the bedroom lighting before sex.”. What would your preferred style look like in an ordinary, freely chosen moment together? If both people separately want a small ordinary comfort or communication step connected to it, choose that step; no other activity is implied.
    - Choose a short time window and an easy ending before beginning.
 
    **Stop:** A pause, changed mind or no ends the invitation. No replacement activity is owed. **Care:** Ask whether quiet, company or a later check-in would be welcome afterward; do not assume the same care suits both people.
 
-4. **Make a plan for one gap—or leave it as fantasy** (partnered; preparation level 3). Your desire is 100/100 and experience is 0/100 for “Receiving a carefully chosen soundtrack in a freely chosen private setting.”.
+4. **Make a plan for one gap—or leave it as fantasy** (partnered; preparation level 3). Your desire is 100/100 and experience is 0/100 for “A partner invites you to choose the bedroom lighting before sex.”.
 
    - Ask whether discussing this particular topic is welcome. Start with what appeals, not a promise to do it.
    - Name the preferred role, setting, pace, exclusions and what would make a no easy.
@@ -79,15 +79,15 @@ A very direct, fast invitation may miss the atmosphere you enjoy; ask about timi
 
 Gaps compare your explicit desire with explicit experience. Unknown experience stays unknown; willingness and limits determine which paths are even eligible for discussion. Nothing needs to be completed.
 
-- **Receiving a carefully chosen soundtrack in a freely chosen private setting.** Desire 100/100; experience 0/100; path: discuss-first. You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option.
+- **A partner invites you to choose the bedroom lighting before sex.** Desire 100/100; experience 0/100; path: discuss-first. You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option.
 
-- **Offering a partner a carefully chosen soundtrack in a freely chosen private setting.** Desire 100/100; experience 0/100; path: discuss-first. You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option.
+- **You invite your partner to choose the bedroom lighting before sex.** Desire 100/100; experience 0/100; path: discuss-first. You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option.
 
-- **Receiving lighting adjusted to my comfort in a freely chosen private setting.** Desire 100/100; experience 0/100; path: keep-private. You chose privacy. Keep this in your own reflection; no partner experiment or disclosure is suggested.
+- **A partner invites you to spend time kissing instead of rushing through foreplay.** Desire 100/100; experience 0/100; path: keep-private. You chose privacy. Keep this in your own reflection; no partner experiment or disclosure is suggested.
 
-- **Offering a partner lighting adjusted to my comfort in a freely chosen private setting.** Desire 100/100; experience 0/100; path: discuss-first. You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option.
+- **You invite your partner to spend time kissing instead of rushing through foreplay.** Desire 100/100; experience 0/100; path: discuss-first. You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option.
 
-- **Receiving an unhurried welcome into a comfortable space in a freely chosen private setting.** Desire 100/100; experience 0/100; path: respect-limit. Your limit takes precedence. Keep this out of experiments; high desire does not create a reason to cross it.
+- **A partner invites you to put fresh, comfortable sheets on the bed for a date.** Desire 100/100; experience 0/100; path: respect-limit. Your limit takes precedence. Keep this out of experiments; high desire does not create a reason to cross it.
 
 ## Robin: Power Exchange & Scope
 
@@ -103,7 +103,7 @@ Robin rates receiving guidance at 100 and offering it at 25 in the direction cat
 
 ### Who to look for
 
-**Someone whose freely offered leadership or receptive role complements yours and who welcomes a clear end to it.** Clearly invited leadership seems appealing in selected moments. Your receiving interest is 100/100 and offering interest is 25/100 in this category. These are different roles, not an obligation to reciprocate. If you choose to discuss it, ask about the corresponding offer or preference behind “Receiving guidance on the order of an activity within a revocable agreement.”.
+**Someone whose freely offered leadership or receptive role complements yours and who welcomes a clear end to it.** Clearly invited leadership seems appealing in selected moments. Your receiving interest is 100/100 and offering interest is 25/100 in this category. These are different roles, not an obligation to reciprocate. If you choose to discuss it, ask about the corresponding offer or preference behind “A partner takes the lead on asking whether sex is wanted tonight.”.
 
 **Look for a freely offered counterpart, not an identical score.** Your receiving interest is 100/100 and offering interest is 25/100 in this category. These are different roles, not an obligation to reciprocate. Ask what the other person actually enjoys giving or receiving; labels alone cannot establish fit.
 
@@ -139,15 +139,15 @@ Two people wanting to receive direction may need a different arrangement; matchi
 
    **Stop:** Keep it private, change the topic or stop. Curiosity supplies no permission.
 
-3. **Negotiate a conversation role** (partnered; preparation level 2). You rated this topic appealing and stated willingness: Receiving guidance on the order of an activity within a revocable agreement.
+3. **Negotiate a conversation role** (partnered; preparation level 2). You rated this topic appealing and stated willingness: A partner takes the lead on asking whether sex is wanted tonight.
 
    - Ask whether the conversation and its specific topic are welcome now. Either person can decline.
-   - Stay with this eligible topic only: “Receiving guidance on the order of an activity within a revocable agreement.”. What would you enjoy leading or receiving, and what responsibility would you rather not take on? If both people separately want a small ordinary comfort or communication step connected to it, choose that step; no other activity is implied.
+   - Stay with this eligible topic only: “A partner takes the lead on asking whether sex is wanted tonight.”. What would you enjoy leading or receiving, and what responsibility would you rather not take on? If both people separately want a small ordinary comfort or communication step connected to it, choose that step; no other activity is implied.
    - Choose a short time window and an easy ending before beginning.
 
    **Stop:** A pause, changed mind or no ends the invitation. No replacement activity is owed. **Care:** Ask whether quiet, company or a later check-in would be welcome afterward; do not assume the same care suits both people.
 
-4. **Make a plan for one gap—or leave it as fantasy** (partnered; preparation level 3). Your desire is 100/100 and experience is 0/100 for “Receiving guidance on the order of an activity within a revocable agreement.”.
+4. **Make a plan for one gap—or leave it as fantasy** (partnered; preparation level 3). Your desire is 100/100 and experience is 0/100 for “A partner takes the lead on asking whether sex is wanted tonight.”.
 
    - Ask whether discussing this particular topic is welcome. Start with what appeals, not a promise to do it.
    - Name the preferred role, setting, pace, exclusions and what would make a no easy.
@@ -160,15 +160,15 @@ Two people wanting to receive direction may need a different arrangement; matchi
 
 Gaps compare your explicit desire with explicit experience. Unknown experience stays unknown; willingness and limits determine which paths are even eligible for discussion. Nothing needs to be completed.
 
-- **Receiving guidance on the order of an activity within a revocable agreement.** Desire 100/100; experience 0/100; path: discuss-first. You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option.
+- **A partner takes the lead on asking whether sex is wanted tonight.** Desire 100/100; experience 0/100; path: discuss-first. You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option.
 
-- **Receiving a choice of atmosphere made for me within a revocable agreement.** Desire 100/100; experience 0/100; path: discuss-first. You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option.
+- **A partner takes the lead on choosing between two previously discussed kinds of foreplay.** Desire 100/100; experience 0/100; path: discuss-first. You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option.
 
-- **Receiving a clear plan for a private evening within a revocable agreement.** Desire 100/100; experience 0/100; path: discuss-first. You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option.
+- **A partner takes the lead on setting the pace of kissing after you agree on it.** Desire 100/100; experience 0/100; path: discuss-first. You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option.
 
-- **Receiving a playful instruction in a fictional role within a revocable agreement.** Desire 100/100; experience 0/100; path: discuss-first. You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option.
+- **A partner takes the lead on opening a conversation about sexual roles.** Desire 100/100; experience 0/100; path: discuss-first. You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option.
 
-- **Receiving a suggestion for when to pause within a revocable agreement.** Desire 100/100; experience 0/100; path: discuss-first. You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option.
+- **A partner takes the lead on suggesting when to end an adult roleplay and talk normally.** Desire 100/100; experience 0/100; path: discuss-first. You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option.
 
 ## Jules: Aftercare & Recovery Style
 
@@ -184,7 +184,7 @@ Independent recovery space is 100 and all other care categories are 0. Jules has
 
 ### Who to look for
 
-**Someone comfortable offering independent recovery time without treating it as rejection.** Having room to settle independently seems especially appealing. Your receiving interest is 100/100 and offering interest is 100/100 in this category. These are different roles, not an obligation to reciprocate. If you choose to discuss it, ask about the corresponding offer or preference behind “Being given quiet time without conversation.”.
+**Someone comfortable offering independent recovery time without treating it as rejection.** Having room to settle independently seems especially appealing. Your receiving interest is 100/100 and offering interest is 100/100 in this category. These are different roles, not an obligation to reciprocate. If you choose to discuss it, ask about the corresponding offer or preference behind “After sex, being given twenty minutes alone without interpreting it as rejection.”.
 
 **Look for a freely offered counterpart, not an identical score.** Your receiving interest is 100/100 and offering interest is 100/100 in this category. These are different roles, not an obligation to reciprocate. Ask what the other person actually enjoys giving or receiving; labels alone cannot establish fit.
 
@@ -220,10 +220,10 @@ One person's welcome space can feel like a sudden ending to someone who wanted c
 
    **Stop:** Keep it private, change the topic or stop. Curiosity supplies no permission.
 
-3. **Rehearse a five-minute landing** (partnered; preparation level 2). You rated this topic appealing and stated willingness: Being given quiet time without conversation.
+3. **Rehearse a five-minute landing** (partnered; preparation level 2). You rated this topic appealing and stated willingness: After sex, being given twenty minutes alone without interpreting it as rejection.
 
    - Ask whether the conversation and its specific topic are welcome now. Either person can decline.
-   - Stay with this eligible topic only: “Being given quiet time without conversation.”. What would good care look like immediately afterward, and what would you want later? If both people separately want a small ordinary comfort or communication step connected to it, choose that step; no other activity is implied.
+   - Stay with this eligible topic only: “After sex, being given twenty minutes alone without interpreting it as rejection.”. What would good care look like immediately afterward, and what would you want later? If both people separately want a small ordinary comfort or communication step connected to it, choose that step; no other activity is implied.
    - Choose a short time window and an easy ending before beginning.
 
    **Stop:** A pause, changed mind or no ends the invitation. No replacement activity is owed. **Care:** Ask whether quiet, company or a later check-in would be welcome afterward; do not assume the same care suits both people.
@@ -238,18 +238,18 @@ No supported high-desire/low-experience gap is highlighted. There is no need to 
 
 One person wants independent recovery time; the other explicitly offers the corresponding care despite rating their own desire lower. No other topics or experience values enter the pair advice.
 
-- **Being given quiet time without conversation.** A receiving preference has a freely offered counterpart. Willingness is separate from personal desire, and either person can change their mind.
+- **After sex, being given twenty minutes alone without interpreting it as rejection.** A receiving preference has a freely offered counterpart. Willingness is separate from personal desire, and either person can change their mind.
 
 **Potential friction is framed as a question, not a discovered defect:**
 
 Closeness, quiet and practical help can all mean care; guessing which one is wanted can miss the point. This is a question to discuss around your shared topic, not evidence that either person has this problem.
 
-> For “Being given quiet time without conversation.”: What would good care look like immediately afterward, and what would you want later?
+> For “After sex, being given twenty minutes alone without interpreting it as rejection.”: What would good care look like immediately afterward, and what would you want later?
 
 **Rehearse a five-minute landing**
 
 - Ask whether discussing this shared topic is welcome today. The prior result supplies no current consent.
-- Discuss this disclosed topic only: “Being given quiet time without conversation.”. What would good care look like immediately afterward, and what would you want later? Choose a small ordinary comfort or communication step only if it fits that topic and both people separately want it. Do not add unshared activities.
+- Discuss this disclosed topic only: “After sex, being given twenty minutes alone without interpreting it as rejection.”. What would good care look like immediately afterward, and what would you want later? Choose a small ordinary comfort or communication step only if it fits that topic and both people separately want it. Do not add unshared activities.
 - Agree on the roles, conditions, privacy and an easy ending; leave all unshared topics out.
 
 Either person can decline, pause or change their mind. Do not use the report to request a reason for an omitted topic.

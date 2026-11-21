@@ -76,7 +76,7 @@ describe("Versioned authoring", () => {
   it("resolves original scoring versions while publishing only the curated defaults", () => {
     expect(
       store.resolveAssessment("intimacy-partner-preferences")?.version,
-    ).toBe("4.0.0");
+    ).toBe("6.0.0");
     expect(
       store.resolveAssessment("intimacy-partner-preferences", "2.0.0")
         ?.scoringStrategy,
@@ -87,7 +87,7 @@ describe("Versioned authoring", () => {
     ).toBeGreaterThan(0);
     expect(store.resolveAssessment("private-fantasy-matcher")).toBeUndefined();
     expect(
-      store.listPublishedAssessments().filter((a) => a.version === "4.0.0"),
+      store.listPublishedAssessments().filter((a) => a.version === "6.0.0"),
     ).toHaveLength(9);
   });
   it("keeps a live version available while a new draft is edited and unpublishes only explicitly", () => {

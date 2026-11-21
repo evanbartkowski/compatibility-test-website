@@ -14,6 +14,8 @@ import { intimacyPartnerPreferencesAssessment } from "./intimacy-partner-prefere
 import { curatedAssessments, versionThreeAssessments } from "./curated";
 import { intimacyAssessments } from "./intimacy";
 import { withAdviceProfile } from "./advice-profiles";
+import { publishCandidRevision } from "./candid";
+import { publishLegacyCandid } from "./candid/legacy-publish";
 
 export interface AssessmentCategoryMeta {
   slug: AssessmentCategorySlug;
@@ -30,7 +32,7 @@ export const assessmentCategories: AssessmentCategoryMeta[] = [
     slug: "sexuality-intimacy",
     title: "Sexuality & Intimacy",
     description:
-      "Desire, sensory pacing, BDSM dynamics, kinks, communication, and mutual pleasure.",
+      "The BDSM test, the kink test, the sexual desire test, the fantasy test, and sensation play.",
     subtopics: [
       "Desire, sensory pacing and aftercare",
       "Initiative, chosen roles and negotiation",
@@ -47,7 +49,7 @@ export const assessmentCategories: AssessmentCategoryMeta[] = [
     slug: "romance",
     title: "Romance & Attraction",
     description:
-      "Affection styles, attachment patterns, flirting cues, green and red flags, and dealbreakers.",
+      "The love compatibility test, the love language test, the friendship test, and emotional connection.",
     subtopics: [
       "Everyday affection and practical care",
       "Attachment rhythms (reassurance and autonomy)",
@@ -64,7 +66,7 @@ export const assessmentCategories: AssessmentCategoryMeta[] = [
     slug: "personality",
     title: "Personality & Temperament",
     description:
-      "Everyday patterns in curiosity, structure, social energy, cooperation and stress.",
+      "The IQ test, everyday habits, social energy, decision making, and cognitive patterns.",
     subtopics: [
       "Big Five (OCEAN) balanced trait profile",
       "How others see you vs. self view",
@@ -80,7 +82,7 @@ export const assessmentCategories: AssessmentCategoryMeta[] = [
     slug: "compatibility",
     title: "Couples & Compatibility",
     description:
-      "Communication, repair, relationship priorities and long-term agreements.",
+      "The husband/wife test, the partner finding test, the icks test, the fight test, and long-term agreements.",
     subtopics: [
       "Listening, clarity and difficult conversations",
       "Long term money, home, and future alignment",
@@ -116,9 +118,13 @@ export const archivedAssessments: AssessmentDefinition[] = [
   ...legacyAssessments,
   ...versionTwoAssessments,
   ...versionThreeAssessments,
+  ...curatedAssessments,
+  ...intimacyAssessments,
+  ...curatedAssessments.map(publishLegacyCandid),
+  ...intimacyAssessments.map(publishLegacyCandid),
 ];
-export const coreAssessments = curatedAssessments.map(withAdviceProfile);
-export const builtInAssessments = [...coreAssessments, ...intimacyAssessments].map(withAdviceProfile);
+export const coreAssessments = curatedAssessments.map(publishCandidRevision);
+export const builtInAssessments = [...coreAssessments, ...intimacyAssessments.map(publishCandidRevision)].map(withAdviceProfile);
 
 export function getArchivedAssessmentBySlug(slug: string, version = "2.0.0") {
   return archivedAssessments.find(

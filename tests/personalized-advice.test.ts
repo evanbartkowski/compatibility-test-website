@@ -56,10 +56,10 @@ describe("Evidence-based private advice", () => {
     const a = getAssessmentBySlug("aftercare-recovery-style")!;
     const quiet = a.questions.find(
       (q) =>
-        q.prompt === "Receiving quiet shoulder-to-shoulder company afterward.",
+        q.sectionId === "contact" && q.intimacyRole === "receive",
     )!;
     const water = a.questions.find(
-      (q) => q.prompt === "Having a partner offer water within easy reach.",
+      (q) => q.intimacyRole === "receive" && /water/i.test(q.prompt),
     )!;
     const result = score(a, {
       [quiet.id]: {

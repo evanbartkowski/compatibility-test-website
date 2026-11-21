@@ -18,10 +18,10 @@ const IMPORTANCE_COLORS: Record<ImportanceLevel, string> = {
 };
 
 const QUADRANT_LABELS: Record<ScatterPoint["quadrant"], string> = {
-  high_desire_low_experience: "Love it · Rarely experienced",
-  high_desire_high_experience: "Love it · Frequently experienced",
-  low_desire_high_experience: "Dislike · Frequently experienced",
-  low_desire_low_experience: "Dislike · Rarely experienced",
+  high_desire_low_experience: "Crave it · barely done",
+  high_desire_high_experience: "Crave it · already living it",
+  low_desire_high_experience: "Don't want it · happens anyway",
+  low_desire_low_experience: "Don't want it · rarely happens",
   neutral: "Neutral / Middle band",
 };
 

@@ -1,5 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
 import { getAssessmentBySlug } from "../src/data/assessments/catalog";
+test.use({
+  extraHTTPHeaders: async ({}, use, info) => {
+    await use({
+      "x-forwarded-for": `platform-${info.project.name}-${info.title}`,
+    });
+  },
+});
 const intimacyPartnerPreferencesAssessment = getAssessmentBySlug(
   "intimacy-partner-preferences",
 )!;
@@ -113,8 +120,17 @@ test("homepage previews, theme, navigation and test filters", async ({
   );
   const search = page.getByRole("searchbox", { name: "Search assessments" });
   await search.fill("attachment");
-  await expect(page.locator(".test-card")).toHaveCount(1);
-  await expect(page.locator(".test-card")).toContainText("Attachment");
+  const attachmentMatches = [
+    "attachment-style-discovery",
+    "attachment-bedroom",
+  ];
+  await expect(page.locator(".test-card")).toHaveCount(
+    attachmentMatches.length,
+  );
+  for (const slug of attachmentMatches)
+    await expect(
+      page.locator(`.test-card a[href^="/assess/${slug}?"]`).first(),
+    ).toBeVisible();
   await search.fill("zz-no-matching-test");
   await expect(
     page.getByRole("button", { name: "Reset filters" }),
@@ -183,7 +199,7 @@ test("answer progress, page navigation, upgrade and complete-mode draft resume",
     page
       .getByRole("article")
       .first()
-      .getByText(/Think about your usual pattern/),
+      .getByText(/Choose how closely this describes you/),
   ).toBeVisible();
   await page.reload();
   await page.getByRole("button", { name: "Resume Draft", exact: true }).click();

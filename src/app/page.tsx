@@ -55,9 +55,16 @@ export default function HomePage() {
     };
   };
   const featured = [
+    "bdsm-power-dynamics-test",
+    "sexual-interests-curiosity-map",
+    "attachment-style-discovery",
+    "intimacy-partner-preferences",
+    "love-affection-preferences",
+    "long-term-dynamic-vision",
+    "partner-ideal-dealbreakers",
+    "relationship-dealbreakers-boundaries",
     "big-five-personality-profile",
     "emotional-availability-reflection",
-    "intimacy-partner-preferences",
   ].map((slug) => getAssessmentBySlug(slug)!);
   return (
     <HomeExperience example={example(0)} partner={example(1)}>
@@ -65,10 +72,10 @@ export default function HomePage() {
         <div className="section-heading">
           <div>
             <h2 id="home-start-title" className="font-display">
-              What would you like to understand?
+              Which test are you actually curious about?
             </h2>
             <p>
-              Start with a teaser. Go deeper at your pace. Five questions at a time.
+              The BDSM test, the kink test, the love compatibility test, the IQ test, the friendship test, the love language test, the sexual desire test, the husband/wife test, the partner finding test, the icks test, and more. Start with a teaser.
             </p>
           </div>
           <Link href="/explore" className="text-link">

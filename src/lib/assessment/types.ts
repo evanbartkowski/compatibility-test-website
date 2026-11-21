@@ -231,6 +231,7 @@ export interface AssessmentSection {
 }
 
 export interface AssessmentDefinition {
+  editorialRevision?: string;
   adviceProfile?: AssessmentAdviceProfile;
   styleRankingEnabled?: boolean;
   collection?: "intimacy-suite";

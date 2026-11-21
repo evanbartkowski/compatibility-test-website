@@ -136,7 +136,7 @@ describe("New intimacy collection", () => {
     }
     expect(
       getAssessmentBySlug("fantasy-catalog")?.questions.length,
-    ).toBeGreaterThanOrEqual(200);
+    ).toBe(100);
   });
 
   it("keeps desire separate from willingness, experience and hard limits", () => {
