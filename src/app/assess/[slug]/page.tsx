@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { consolidatedSlugRedirects } from "@/data/assessments/curated";
+import { focusedRedirects } from "@/data/assessments/catalog";
 import { brandConfig } from "@/config/brand";
 import {
   resolveAssessment,
@@ -37,9 +38,11 @@ export default async function AssessPage({
   const { slug } = await params;
   const { mode } = await searchParams;
   const assessment = resolveAssessment(slug);
-  if (!assessment && Object.hasOwn(consolidatedSlugRedirects, slug)) {
+  const redirects = { ...consolidatedSlugRedirects, ...focusedRedirects };
+  if (!assessment && Object.hasOwn(redirects, slug)) {
+    const target = focusedRedirects[redirects[slug]] || redirects[slug];
     redirect(
-      `/assess/${consolidatedSlugRedirects[slug]}?mode=${mode === "complete" ? "complete" : "quick"}`,
+      `/assess/${target}?mode=${mode === "complete" ? "complete" : "quick"}`,
     );
   }
 

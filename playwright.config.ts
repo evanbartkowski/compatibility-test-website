@@ -17,6 +17,7 @@ export default defineConfig({
       testMatch: [
         "**/browser-experience.spec.ts",
         "**/home-experience.spec.ts",
+        "**/home-profile.spec.ts",
         "**/intimacy-suite.spec.ts",
         "**/advice.spec.ts",
       ],
@@ -30,6 +31,7 @@ export default defineConfig({
       testMatch: [
         "**/browser-experience.spec.ts",
         "**/home-experience.spec.ts",
+        "**/home-profile.spec.ts",
         "**/intimacy-suite.spec.ts",
         "**/advice.spec.ts",
       ],

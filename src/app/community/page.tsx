@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default function CommunityPage() {
-  const slug = "intimacy-partner-preferences";
+  const slug = "big-five-personality-profile";
   const initial = getGlobalCommunityAggregates({
     assessmentSlug: slug,
     includeSyntheticDemo: false,

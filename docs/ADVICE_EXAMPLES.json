@@ -3,7 +3,7 @@
   "examples": [
     {
       "name": "Avery",
-      "assessment": "Erotic Blueprint: Your Intimacy Styles",
+      "assessment": "Your Erotic Blueprint",
       "slug": "erotic-blueprint-style",
       "fictional": true,
       "describe": "Sensual leads at 100, Energetic is secondary at 75. Other styles are 25. Avery states willingness on wanted items and rates experience as Never. One high-interest item is always private and one is a hard limit.",
@@ -93,15 +93,15 @@
           {
             "id": "partner-fit",
             "title": "Someone high in attentive sensory preferences, comfortable with your chosen sound, lighting and pace",
-            "body": "Attentive sensory atmosphere is prominent in your answers. Your receiving interest is 100/100 and offering interest is 100/100 in this category. These are different roles, not an obligation to reciprocate. If you choose to discuss it, ask about the corresponding offer or preference behind “Receiving a carefully chosen soundtrack in a freely chosen private setting.”.",
+            "body": "Attentive sensory atmosphere is prominent in your answers. Your receiving interest is 100/100 and offering interest is 100/100 in this category. These are different roles, not an obligation to reciprocate. If you choose to discuss it, ask about the corresponding offer or preference behind “A partner invites you to choose the bedroom lighting before sex.”.",
             "evidence": [
               {
                 "dimension": "sensual",
                 "label": "Sensual",
                 "score": 100,
                 "answeredCount": 10,
-                "questionId": "sensual-1-receive",
-                "prompt": "Receiving a carefully chosen soundtrack in a freely chosen private setting."
+                "questionId": "focus3-sensual-sensual-1-receive",
+                "prompt": "A partner invites you to choose the bedroom lighting before sex."
               }
             ]
           },
@@ -243,7 +243,7 @@
           {
             "id": "partner-prototype",
             "title": "A style-to-conditions conversation",
-            "body": "You rated this topic appealing and stated willingness: Receiving a carefully chosen soundtrack in a freely chosen private setting.",
+            "body": "You rated this topic appealing and stated willingness: A partner invites you to choose the bedroom lighting before sex.",
             "kind": "partnered",
             "effort": 2,
             "scope": "A separately agreed conversation or ordinary comfort routine",
@@ -253,13 +253,13 @@
                 "label": "Sensual",
                 "score": 100,
                 "answeredCount": 10,
-                "questionId": "sensual-1-receive",
-                "prompt": "Receiving a carefully chosen soundtrack in a freely chosen private setting."
+                "questionId": "focus3-sensual-sensual-1-receive",
+                "prompt": "A partner invites you to choose the bedroom lighting before sex."
               }
             ],
             "steps": [
               "Ask whether the conversation and its specific topic are welcome now. Either person can decline.",
-              "Stay with this eligible topic only: “Receiving a carefully chosen soundtrack in a freely chosen private setting.”. What would your preferred style look like in an ordinary, freely chosen moment together? If both people separately want a small ordinary comfort or communication step connected to it, choose that step; no other activity is implied.",
+              "Stay with this eligible topic only: “A partner invites you to choose the bedroom lighting before sex.”. What would your preferred style look like in an ordinary, freely chosen moment together? If both people separately want a small ordinary comfort or communication step connected to it, choose that step; no other activity is implied.",
               "Choose a short time window and an easy ending before beginning."
             ],
             "stopRule": "A pause, changed mind or no ends the invitation. No replacement activity is owed.",
@@ -268,7 +268,7 @@
           {
             "id": "gap-planning",
             "title": "Make a plan for one gap—or leave it as fantasy",
-            "body": "Your desire is 100/100 and experience is 0/100 for “Receiving a carefully chosen soundtrack in a freely chosen private setting.”.",
+            "body": "Your desire is 100/100 and experience is 0/100 for “A partner invites you to choose the bedroom lighting before sex.”.",
             "kind": "partnered",
             "effort": 3,
             "scope": "Planning only; this reflection does not provide technique instructions",
@@ -278,8 +278,8 @@
                 "label": "Sensual",
                 "score": 100,
                 "answeredCount": 10,
-                "questionId": "sensual-1-receive",
-                "prompt": "Receiving a carefully chosen soundtrack in a freely chosen private setting."
+                "questionId": "focus3-sensual-sensual-1-receive",
+                "prompt": "A partner invites you to choose the bedroom lighting before sex."
               }
             ],
             "steps": [
@@ -294,8 +294,8 @@
         ],
         "gaps": [
           {
-            "questionId": "sensual-1-receive",
-            "label": "Receiving a carefully chosen soundtrack in a freely chosen private setting.",
+            "questionId": "focus3-sensual-sensual-1-receive",
+            "label": "A partner invites you to choose the bedroom lighting before sex.",
             "desire": 100,
             "experience": 0,
             "gap": 100,
@@ -303,8 +303,8 @@
             "explanation": "You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option."
           },
           {
-            "questionId": "sensual-1-offer",
-            "label": "Offering a partner a carefully chosen soundtrack in a freely chosen private setting.",
+            "questionId": "focus3-sensual-sensual-1-offer",
+            "label": "You invite your partner to choose the bedroom lighting before sex.",
             "desire": 100,
             "experience": 0,
             "gap": 100,
@@ -312,8 +312,8 @@
             "explanation": "You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option."
           },
           {
-            "questionId": "sensual-2-receive",
-            "label": "Receiving lighting adjusted to my comfort in a freely chosen private setting.",
+            "questionId": "focus3-sensual-sensual-2-receive",
+            "label": "A partner invites you to spend time kissing instead of rushing through foreplay.",
             "desire": 100,
             "experience": 0,
             "gap": 100,
@@ -321,8 +321,8 @@
             "explanation": "You chose privacy. Keep this in your own reflection; no partner experiment or disclosure is suggested."
           },
           {
-            "questionId": "sensual-2-offer",
-            "label": "Offering a partner lighting adjusted to my comfort in a freely chosen private setting.",
+            "questionId": "focus3-sensual-sensual-2-offer",
+            "label": "You invite your partner to spend time kissing instead of rushing through foreplay.",
             "desire": 100,
             "experience": 0,
             "gap": 100,
@@ -330,8 +330,8 @@
             "explanation": "You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option."
           },
           {
-            "questionId": "sensual-3-receive",
-            "label": "Receiving an unhurried welcome into a comfortable space in a freely chosen private setting.",
+            "questionId": "focus3-sensual-sensual-3-receive",
+            "label": "A partner invites you to put fresh, comfortable sheets on the bed for a date.",
             "desire": 100,
             "experience": 0,
             "gap": 100,
@@ -344,7 +344,7 @@
     },
     {
       "name": "Robin",
-      "assessment": "Power Exchange & Scope",
+      "assessment": "Power, Roles & Devotion",
       "slug": "power-exchange-intensity",
       "fictional": true,
       "describe": "Robin rates receiving guidance at 100 and offering it at 25 in the direction category; other categories are 0. The preference is paired with explicit willingness and low experience. Robin does not seek an identical receiving preference as a counterpart.",
@@ -373,6 +373,21 @@
           "category": "Ordinary life boundaries",
           "score": 0,
           "rated": 10
+        },
+        {
+          "category": "Practical service",
+          "score": 0,
+          "rated": 10
+        },
+        {
+          "category": "Chosen rituals",
+          "score": 0,
+          "rated": 10
+        },
+        {
+          "category": "Recognition of effort",
+          "score": 0,
+          "rated": 10
         }
       ],
       "advice": {
@@ -385,15 +400,15 @@
           {
             "id": "partner-fit",
             "title": "Someone whose freely offered leadership or receptive role complements yours and who welcomes a clear end to it",
-            "body": "Clearly invited leadership seems appealing in selected moments. Your receiving interest is 100/100 and offering interest is 25/100 in this category. These are different roles, not an obligation to reciprocate. If you choose to discuss it, ask about the corresponding offer or preference behind “Receiving guidance on the order of an activity within a revocable agreement.”.",
+            "body": "Clearly invited leadership seems appealing in selected moments. Your receiving interest is 100/100 and offering interest is 25/100 in this category. These are different roles, not an obligation to reciprocate. If you choose to discuss it, ask about the corresponding offer or preference behind “A partner takes the lead on asking whether sex is wanted tonight.”.",
             "evidence": [
               {
                 "dimension": "direction",
                 "label": "Chosen leadership",
                 "score": 63,
                 "answeredCount": 10,
-                "questionId": "direction-1-receive",
-                "prompt": "Receiving guidance on the order of an activity within a revocable agreement."
+                "questionId": "focus3-direction-direction-1-receive",
+                "prompt": "A partner takes the lead on asking whether sex is wanted tonight."
               }
             ]
           },
@@ -509,7 +524,7 @@
           {
             "id": "partner-prototype",
             "title": "Negotiate a conversation role",
-            "body": "You rated this topic appealing and stated willingness: Receiving guidance on the order of an activity within a revocable agreement.",
+            "body": "You rated this topic appealing and stated willingness: A partner takes the lead on asking whether sex is wanted tonight.",
             "kind": "partnered",
             "effort": 2,
             "scope": "A separately agreed conversation or ordinary comfort routine",
@@ -519,13 +534,13 @@
                 "label": "Chosen leadership",
                 "score": 63,
                 "answeredCount": 10,
-                "questionId": "direction-1-receive",
-                "prompt": "Receiving guidance on the order of an activity within a revocable agreement."
+                "questionId": "focus3-direction-direction-1-receive",
+                "prompt": "A partner takes the lead on asking whether sex is wanted tonight."
               }
             ],
             "steps": [
               "Ask whether the conversation and its specific topic are welcome now. Either person can decline.",
-              "Stay with this eligible topic only: “Receiving guidance on the order of an activity within a revocable agreement.”. What would you enjoy leading or receiving, and what responsibility would you rather not take on? If both people separately want a small ordinary comfort or communication step connected to it, choose that step; no other activity is implied.",
+              "Stay with this eligible topic only: “A partner takes the lead on asking whether sex is wanted tonight.”. What would you enjoy leading or receiving, and what responsibility would you rather not take on? If both people separately want a small ordinary comfort or communication step connected to it, choose that step; no other activity is implied.",
               "Choose a short time window and an easy ending before beginning."
             ],
             "stopRule": "A pause, changed mind or no ends the invitation. No replacement activity is owed.",
@@ -534,7 +549,7 @@
           {
             "id": "gap-planning",
             "title": "Make a plan for one gap—or leave it as fantasy",
-            "body": "Your desire is 100/100 and experience is 0/100 for “Receiving guidance on the order of an activity within a revocable agreement.”.",
+            "body": "Your desire is 100/100 and experience is 0/100 for “A partner takes the lead on asking whether sex is wanted tonight.”.",
             "kind": "partnered",
             "effort": 3,
             "scope": "Planning only; this reflection does not provide technique instructions",
@@ -544,8 +559,8 @@
                 "label": "Chosen leadership",
                 "score": 63,
                 "answeredCount": 10,
-                "questionId": "direction-1-receive",
-                "prompt": "Receiving guidance on the order of an activity within a revocable agreement."
+                "questionId": "focus3-direction-direction-1-receive",
+                "prompt": "A partner takes the lead on asking whether sex is wanted tonight."
               }
             ],
             "steps": [
@@ -560,8 +575,8 @@
         ],
         "gaps": [
           {
-            "questionId": "direction-1-receive",
-            "label": "Receiving guidance on the order of an activity within a revocable agreement.",
+            "questionId": "focus3-direction-direction-1-receive",
+            "label": "A partner takes the lead on asking whether sex is wanted tonight.",
             "desire": 100,
             "experience": 0,
             "gap": 100,
@@ -569,8 +584,8 @@
             "explanation": "You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option."
           },
           {
-            "questionId": "direction-2-receive",
-            "label": "Receiving a choice of atmosphere made for me within a revocable agreement.",
+            "questionId": "focus3-direction-direction-2-receive",
+            "label": "A partner takes the lead on choosing between two previously discussed kinds of foreplay.",
             "desire": 100,
             "experience": 0,
             "gap": 100,
@@ -578,8 +593,8 @@
             "explanation": "You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option."
           },
           {
-            "questionId": "direction-3-receive",
-            "label": "Receiving a clear plan for a private evening within a revocable agreement.",
+            "questionId": "focus3-direction-direction-3-receive",
+            "label": "A partner takes the lead on setting the pace of kissing after you agree on it.",
             "desire": 100,
             "experience": 0,
             "gap": 100,
@@ -587,8 +602,8 @@
             "explanation": "You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option."
           },
           {
-            "questionId": "direction-4-receive",
-            "label": "Receiving a playful instruction in a fictional role within a revocable agreement.",
+            "questionId": "focus3-direction-direction-4-receive",
+            "label": "A partner takes the lead on opening a conversation about sexual roles.",
             "desire": 100,
             "experience": 0,
             "gap": 100,
@@ -596,8 +611,8 @@
             "explanation": "You rated desire higher than experience and stated willingness. If you want, discuss the appealing ingredient and conditions first. The other person still needs to choose freely; leaving it as fantasy remains an option."
           },
           {
-            "questionId": "direction-5-receive",
-            "label": "Receiving a suggestion for when to pause within a revocable agreement.",
+            "questionId": "focus3-direction-direction-5-receive",
+            "label": "A partner takes the lead on suggesting when to end an adult roleplay and talk normally.",
             "desire": 100,
             "experience": 0,
             "gap": 100,
@@ -610,7 +625,7 @@
     },
     {
       "name": "Jules",
-      "assessment": "Aftercare & Recovery Style",
+      "assessment": "Aftercare & the Morning After",
       "slug": "aftercare-recovery-style",
       "fictional": true,
       "describe": "Independent recovery space is 100 and all other care categories are 0. Jules has frequent experience of the wanted care and does not need an experience gap invented to receive useful advice.",
@@ -639,6 +654,11 @@
           "category": "Later check-ins",
           "score": 0,
           "rated": 10
+        },
+        {
+          "category": "Sleep and downtime",
+          "score": 0,
+          "rated": 10
         }
       ],
       "advice": {
@@ -651,15 +671,15 @@
           {
             "id": "partner-fit",
             "title": "Someone comfortable offering independent recovery time without treating it as rejection",
-            "body": "Having room to settle independently seems especially appealing. Your receiving interest is 100/100 and offering interest is 100/100 in this category. These are different roles, not an obligation to reciprocate. If you choose to discuss it, ask about the corresponding offer or preference behind “Being given quiet time without conversation.”.",
+            "body": "Having room to settle independently seems especially appealing. Your receiving interest is 100/100 and offering interest is 100/100 in this category. These are different roles, not an obligation to reciprocate. If you choose to discuss it, ask about the corresponding offer or preference behind “After sex, being given twenty minutes alone without interpreting it as rejection.”.",
             "evidence": [
               {
                 "dimension": "space",
                 "label": "Room to recover",
                 "score": 100,
                 "answeredCount": 10,
-                "questionId": "space-1-receive",
-                "prompt": "Being given quiet time without conversation."
+                "questionId": "focus3-space-space-1-receive",
+                "prompt": "After sex, being given twenty minutes alone without interpreting it as rejection."
               }
             ]
           },
@@ -775,7 +795,7 @@
           {
             "id": "partner-prototype",
             "title": "Rehearse a five-minute landing",
-            "body": "You rated this topic appealing and stated willingness: Being given quiet time without conversation.",
+            "body": "You rated this topic appealing and stated willingness: After sex, being given twenty minutes alone without interpreting it as rejection.",
             "kind": "partnered",
             "effort": 2,
             "scope": "A separately agreed conversation or ordinary comfort routine",
@@ -785,13 +805,13 @@
                 "label": "Room to recover",
                 "score": 100,
                 "answeredCount": 10,
-                "questionId": "space-1-receive",
-                "prompt": "Being given quiet time without conversation."
+                "questionId": "focus3-space-space-1-receive",
+                "prompt": "After sex, being given twenty minutes alone without interpreting it as rejection."
               }
             ],
             "steps": [
               "Ask whether the conversation and its specific topic are welcome now. Either person can decline.",
-              "Stay with this eligible topic only: “Being given quiet time without conversation.”. What would good care look like immediately afterward, and what would you want later? If both people separately want a small ordinary comfort or communication step connected to it, choose that step; no other activity is implied.",
+              "Stay with this eligible topic only: “After sex, being given twenty minutes alone without interpreting it as rejection.”. What would good care look like immediately afterward, and what would you want later? If both people separately want a small ordinary comfort or communication step connected to it, choose that step; no other activity is implied.",
               "Choose a short time window and an easy ending before beginning."
             ],
             "stopRule": "A pause, changed mind or no ends the invitation. No replacement activity is owed.",
@@ -804,30 +824,30 @@
     }
   ],
   "pair": {
-    "assessment": "Aftercare & Recovery Style",
+    "assessment": "Aftercare & the Morning After",
     "disclosedTopicCount": 1,
     "advice": {
       "version": "1.0.0",
       "status": "shared-topics",
       "strengths": [
         {
-          "id": "shared-space-1-receive",
-          "title": "Being given quiet time without conversation.",
+          "id": "shared-focus3-space-space-1-receive",
+          "title": "After sex, being given twenty minutes alone without interpreting it as rejection.",
           "body": "A receiving preference has a freely offered counterpart. Willingness is separate from personal desire, and either person can change their mind.",
           "evidence": [
             {
               "dimension": "Room to recover",
               "label": "Room to recover",
               "answeredCount": 1,
-              "questionId": "space-1-receive",
-              "prompt": "Being given quiet time without conversation."
+              "questionId": "focus3-space-space-1-receive",
+              "prompt": "After sex, being given twenty minutes alone without interpreting it as rejection."
             }
           ]
         }
       ],
       "frictionPoints": [
         {
-          "id": "discuss-space-1-receive",
+          "id": "discuss-focus3-space-space-1-receive",
           "title": "Agree on the details before assuming a fit",
           "body": "Closeness, quiet and practical help can all mean care; guessing which one is wanted can miss the point. This is a question to discuss around your shared topic, not evidence that either person has this problem.",
           "evidence": [
@@ -835,21 +855,21 @@
               "dimension": "Room to recover",
               "label": "Room to recover",
               "answeredCount": 1,
-              "questionId": "space-1-receive",
-              "prompt": "Being given quiet time without conversation."
+              "questionId": "focus3-space-space-1-receive",
+              "prompt": "After sex, being given twenty minutes alone without interpreting it as rejection."
             }
           ],
           "script": "What would good care look like immediately afterward, and what would you want later?"
         }
       ],
       "conversationStarters": [
-        "For “Being given quiet time without conversation.”: What would good care look like immediately afterward, and what would you want later?"
+        "For “After sex, being given twenty minutes alone without interpreting it as rejection.”: What would good care look like immediately afterward, and what would you want later?"
       ],
       "experiments": [
         {
-          "id": "pair-space-1-receive",
+          "id": "pair-focus3-space-space-1-receive",
           "title": "Rehearse a five-minute landing",
-          "body": "Start only from the mutually disclosed topic: Being given quiet time without conversation.",
+          "body": "Start only from the mutually disclosed topic: After sex, being given twenty minutes alone without interpreting it as rejection.",
           "kind": "partnered",
           "effort": 2,
           "scope": "A fresh, mutually chosen conversation or ordinary comfort routine",
@@ -858,13 +878,13 @@
               "dimension": "Room to recover",
               "label": "Room to recover",
               "answeredCount": 1,
-              "questionId": "space-1-receive",
-              "prompt": "Being given quiet time without conversation."
+              "questionId": "focus3-space-space-1-receive",
+              "prompt": "After sex, being given twenty minutes alone without interpreting it as rejection."
             }
           ],
           "steps": [
             "Ask whether discussing this shared topic is welcome today. The prior result supplies no current consent.",
-            "Discuss this disclosed topic only: “Being given quiet time without conversation.”. What would good care look like immediately afterward, and what would you want later? Choose a small ordinary comfort or communication step only if it fits that topic and both people separately want it. Do not add unshared activities.",
+            "Discuss this disclosed topic only: “After sex, being given twenty minutes alone without interpreting it as rejection.”. What would good care look like immediately afterward, and what would you want later? Choose a small ordinary comfort or communication step only if it fits that topic and both people separately want it. Do not add unshared activities.",
             "Agree on the roles, conditions, privacy and an easy ending; leave all unshared topics out."
           ],
           "stopRule": "Either person can decline, pause or change their mind. Do not use the report to request a reason for an omitted topic.",

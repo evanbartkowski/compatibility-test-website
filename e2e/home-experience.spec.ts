@@ -9,8 +9,10 @@ test("a concise homepage has a rotatable, adjustable profile and pausable living
   await page.goto("/");
   await expect(page.locator("main section")).toHaveCount(2);
   await expect(page.locator("main .test-card")).toHaveCount(3);
-  const stage = page.getByRole("group", { name: "Rotate the example profile" });
-  await expect(stage.locator("canvas")).toHaveAttribute("data-ready", "true");
+  const stage = page.getByRole("group", { name: "Rotate 3D stats graph" });
+  await expect(stage.getByRole("img")).toBeVisible();
+  await expect(stage.locator("polygon[data-series=current]")).toHaveCount(8);
+  await expect(page.locator(".stat-axis-buttons button")).toHaveCount(6);
   const before = await stage.getAttribute("data-yaw");
   await stage.focus();
   await page.keyboard.press("ArrowRight");
@@ -31,12 +33,14 @@ test("a concise homepage has a rotatable, adjustable profile and pausable living
   await page.mouse.up();
   await expect(stage).not.toHaveAttribute("data-yaw", before!);
   await page.getByRole("slider", { name: "Example category score" }).fill("40");
-  await expect(page.locator(".orbit-score-control output")).toHaveText("40%");
+  await expect(page.locator(".orbit-score-control output")).toHaveText(
+    "40 / 100",
+  );
   await page
-    .getByRole("button", { name: "Compatibility", exact: true })
+    .getByRole("button", { name: "Hide comparison", exact: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Where two worlds meet." }),
+    page.getByRole("button", { name: "Compare profiles", exact: true }),
   ).toBeVisible();
   await expect(page.locator(".living-backdrop")).toHaveAttribute(
     "data-moving",

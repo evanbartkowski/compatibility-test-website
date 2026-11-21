@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   builtInAssessments,
   getAssessmentBySlug,
+  getArchivedAssessmentBySlug,
 } from "@/data/assessments/catalog";
 import { inspectAssessmentDefinition } from "@/lib/assessment/definition";
 import { scoreAssessmentSubmission } from "@/lib/assessment/scoring";
@@ -110,7 +111,7 @@ describe("New intimacy collection", () => {
     const suite = builtInAssessments.filter(
       (a) => a.collection === "intimacy-suite",
     );
-      expect(suite).toHaveLength(31);
+      expect(suite).toHaveLength(10);
     for (const a of suite) {
       expect(a.adultsOnly).toBe(true);
       expect(a.questions.length).toBeGreaterThanOrEqual(50);
@@ -136,7 +137,7 @@ describe("New intimacy collection", () => {
     }
     expect(
       getAssessmentBySlug("fantasy-catalog")?.questions.length,
-    ).toBeGreaterThanOrEqual(200);
+    ).toBe(100);
   });
 
   it("keeps desire separate from willingness, experience and hard limits", () => {
@@ -249,7 +250,7 @@ describe("New intimacy collection", () => {
   });
 
   it("treats a forced choice as direction, not as desire or permission", () => {
-    const a = getAssessmentBySlug("spicy-would-you-rather")!,
+    const a = getArchivedAssessmentBySlug("spicy-would-you-rather", "2.0.0")!,
       q = a.questions[0];
     const choice = { questionId: q.id, customValue: "b", updatedAt: "" };
     const result = scoreAssessmentSubmission({

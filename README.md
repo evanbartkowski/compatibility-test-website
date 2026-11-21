@@ -15,9 +15,9 @@ The server repository stores results in .between-us-data/store.json. Browser dra
 
 ## Product and measurement
 
-- Forty assessments contain 2,360 authored full-form questions. Nine core v4 tests retain their standard forms. Thirty-one adult intimacy reflections offer teasers and deep dives, including a 200-question catalog, private synthesis and an original five-style blueprint. Previous definitions remain available for older results and invitations.
+- Sixteen focused assessments contain 970 full-form questions, with short and full versions of every test. Six core v6 tests and ten adult v3 tests combine overlapping topics. Earlier definitions and invitations remain version-pinned; retired links redirect to their broader replacement. See [the focused library and graph](docs/FOCUSED_LIBRARY_AND_3D_PROFILE.md).
 - Every published test produces a private advice guide: partner qualities, constructive friction, skills and environment changes, three or four optional graduated experiments, and explicit desire/experience gap paths where those fields are measured. Partner advice uses only mutually disclosed topics. See [the complete overview](docs/ASSESSMENTS_AND_ADVICE.md), [example advice](docs/ADVICE_EXAMPLES.md) and [scoring/privacy contracts](INTIMACY_COLLECTION.md).
-- A two-section homepage includes a draggable 3D profile, keyboard rotation, adjustable example scores, partner overlay and a pausable living background. Reduced motion is respected.
+- A draggable 3D radar compares six axes: Romance, Emotional, Freaky/Kinky, Logical, Communication and Sensual. It loads your owned scores, shows compatible retake history, labels examples explicitly and leaves missing axes unmeasured. Keyboard controls, touch, reduced motion and the pausable living background remain supported.
 - Five questions per page with labeled agreement buttons, individual skip controls, page navigation and saved drafts. Native radios support keyboard arrows and 1–7 shortcuts, with no preselected response.
 - Measured profiles, per-category explanations, compatible retake history and explicit sharing selections.
 - Private partner comparisons, ownership-checked saved-result reuse, independent disclosure controls and revocation.

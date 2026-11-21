@@ -1,4 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
+test.use({
+  extraHTTPHeaders: async ({}, use, info) => {
+    await use({
+      "x-forwarded-for": `intimacy-${info.project.name}-${info.title}`,
+    });
+  },
+});
 import AxeBuilder from "@axe-core/playwright";
 import { getAssessmentBySlug } from "../src/data/assessments/catalog";
 const a = getAssessmentBySlug("desire-reality-map")!;
@@ -179,7 +186,12 @@ test("partner flow reveals only the permitted counterpart and private synthesis 
     await counterpart
       .getByRole("radio", { name: "Willing for a partner", exact: true })
       .check();
-    await p.getByRole("button", { name: "Next page", exact: true }).click();
+    while (
+      await p
+        .getByRole("button", { name: "Next page", exact: true })
+        .isVisible()
+    )
+      await p.getByRole("button", { name: "Next page", exact: true }).click();
     await p
       .getByRole("button", { name: "Review & Finish", exact: true })
       .click();
@@ -204,50 +216,30 @@ test("partner flow reveals only the permitted counterpart and private synthesis 
   } finally {
     await partner.close();
   }
-  const synthesis = await page.request.post("/api/assessments/submit", {
-    data: {
-      assessmentSlug: "personal-erotic-blueprint",
-      mode: "quick",
-      consent,
-      answers: {},
-    },
-  });
-  expect(synthesis.ok()).toBe(true);
-  const blueprint = await synthesis.json();
-  expect(
-    blueprint.result.intimacyBlueprint.sources.map(
-      (s: { title: string }) => s.title,
-    ),
-  ).toEqual([a.title]);
-  await page.goto(`/results/${blueprint.submissionId}`);
-  await expect(
-    page.getByRole("heading", { name: "Across your saved reflections" }),
-  ).toBeVisible();
+  const saved = await page.request.get(`/api/results/${primary.submissionId}`);
+  expect(saved.ok()).toBe(true);
+  expect((await saved.json()).result.assessmentSlug).toBe(a.slug);
 });
 
-test("new collection can be filtered and binary choices do not invent desire", async ({
+test("the focused collection contains ten substantial tests and retired links redirect", async ({
   page,
 }) => {
   await page.goto("/explore");
   await page
     .getByRole("combobox", { name: "Filter by focus" })
     .selectOption("collection");
-  await expect(page.locator(".test-card")).toHaveCount(31);
+  await expect(page.locator(".test-card")).toHaveCount(10);
   await page
     .getByRole("searchbox", { name: "Search assessments" })
-    .fill("would you rather");
+    .fill("dirty talk");
   await expect(page.locator(".test-card")).toHaveCount(1);
   await page.getByRole("link", { name: "Try the teaser" }).click();
   await begin(page);
+  await expect(page.getByRole("article")).toHaveCount(5);
   const first = page.getByRole("article").first();
-  await first
-    .getByRole("radio", { name: "Put a date in the calendar", exact: true })
-    .check();
   await expect(
     first.getByRole("radio", { name: "Very appealing", exact: true }),
   ).not.toBeChecked();
-  await expect(page.getByRole("progressbar")).toHaveAttribute(
-    "aria-valuenow",
-    "10",
-  );
+  await page.goto("/assess/orgasm-pacing-control?mode=complete");
+  await expect(page).toHaveURL(/desire-reality-map\?mode=complete/);
 });

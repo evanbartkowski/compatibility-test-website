@@ -1,54 +1,17 @@
-# Truth Desire: the intimacy collection
+# Truth Desire: the focused intimacy collection
 
-Thirty-one original, non-graphic adult reflections add **1,710 full-form questions** and **312 teaser questions** to the existing nine assessments. The complete library now contains **40 assessments and 2,360 full-form questions**. The new definitions use version `1.0.0`; existing v4 tests and archived results keep their versions. Every published assessment now has a personalized advice guide; see [the complete advice overview](docs/ASSESSMENTS_AND_ADVICE.md) and [three generated example profiles](docs/ADVICE_EXAMPLES.md).
+Ten adult assessments contain **660 full-form questions** alongside six core assessments. The complete library has **16 assessments, 970 full-form questions and 184 short-form questions**. Adult definitions use version 3.0.0; core definitions use 6.0.0. Earlier definitions remain archived for saved results and invitations.
 
-All forms show five questions per page. Teasers sample every category; deep dives include the whole authored bank. Most new tests have ten teaser questions and fifty deep questions. The fantasy catalog has two hundred questions; the blueprint has sixty. There is no engine question-count ceiling. Time estimates allow roughly twenty-five seconds per item, including reflection: most teasers take about five minutes and deep dives about twenty-one minutes; the catalog deep dive is intentionally long, around eighty-four minutes, and supports browser drafts.
+The adult tests are Erotic Blueprint; Desire, Initiation & Pleasure; Fantasy & Roleplay; Touch, Turn-Ons & Sensory Style; Aftercare & the Morning After; Sexual Communication & Dirty Talk; Power, Roles & Devotion; Boundaries, Privacy & Trust; Exclusivity, Jealousy & Openness; and Your Partner & Relationship Vision. Each has 50?100 full-form questions and personalized advice.
 
-## Assessments
-
-The hook appears in the catalog. Each definition also includes its own “why people love it” blurb, scale-specific low/mixed/high interpretations, reflection prompts, matching notes and recommended next assessments.
-
-| Assessment | Hook | Teaser / deep | Main insights |
-|---|---|---:|---|
-| Desire vs Reality Map | Notice the difference between interest, experience and a freely chosen next conversation. | 10 / 50 | Invitation, conditions, novelty, attention and voice; private desire/experience gaps. |
-| The Fantasy Catalog | Two hundred invitations into atmosphere, story and chosen roles. | 10 / 200 | One hundred distinct themes, each with receiving and offering roles; imagination can remain private and unacted upon. |
-| Attraction & Sensory Cues | Discover the small sensory and relational cues that draw you closer. | 10 / 50 | Contact, visual atmosphere, sound, pace and recognition. |
-| Aftercare & Recovery Style | Discover the care that helps you land softly after intensity. | 10 / 50 | Comfort through contact, words, practical care, space and follow-up. |
-| Intimate Language & Communication | Find the words, tone and quiet that make you feel understood. | 10 / 50 | Affection, direction, playfulness, quiet and naming preferences. |
-| Privacy, Visibility & Atmosphere | Explore being noticed, staying discreet and choosing who is part of the moment. | 10 / 50 | Discretion, private settings, opted-in adult audiences, fictional spotlight and visibility controls. |
-| Sensory & Sensation Preferences | Explore gentle sensations, attention and the conditions you prefer. | 10 / 50 | Texture, comfortable temperature, pressure preferences, focus and planning. |
-| Roleplay & Scenario Explorer | Discover the fictional worlds, roles and moods you enjoy imagining together. | 10 / 50 | Adult introductions, guides and guests, atmosphere, performance and coauthoring. |
-| Connection During Intimacy | Map closeness, reassurance and independence without assigning an attachment diagnosis. | 10 / 50 | Reassurance, independent space, emotional openness, repair and predictability. |
-| Jealousy, Compersion & Agreements | Reflect on exclusivity, shared joy and the agreements you would choose. | 10 / 50 | Exclusivity, discussing openness, care for feelings, shared joy and logistics; no readiness grade. |
-| Service & Devotion | Discover whether care feels best as a gesture, a ritual or a chosen role. | 10 / 50 | Practical service, attentiveness, rituals, recognition and scope. |
-| Praise, Teasing & Recognition | Map feeling seen, playfully challenged and put off. | 10 / 50 | Specific praise, focused admiration, gentle agreed teasing, expressive intensity and context. |
-| Pleasure Pacing & Choice | Explore anticipation, direction and endings through the lens of your own choice. | 10 / 50 | Anticipation, invited guidance, flexibility, attention without targets and debriefing. |
-| Toys, Props & Gear Preferences | Explore how props, atmosphere and optional equipment fit your style. | 10 / 50 | Atmosphere tools, adult costumes, gentle sensory props, selection and practical agreements. |
-| Adult Caregiving & Comfort | Explore nurturance and being looked after while remaining fully adult and autonomous. | 10 / 50 | Nurturing gestures, rest, practical support, comfort atmosphere and autonomy. |
-| Instinct, Movement & Play | Discover playful energy, movement and grounding. | 10 / 50 | Energy, shared movement, following/leading, expressive presence and returning to calm. |
-| Power Exchange & Scope | Map chosen leadership, structure and where equal footing matters. | 10 / 50 | Invited direction, structure, role duration, flexibility and ordinary-life separation. |
-| Limits & Boundaries Deep Dive | Give your yes, maybe and no room to mean different things. | 10 / 50 | Personal space, information, conditions, responses to no and changing agreements. |
-| Partner Priorities & Dealbreakers | Clarify the qualities you seek and habits you enjoy bringing. | 10 / 50 | Warmth, reliability, curiosity, independence and repair. |
-| Your Exploration Pace | Find the pace between curiosity and a freely chosen next step. | 10 / 50 | Planning, small steps, familiarity, invited spontaneity and reflection. |
-| The Morning-After Map | Closeness, quiet, breakfast or your own bed: what makes afterward feel right? | 10 / 50 | Lingering, conversation, everyday comforts, goodbyes and rest. |
-| Fantasy Sharing Comfort | Share an imagined world without promising to live it. | 10 / 50 | Sharing format, reception, depth, privacy and opening pace. |
-| Group & Multi-Partner Curiosity | Separate imagination, social comfort and actual interest. | 10 / 50 | Imagination-only themes, adult social settings, attention, individual agreements and care afterward. |
-| Sensory Focus & Overload | Notice whether fewer inputs, familiar surroundings or accessible choices fit you. | 10 / 50 | Visual and sound focus, input level, access to choice and settling afterward. |
-| Gifting, Generosity & Money Boundaries | Explore gifts and chosen generosity without surrendering financial autonomy. | 10 / 50 | Symbolic gifts, rituals, shared experiences, autonomy and agreed limits. |
-| Your Long-Term Dynamic | Imagine the rhythm you want beyond a single memorable evening. | 10 / 50 | Recurring connection, sustained roles, ordinary life, flexibility and independent adulthood. |
-| Comfort After Difficult Experiences | An optional reflection on what supports comfort now. No retelling required. | 10 / 50 | Predictability, choices, supportive language, surroundings and ongoing support; no diagnosis or incident details. |
-| Would You Rather: Intimacy Edition | Fifty choices about mood, pace and connection. | 10 / 50 | Plan/improvise, quiet/expressive, simple/atmospheric, everyday/imagined and shared/guided directions. |
-| Compatibility Under Pressure | Explore awkward moments before they become unspoken expectations. | 10 / 50 | Changed plans, uneven energy, expectations, awkwardness and repair; no safety certification. |
-| Your Personal Intimacy Blueprint | Bring saved reflections together, then add what matters now. | 12 / 60 | Six private synthesis axes: connection, pace, sensory style, imagination, roles and autonomy. |
-| Erotic Blueprint: Your Intimacy Styles | Discover your leading Sensual, Sexual, Energetic, Kinky and Shapeshifter preferences and what makes them work for you. | 10 / 50 | Explicit primary and secondary ranking, ties, counterpart questions and category-specific coaching; an original non-graphic reflection, not a validated identity test. |
+All forms show five questions per page. Related topics are categories within a broader test rather than extra cards. [The generated overview](docs/ASSESSMENTS_AND_ADVICE.md) contains exact hooks, counts and advice topics. [The consolidation and 3D profile guide](docs/FOCUSED_LIBRARY_AND_3D_PROFILE.md) explains redirects, historical versions and the graph's score sources.
 
 ## Data and registration
 
-- `src/data/assessments/intimacy/index.ts` registers the collection in `catalog.ts` alongside `coreAssessments`.
-- `factory.ts` defines typed receiving/offering pairs and shared metadata. `roleScale` expands a category's authored topics into distinct role prompts.
-- `maps-discovery.ts`, `care-connection.ts`, `communication-roles.ts`, `agreements-boundaries.ts` and `fantasy-blueprint.ts` group related banks.
-- `would-you-rather.ts` supplies fifty real binary choices. Choice direction and appeal are independent.
-- Existing v1/v2/v3 definitions remain archived. Existing core v4 definitions, saved records and invitations are preserved.
+- src/data/assessments/focused.ts registers the 16 tests, merges related categories, maps counterpart IDs and updates coaching keys.
+- src/data/assessments/focused-copy.ts contains targeted readability corrections.
+- src/data/assessments/candid/legacy-publish.ts and candid/legacy/ retain the previous editorial publications. Original intimacy v1 and core v1?v4 definitions remain unchanged.
+- Retired links redirect through focusedRedirects. Existing invitations resolve their exact pinned definitions. New drafts use version-specific storage keys.
 
 ## Answer and scoring contract
 

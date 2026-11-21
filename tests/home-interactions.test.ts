@@ -2,29 +2,23 @@
 import React from "react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { HomeResultPreview } from "@/components/home/HomeResultPreview";
+import { HomeStatsPreview } from "@/components/home/HomeStatsPreview";
 import { SiteHeader } from "@/components/site-header";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",
   useRouter: () => ({ push: vi.fn() }),
 }));
-const example = {
-  archetype: "An example",
-  tagline: "A pattern",
-  answered: 50,
-  dimensions: ["Clarity", "Openness", "Presence", "Care", "Capacity"].map(
-    (label, index) => ({ key: label, label, score: 40 + index * 10 }),
-  ),
-};
 beforeEach(() => {
-  window.matchMedia = vi
-    .fn()
-    .mockReturnValue({
-      matches: true,
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-    });
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() => new Promise(() => {})),
+  );
+  window.matchMedia = vi.fn().mockReturnValue({
+    matches: true,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  });
   window.ResizeObserver = class {
     observe() {}
     disconnect() {}
@@ -35,12 +29,18 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 it("lets visitors rotate and reset the profile illustration with keyboard controls", () => {
-  render(React.createElement(HomeResultPreview, { example, partner: example }));
+  render(
+    React.createElement(HomeStatsPreview, {
+      moving: false,
+      onMotionChange: vi.fn(),
+    }),
+  );
   const stage = screen.getByRole("group", {
-    name: /Rotate the example profile/i,
+    name: "Rotate 3D stats graph",
   });
   const initial = stage.getAttribute("data-yaw");
   fireEvent.keyDown(stage, { key: "ArrowRight" });

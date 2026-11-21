@@ -14,6 +14,9 @@ import { intimacyPartnerPreferencesAssessment } from "./intimacy-partner-prefere
 import { curatedAssessments, versionThreeAssessments } from "./curated";
 import { intimacyAssessments } from "./intimacy";
 import { withAdviceProfile } from "./advice-profiles";
+import { publishLegacyCandid } from "./candid/legacy-publish";
+import { focusedAssessments, focusedCoreAssessments, focusedRedirects } from "./focused";
+export { focusedRedirects };
 
 export interface AssessmentCategoryMeta {
   slug: AssessmentCategorySlug;
@@ -116,9 +119,13 @@ export const archivedAssessments: AssessmentDefinition[] = [
   ...legacyAssessments,
   ...versionTwoAssessments,
   ...versionThreeAssessments,
+  ...curatedAssessments,
+  ...intimacyAssessments,
+  ...curatedAssessments.map(publishLegacyCandid),
+  ...intimacyAssessments.map(publishLegacyCandid),
 ];
-export const coreAssessments = curatedAssessments.map(withAdviceProfile);
-export const builtInAssessments = [...coreAssessments, ...intimacyAssessments].map(withAdviceProfile);
+export const coreAssessments = focusedCoreAssessments;
+export const builtInAssessments = focusedAssessments.map(withAdviceProfile);
 
 export function getArchivedAssessmentBySlug(slug: string, version = "2.0.0") {
   return archivedAssessments.find(

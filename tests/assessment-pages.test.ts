@@ -46,6 +46,48 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("Questionnaire pages", () => {
+  it("focuses a requested category's first question even when it starts a new page", () => {
+    begin();
+    fireEvent.click(
+      screen.getByRole("button", { name: /Switch to Complete/i }),
+    );
+    const section = assessment.sections[2];
+    const question = assessment.questions.find(
+      (q) => q.sectionId === section.id,
+    )!;
+    fireEvent.click(
+      within(
+        screen.getByRole("navigation", { name: "Jump to a category" }),
+      ).getByRole("button", { name: new RegExp(section.title) }),
+    );
+    expect(document.activeElement).toBe(
+      screen.getByRole("heading", { name: question.prompt }),
+    );
+  });
+  it("keeps earlier wording's draft untouched and saves revised answers under their own version", () => {
+    const old = getArchivedAssessmentBySlug(assessment.slug, "4.0.0")!;
+    const key = `between_us_draft_${assessment.slug}_primary_self`;
+    const draft = JSON.stringify({
+      assessmentVersion: old.version,
+      answers: {
+        [old.questions[0].id]: {
+          questionId: old.questions[0].id,
+          customValue: 6,
+        },
+      },
+    });
+    localStorage.setItem(key, draft);
+    begin();
+    expect(screen.queryByRole("button", { name: "Resume Draft" })).toBeNull();
+    fireEvent.click(card(0).getByRole("radio", { name: "Agree" }));
+    expect(localStorage.getItem(key)).toBe(draft);
+    const fresh = JSON.parse(
+      localStorage.getItem(`${key}_${assessment.version}`)!,
+    );
+    expect(fresh.assessmentVersion).toBe(assessment.version);
+    expect(fresh.answers[questions[0].id].customValue).toBe(6);
+    expect(fresh.answers[old.questions[0].id]).toBeUndefined();
+  });
   it("keeps prior-version draft answers and relocates their old question index", () => {
     const previous = getArchivedAssessmentBySlug(assessment.slug, "3.0.0")!;
     const quick = previous.questions.filter((q) => q.quickDiscovery);
@@ -67,7 +109,7 @@ describe("Questionnaire pages", () => {
     );
     render(
       React.createElement(AssessmentRunner, {
-        assessment,
+        assessment: getArchivedAssessmentBySlug(assessment.slug, "4.0.0")!,
         previousDraftVersion: {
           version: previous.version,
           quickIds: quick.map((q) => q.id),
@@ -152,7 +194,6 @@ describe("Questionnaire pages", () => {
   it("opens the correct page and focuses the requested question when editing a review", () => {
     begin();
     fireEvent.click(screen.getByRole("button", { name: "Next page" }));
-    fireEvent.click(screen.getByRole("button", { name: "Next page" }));
     fireEvent.click(screen.getByRole("button", { name: /Review answers/ }));
     fireEvent.click(screen.getAllByRole("button", { name: "Edit" })[7]);
     expect(
@@ -165,7 +206,7 @@ describe("Questionnaire pages", () => {
 
   it("resumes an existing question-index draft on its matching page", () => {
     localStorage.setItem(
-      `between_us_draft_${assessment.slug}_primary_self`,
+      `between_us_draft_${assessment.slug}_primary_self_${assessment.version}`,
       JSON.stringify({
         assessmentVersion: assessment.version,
         mode: "quick",

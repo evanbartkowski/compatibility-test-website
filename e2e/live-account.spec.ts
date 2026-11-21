@@ -1,5 +1,8 @@
 import { expect, test } from "@playwright/test";
 import { randomBytes } from "node:crypto";
+import { getAssessmentBySlug } from "../src/data/assessments/catalog";
+const assessment = getAssessmentBySlug("emotional-availability-reflection")!;
+const firstQuestion = assessment.questions[0];
 
 test("real Firebase registration, private result ownership, sign-out, sign-in and account deletion", async ({
   page,
@@ -31,7 +34,7 @@ test("real Firebase registration, private result ownership, sign-out, sign-in an
     const seed = await page.request.post("/api/assessments/submit", {
       data: {
         assessmentSlug: "emotional-availability-reflection",
-        assessmentVersion: "4.0.0",
+        assessmentVersion: assessment.version,
         mode: "quick",
         perspective: "primary",
         consent: {
@@ -41,8 +44,8 @@ test("real Firebase registration, private result ownership, sign-out, sign-in an
           consentedAt: "",
         },
         answers: {
-          "awareness-1": {
-            questionId: "awareness-1",
+          [firstQuestion.id]: {
+            questionId: firstQuestion.id,
             customValue: 5,
             updatedAt: "",
           },
