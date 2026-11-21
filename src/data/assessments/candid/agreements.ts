@@ -32,7 +32,7 @@ export const agreementBanks: Record<string, CandidBank> = {
       "a story about being displayed, told to one partner, not performed for a street",
       "the heat of risk separated from the plan to involve strangers who never consented",
       "an exhibition fantasy that stays a story",
-      "which part of being seen is the turn-on: the witness, the shame, or the proof",
+      "which part of being seen is the turn-on, whether the witness, the shame, or the proof",
     ]),
     control: i([
       "agree that no photos are taken, including 'just for us' unless that yes is separate",

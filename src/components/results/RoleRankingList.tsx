@@ -11,16 +11,23 @@ export function RoleRankingList({ result }: { result: ScoredAssessmentResult }) 
 
   const top = [...roles].sort((a, b) => b.percent - a.percent).slice(0, 3);
   const groups = [...new Set(roles.map((r) => r.group))];
+  const isKinkTest = roles.some((r) =>
+    r.group.includes("Taboo") ||
+    r.group.includes("Restraint") ||
+    r.group.includes("Body & Anal") ||
+    r.group.includes("Sensation")
+  );
+  const sectionTitle = isKinkTest ? "Kink & Desires Breakdown" : "Role & Archetype Match";
 
   return (
     <CollapsibleSection
       id="role-ranking-section"
-      title="Role & Archetype Match"
+      title={sectionTitle}
       subtitle={top.map((r) => `${r.label} (${r.percent}%)`).join(", ")}
       icon={Sparkles}
       badge={
         top.length > 0 ? (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-rose-500/10 text-rose-300 border border-rose-500/30">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-mono font-semibold bg-rose-500/10 text-rose-300 border border-rose-500/30">
             <Trophy size={11} className="text-amber-400" />
             Top: {top[0].label} {top[0].percent}%
           </span>
@@ -31,13 +38,15 @@ export function RoleRankingList({ result }: { result: ScoredAssessmentResult }) 
     >
       <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b" style={{ borderColor: "var(--border-hairline)" }}>
         <p className="text-xs sm:text-sm text-[var(--ink-muted)]">
-          Compatibility percentage across each power dynamic and role archetype.
+          {isKinkTest
+            ? "Your affinity ratings across specific kinks, sensation preferences, and power dynamics."
+            : "Compatibility percentage across each power dynamic and role archetype."}
         </p>
         <div className="flex flex-wrap items-center gap-2">
           {top.map((r) => (
             <span
               key={r.key}
-              className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/30 bg-rose-500/10 px-3 py-1 text-xs font-medium text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.15)]"
+              className="inline-flex items-center gap-1.5 rounded-md border border-rose-500/30 bg-rose-500/10 px-3 py-1 text-xs font-medium text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.15)]"
             >
               <Trophy size={11} className="text-amber-400" />
               <span>{r.label}</span>
@@ -56,7 +65,7 @@ export function RoleRankingList({ result }: { result: ScoredAssessmentResult }) 
           return (
             <div
               key={group}
-              className="rounded-2xl border p-5 transition-all"
+              className="rounded-lg border p-5 transition-all"
               style={{
                 backgroundColor: "var(--bg-subtle)",
                 borderColor: "var(--border-hairline)",
@@ -70,7 +79,7 @@ export function RoleRankingList({ result }: { result: ScoredAssessmentResult }) 
                   {group}
                 </h3>
                 <span className="text-xs text-[var(--ink-muted)] font-mono">
-                  {groupRoles.length} {groupRoles.length === 1 ? "role" : "roles"}
+                  {groupRoles.length} {groupRoles.length === 1 ? (isKinkTest ? "kink" : "role") : (isKinkTest ? "kinks" : "roles")}
                 </span>
               </div>
 
@@ -98,7 +107,7 @@ export function RoleRankingList({ result }: { result: ScoredAssessmentResult }) 
                         </span>
                       </div>
                       <div
-                        className="h-2 w-full rounded-full overflow-hidden"
+                        className="h-2 w-full rounded overflow-hidden"
                         style={{
                           backgroundColor:
                             "var(--bg-inset, rgba(255,255,255,0.06))",
@@ -106,7 +115,7 @@ export function RoleRankingList({ result }: { result: ScoredAssessmentResult }) 
                       >
                         <div
                           className={cn(
-                            "h-full rounded-full transition-all duration-500",
+                            "h-full rounded transition-all duration-500",
                             isHigh
                               ? "bg-gradient-to-r from-rose-500 via-pink-500 to-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.4)]"
                               : isMedium

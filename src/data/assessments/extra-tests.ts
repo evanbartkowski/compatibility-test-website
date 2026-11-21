@@ -206,12 +206,12 @@ const otherGender = [
 ];
 
 const sortOf = [
-  "I want a same-gender dynamic with a clear sexual role: top, bottom, vers, or the lesbian equivalent.",
-  "Masculine partners, feminine partners, or both: I know which presentation I actually chase.",
+  "I want a same-gender dynamic with a clear sexual role, whether top, bottom, vers, or the equivalent.",
+  "Whether masculine partners, feminine partners, or both, I know which presentation I actually chase.",
   "!I do not care about role, presentation, or scene. Attraction is only the gender.",
   "I want rough same-gender sex, not only tender same-gender romance.",
   "I want a queer relationship that is domestic, not only a hookup culture.",
-  "Bears, twinks, butches, femmes, studs, or none of those boxes: I have a type.",
+  "Whether bears, twinks, butches, femmes, studs, or outside those boxes, I have a clear type.",
   "!Labels for how I have queer sex feel like costumes I do not wear.",
   "I want to be out, or I want this private. I know which, and it is part of the kind of queer life I want.",
   "Kink and same-gender sex belong together for me, not in separate rooms.",
@@ -233,7 +233,7 @@ const community = [
   "My orientation is stable enough that I would bet on it, even if the label took time.",
   "I have changed how I name this, and the attraction underneath did not disappear.",
   "!This is a phase I expect to grow out of.",
-  "I want the test to say the pattern plainly: who I want, how much, and what kind.",
+  "I want the test to state my attraction pattern plainly, clarifying who I want, how much, and what kind.",
   "I trust my arousal more than the story I was handed about who I should want.",
 ];
 

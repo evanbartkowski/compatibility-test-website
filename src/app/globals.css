@@ -57,7 +57,7 @@ main {
   gap: 14px;
   padding: 16px;
   border: 1px solid transparent;
-  border-radius: 12px;
+  border-radius: 6px;
   text-align: left;
   font-size: 14px;
   color: var(--ink-secondary);
@@ -165,7 +165,7 @@ main {
   min-width: 0;
   padding: 10px 14px 12px;
   border: 1px solid var(--border-strong);
-  border-radius: 12px;
+  border-radius: 6px;
   background: var(--bg-elevated);
   box-shadow: none;
   scroll-margin-top: 72px;
@@ -310,9 +310,9 @@ main {
   justify-content: center;
   gap: 0;
   padding: 8px 6px;
-  min-height: 40px;
+  min-height: 44px;
   border: 1px solid var(--border-strong);
-  border-radius: 12px;
+  border-radius: 6px;
   background: var(--bg-canvas);
   color: var(--ink-secondary);
   transition: all 150ms ease;
@@ -358,7 +358,7 @@ main {
   padding: 24px;
   background: var(--bg-elevated);
   border: 1px solid var(--border-strong);
-  border-radius: 20px;
+  border-radius: 8px;
 }
 .assessment-page-note {
   margin-bottom: 18px;
@@ -450,7 +450,7 @@ main {
   }
   .assessment-question-card {
     padding: 10px 12px;
-    border-radius: 12px;
+    border-radius: 6px;
   }
   .assessment-question-meta {
     gap: 8px;
@@ -627,7 +627,7 @@ main {
 .history-empty {
   padding: 25px;
   border: 1px dashed var(--border-strong);
-  border-radius: 14px;
+  border-radius: 6px;
   font-size: 13px;
   line-height: 1.8;
   color: var(--ink-secondary);
@@ -683,7 +683,7 @@ main {
 }
 .measurement-explainer {
   border: 1px solid var(--border-hairline);
-  border-radius: 14px;
+  border-radius: 6px;
   padding: 18px;
   font-size: 12px;
   line-height: 1.8;
@@ -716,7 +716,7 @@ main {
 .hero .measured-preview {
   padding: 24px 28px 0;
   border: 1px solid var(--border-strong);
-  border-radius: 24px;
+  border-radius: 8px;
   background: var(--bg-elevated);
 }
 .hero .measured-preview-heading {
@@ -1083,7 +1083,7 @@ main {
 .studio-library-list button {
   text-align: left;
   border: 1px solid transparent;
-  border-radius: 12px;
+  border-radius: 6px;
   padding: 12px;
   color: var(--ink-secondary);
   font-size: 12px;
@@ -1101,7 +1101,7 @@ main {
 }
 .studio-editor {
   border: 1px solid var(--border-hairline);
-  border-radius: 24px;
+  border-radius: 8px;
   background: var(--bg-elevated);
   padding: 28px;
   min-width: 0;
@@ -1156,7 +1156,7 @@ main {
   font-size: 11px;
   line-height: 1.6;
   border: 1px solid var(--border-hairline);
-  border-radius: 12px;
+  border-radius: 6px;
   padding: 12px;
 }
 .studio-question-list [aria-pressed="true"] {
@@ -1196,7 +1196,7 @@ main {
 }
 .studio-validation {
   border: 1px solid var(--border-hairline);
-  border-radius: 14px;
+  border-radius: 6px;
   padding: 18px;
   margin-top: 24px;
   font-size: 12px;
@@ -1216,7 +1216,7 @@ main {
   line-height: 1.7;
   padding: 16px;
   background: var(--accent-plum-light);
-  border-radius: 12px;
+  border-radius: 6px;
   margin-top: 20px;
 }
 .studio-preview {
@@ -1260,7 +1260,7 @@ main {
   gap: 28px;
   padding: 26px;
   border: 1px solid var(--border-hairline);
-  border-radius: 22px;
+  border-radius: 8px;
   background: var(--bg-elevated);
 }
 .result-card-preview {
@@ -1272,7 +1272,7 @@ main {
 .result-card-preview img {
   width: 100%;
   height: auto;
-  border-radius: 12px;
+  border-radius: 6px;
   border: 1px solid var(--border-strong);
   box-shadow: 0 20px 50px #0005;
 }
@@ -1288,7 +1288,7 @@ main {
   font-size: 13px;
   padding: 18px;
   border: 1px solid var(--border-hairline);
-  border-radius: 14px;
+  border-radius: 6px;
   color: var(--ink-secondary);
   cursor: pointer;
 }
@@ -1360,7 +1360,7 @@ main {
 .saved-comparison-choice .share-selection-fields {
   margin-top: 16px;
   border: 1px solid var(--border-hairline);
-  border-radius: 14px;
+  border-radius: 6px;
 }
 .form-error {
   color: var(--accent-rose);
@@ -1843,7 +1843,7 @@ a {
   background: color-mix(in srgb, var(--bg-elevated) 94%, transparent);
   border: 1px solid var(--border-strong);
   box-shadow: var(--shadow-lifted);
-  border-radius: 12px;
+  border-radius: 6px;
   backdrop-filter: blur(10px);
 }
 .floating-insight span {
@@ -1945,7 +1945,7 @@ a {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border-hairline);
-  border-radius: 16px;
+  border-radius: 8px;
   background: var(--bg-elevated);
   overflow: hidden;
   transition:
@@ -2074,7 +2074,7 @@ a {
   position: relative;
   min-width: 0;
   border: 1px solid var(--border-hairline);
-  border-radius: 20px;
+  border-radius: 8px;
   padding: 32px;
   background: linear-gradient(
     145deg,
@@ -2164,12 +2164,12 @@ a {
   width: 100%;
   background: var(--bg-inset);
   height: 6px;
-  border-radius: 20px;
+  border-radius: 8px;
   overflow: hidden;
 }
 .bar-fill {
   height: 100%;
-  border-radius: 20px;
+  border-radius: 8px;
   background: var(--accent-plum);
 }
 .sample-bar-row .bar-track + .bar-track {
@@ -2220,7 +2220,7 @@ a {
 }
 .depth-card {
   border: 1px solid var(--border-hairline);
-  border-radius: 14px;
+  border-radius: 6px;
   padding: 24px;
   background: var(--bg-elevated);
 }
@@ -2274,7 +2274,7 @@ a {
   padding: 75px 24px;
   margin-top: 90px;
   border: 1px solid var(--border-hairline);
-  border-radius: 20px;
+  border-radius: 8px;
   background:
     radial-gradient(
       ellipse at 50% 100%,
@@ -2378,7 +2378,7 @@ a {
   padding: 50px 25px;
   text-align: center;
   border: 1px dashed var(--border-strong);
-  border-radius: 16px;
+  border-radius: 8px;
   background: var(--bg-elevated);
 }
 .empty-state h2 {
@@ -2434,7 +2434,7 @@ a {
   gap: 35px;
   padding: 30px;
   border: 1px solid var(--border-strong);
-  border-radius: 18px;
+  border-radius: 6px;
   background:
     radial-gradient(
       ellipse at top left,
@@ -2464,7 +2464,7 @@ a {
   gap: 7px;
   background: var(--bg-elevated);
   border: 1px solid var(--border-strong);
-  border-radius: 14px;
+  border-radius: 6px;
   box-shadow: var(--shadow-lifted);
 }
 .export-menu-content > a,
@@ -2579,7 +2579,7 @@ a {
   width: min(480px, calc(100% - 32px));
   padding: 28px;
   border: 1px solid var(--border-strong);
-  border-radius: 20px;
+  border-radius: 8px;
   background: var(--bg-elevated);
   box-shadow: var(--shadow-lifted);
   overscroll-behavior: contain;
@@ -2640,7 +2640,7 @@ a {
 }
 .profile-sidebar {
   border: 1px solid var(--border-hairline);
-  border-radius: 16px;
+  border-radius: 8px;
   background: var(--bg-elevated);
   align-self: start;
   overflow: hidden;
@@ -2712,7 +2712,7 @@ a {
 .profile-identity {
   padding: 24px;
   border: 1px solid var(--border-strong);
-  border-radius: 20px;
+  border-radius: 8px;
   background:
     radial-gradient(
       ellipse at 90% 0,
@@ -2786,7 +2786,7 @@ a {
 }
 .chart-placeholder {
   height: 330px;
-  border-radius: 14px;
+  border-radius: 6px;
   background: radial-gradient(
     ellipse at center,
     color-mix(in srgb, var(--accent-plum) 7%, var(--bg-canvas)),
@@ -2796,7 +2796,7 @@ a {
 }
 .profile-empty {
   border: 1px solid var(--border-hairline);
-  border-radius: 22px;
+  border-radius: 8px;
   display: grid;
   grid-template-columns: 0.85fr 1.2fr;
   gap: 55px;
@@ -2893,7 +2893,7 @@ a {
 }
 .share-selection {
   border: 1px solid var(--border-hairline);
-  border-radius: 12px;
+  border-radius: 6px;
   background: var(--bg-canvas);
   overflow: hidden;
 }
@@ -2946,13 +2946,13 @@ a {
   padding: 20px;
   margin-top: 20px;
   border: 1px solid var(--border-strong);
-  border-radius: 12px;
+  border-radius: 6px;
   background: var(--bg-canvas);
 }
 .profile-share-sidebar {
   padding: 28px;
   border: 1px solid var(--border-hairline);
-  border-radius: 16px;
+  border-radius: 8px;
   background: var(--bg-elevated);
 }
 .profile-share-sidebar > p {
@@ -3122,7 +3122,7 @@ a {
 .benchmark-row {
   padding: 20px;
   border: 1px solid var(--border-hairline);
-  border-radius: 14px;
+  border-radius: 6px;
   background: var(--bg-elevated);
 }
 .benchmark-row h3 {
@@ -3662,7 +3662,7 @@ input[type="checkbox"] {
   display: flex;
   padding: 3px;
   border: 1px solid var(--border-strong);
-  border-radius: 12px;
+  border-radius: 6px;
   background: var(--bg-elevated);
 }
 .orbit-modes button {
@@ -3684,7 +3684,7 @@ input[type="checkbox"] {
   margin: 0;
   touch-action: pan-y;
   cursor: grab;
-  border-radius: 24px;
+  border-radius: 8px;
 }
 .orbit-stage:active {
   cursor: grabbing;
@@ -3918,10 +3918,10 @@ input[type="checkbox"] {
 .intimacy-response legend { margin-bottom: .75rem; font-size: .85rem; font-weight: 600; color: var(--ink-primary); }
 .intimacy-role { display: inline-block; margin-bottom: 1rem; border-radius: 999px; background: color-mix(in srgb, var(--accent-plum) 10%, transparent); padding: .35rem .7rem; font-size: .7rem; color: var(--accent-plum); }
 .intimacy-desire-scale { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .4rem; }
-.intimacy-desire-scale label { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3rem; min-height: 44px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-canvas); padding: .5rem .3rem; cursor: pointer; color: var(--ink-secondary); transition: all .15s ease; text-align: center; font-size: .68rem; line-height: 1.2; }
+.intimacy-desire-scale label { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3rem; min-height: 44px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-canvas); padding: .5rem .3rem; cursor: pointer; color: var(--ink-secondary); transition: all .15s ease; text-align: center; font-size: .68rem; line-height: 1.2; }
 .intimacy-desire-scale input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; z-index: 1; cursor: pointer; }
 .intimacy-scale-number { display: grid; place-items: center; width: 22px; height: 22px; border: 1px solid var(--border-hairline); border-radius: 50%; font-size: .75rem; font-weight: 700; }
-.intimacy-choice label, .intimacy-willingness label { position: relative; display: flex; align-items: center; gap: .6rem; min-height: 48px; border: 1px solid var(--border-strong); border-radius: 14px; background: var(--bg-canvas); padding: .8rem; cursor: pointer; color: var(--ink-secondary); transition: border-color .15s, background .15s; }
+.intimacy-choice label, .intimacy-willingness label { position: relative; display: flex; align-items: center; gap: .6rem; min-height: 48px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-canvas); padding: .8rem; cursor: pointer; color: var(--ink-secondary); transition: border-color .15s, background .15s; }
 .intimacy-choice label:has(:checked), .intimacy-willingness label:has(:checked) { border-color: var(--accent-plum); background: color-mix(in srgb, var(--accent-plum) 12%, var(--bg-canvas)); color: var(--ink-primary); box-shadow: inset 0 0 0 1px var(--accent-plum); }
 .intimacy-response label:has(input:focus-visible) { outline: 3px solid var(--accent-plum); outline-offset: 3px; }
 .intimacy-response input { accent-color: var(--accent-plum); flex-shrink: 0; }
@@ -3939,15 +3939,15 @@ input[type="checkbox"] {
 .intimacy-choice { margin-bottom: 1.5rem !important; }
 .intimacy-detail-selects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 .intimacy-detail-selects label { display: grid; gap: .5rem; font-size: .75rem; font-weight: 500; }
-.intimacy-detail-selects select { width: 100%; min-height: 48px; border: 1px solid var(--border-strong); border-radius: 12px; padding: .7rem; background: var(--bg-canvas); color: var(--ink-primary); }
+.intimacy-detail-selects select { width: 100%; min-height: 48px; border: 1px solid var(--border-strong); border-radius: 6px; padding: .7rem; background: var(--bg-canvas); color: var(--ink-primary); }
 .intimacy-content-note { padding: 1.2rem; border-left: 3px solid var(--accent-rose); border-radius: 0 16px 16px 0; background: var(--bg-subtle); font-size: .8rem; line-height: 1.7; color: var(--ink-secondary); }
 .intimacy-content-note strong { color: var(--ink-primary); }
 .intimacy-content-note p { margin-top: .4rem; }
-.intimacy-insights { border: 1px solid var(--border-hairline); border-radius: 28px; background: var(--bg-elevated); padding: clamp(1.2rem, 4vw, 2.5rem); }
+.intimacy-insights { border: 1px solid var(--border-hairline); border-radius: 8px; background: var(--bg-elevated); padding: clamp(1.2rem, 4vw, 2.5rem); }
 .intimacy-insights > p, .intimacy-blueprint > p { color: var(--ink-secondary); line-height: 1.75; font-size: .85rem; }
 .intimacy-insights h2 { font-size: clamp(1.6rem, 3vw, 2.3rem); }
 .intimacy-channel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin: 1.5rem 0; }
-.intimacy-channel { border: 1px solid var(--border-hairline); background: var(--bg-subtle); border-radius: 18px; padding: 1.15rem; }
+.intimacy-channel { border: 1px solid var(--border-hairline); background: var(--bg-subtle); border-radius: 6px; padding: 1.15rem; }
 .intimacy-channel h3 { font-size: .9rem; margin-bottom: 1rem; }
 .intimacy-channel dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
 .intimacy-channel dt { font-size: .7rem; color: var(--ink-muted); }
@@ -3957,7 +3957,7 @@ input[type="checkbox"] {
 .intimacy-blueprint { border-top: 1px solid var(--border-hairline); padding-top: 1.5rem; }
 .intimacy-blueprint h3 { font-size: 1.7rem; margin-bottom: .75rem; }
 .blueprint-axes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin: 1.5rem 0; }
-.blueprint-axes > div { padding: 1rem; border-radius: 14px; background: var(--bg-subtle); }
+.blueprint-axes > div { padding: 1rem; border-radius: 6px; background: var(--bg-subtle); }
 .blueprint-axes dt { font-size: .8rem; color: var(--ink-secondary); }
 .blueprint-axes dd { margin-top: .5rem; font-size: 1.15rem; color: var(--accent-plum); }
 .blueprint-axes small { display: block; margin-top: .3rem; font-size: .7rem; color: var(--ink-muted); }
@@ -3967,13 +3967,13 @@ input[type="checkbox"] {
   .intimacy-detail-selects, .intimacy-channel-grid, .blueprint-axes, .intimacy-choice { grid-template-columns: 1fr; }
   .intimacy-willingness label { padding: .65rem; font-size: .75rem; }
 }
-.advice-guide { border: 1px solid var(--border-hairline); border-radius: 28px; background: var(--bg-elevated); overflow: hidden; }
+.advice-guide { border: 1px solid var(--border-hairline); border-radius: 8px; background: var(--bg-elevated); overflow: hidden; }
 .advice-guide-heading { padding: clamp(1.3rem, 3vw, 2.5rem); max-width: 82ch; }
 .advice-kicker { font-size: .8rem; color: var(--accent-plum); margin-bottom: .75rem; }
 .advice-guide-heading h2, .advice-empty h2 { font-size: clamp(1.5rem, 2.8vw, 2.25rem); line-height: 1.2; }
 .advice-guide-heading > p:last-child, .advice-empty p { font-size: .9rem; color: var(--ink-secondary); line-height: 1.8; margin-top: 1rem; }
 .advice-navigation { display: flex; flex-wrap: wrap; gap: .35rem; border-block: 1px solid var(--border-hairline); padding: .75rem clamp(1rem, 3vw, 2.5rem); background: var(--bg-subtle); }
-.advice-navigation button { flex: 1 1 130px; min-height: 48px; border-radius: 12px; padding: .6rem .9rem; font-size: .8rem; color: var(--ink-secondary); border: 1px solid transparent; }
+.advice-navigation button { flex: 1 1 130px; min-height: 48px; border-radius: 6px; padding: .6rem .9rem; font-size: .8rem; color: var(--ink-secondary); border: 1px solid transparent; }
 .advice-navigation button[aria-selected=true] { background: var(--accent-plum); color: var(--accent-plum-contrast); }
 .advice-navigation button:focus-visible { outline: 3px solid var(--accent-plum); outline-offset: 3px; }
 .advice-panel { padding: clamp(1.25rem, 3vw, 2.5rem); }
@@ -3996,7 +3996,7 @@ input[type="checkbox"] {
 .advice-evidence li > span { display: block; margin-top: .3rem; }
 .advice-insight-list > article { padding: 1.2rem 0; border-bottom: 1px solid var(--border-hairline); }
 .advice-insight-list > article:first-child { padding-top: 0; }
-.advice-wording { margin: 1.75rem 0; padding: 1.3rem; border-radius: 18px; background: var(--bg-subtle); }
+.advice-wording { margin: 1.75rem 0; padding: 1.3rem; border-radius: 6px; background: var(--bg-subtle); }
 .advice-wording blockquote, .advice-insight-list blockquote { border-left: 2px solid var(--accent-plum); padding: .25rem 0 .25rem 1rem; margin: 1rem 0; font-size: .9rem; line-height: 1.8; color: var(--ink-primary); }
 .advice-subheading { margin: 1.5rem 0 1rem; }
 .advice-gap-list { margin-top: 1.5rem; list-style: none; }
@@ -4006,7 +4006,7 @@ input[type="checkbox"] {
 .advice-gap-list .advice-gap-values { color: var(--ink-muted); font-size: .75rem; }
 .advice-privacy-note { padding: 1rem clamp(1.25rem, 3vw, 2.5rem); border-top: 1px solid var(--border-hairline); font-size: .75rem; line-height: 1.7; color: var(--ink-muted); background: var(--bg-subtle); }
 .advice-synthesis-note { padding: 1rem 0; font-size: .85rem; line-height: 1.8; color: var(--ink-secondary); }
-.advice-style-ranking { margin: 0 clamp(1.25rem, 3vw, 2.5rem) 2rem; padding: 1.3rem; background: var(--bg-subtle); border-radius: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+.advice-style-ranking { margin: 0 clamp(1.25rem, 3vw, 2.5rem) 2rem; padding: 1.3rem; background: var(--bg-subtle); border-radius: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
 .advice-style-ranking h3 { font-size: 1.25rem; color: var(--ink-primary); }
 .advice-style-ranking p { color: var(--ink-secondary); font-size: .85rem; line-height: 1.8; margin: .7rem 0; }
 .advice-style-ranking ol { display: grid; gap: .85rem; font-size: .8rem; }
@@ -4064,7 +4064,7 @@ input[type="checkbox"] {
 .population-research .section-heading p { color: var(--ink-secondary); font-size: 14px; margin-top: 10px; }
 .research-context { font-size: 12px; color: var(--ink-muted); line-height: 1.7; margin-bottom: 24px; }
 .population-stat-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
-.population-stat { padding: clamp(20px, 2.5vw, 30px); background: var(--bg-elevated); border: 1px solid var(--border-hairline); border-radius: 16px; min-width: 0; }
+.population-stat { padding: clamp(20px, 2.5vw, 30px); background: var(--bg-elevated); border: 1px solid var(--border-hairline); border-radius: 8px; min-width: 0; }
 .population-stat-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px; }
 .population-stat h3 { font-size: 18px; font-weight: 500; }
 .population-stat-top strong { color: var(--accent-cyan); font-size: clamp(26px, 3vw, 38px); font-variant-numeric: tabular-nums; font-weight: 500; line-height: 1.25; }
@@ -4083,7 +4083,7 @@ input[type="checkbox"] {
 .research-source a { text-decoration: underline; color: var(--accent-cyan); }
 .comparison-result-select { max-width: 680px; margin-top: 16px; }
 .comparison-result-select select { width: 100%; min-width: 0; }
-.comparison-notice { background: var(--bg-subtle); padding: 22px; border-radius: 12px; color: var(--ink-secondary); font-size: 14px; line-height: 1.7; margin-top: 18px; }
+.comparison-notice { background: var(--bg-subtle); padding: 22px; border-radius: 6px; color: var(--ink-secondary); font-size: 14px; line-height: 1.7; margin-top: 18px; }
 .community-score-list { display: grid; gap: 28px; margin-block: 28px; max-width: 900px; }
 .community-score-list h3 { font-size: 15px; margin-bottom: 12px; }
 .community-score-list p { font-size: 12px; line-height: 1.7; color: var(--ink-muted); margin-top: 10px; }

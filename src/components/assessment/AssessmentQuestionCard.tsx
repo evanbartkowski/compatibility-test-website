@@ -273,7 +273,6 @@ export function AssessmentQuestionCard({
           {answered ? <Check size={16} aria-hidden="true" /> : number}
         </span>
         <span className="sr-only">Question {number}</span>
-        <span>{currentQuestion.sectionTitle}</span>
         <span className="assessment-answer-status">
           {answered
             ? "Answered"
@@ -322,7 +321,7 @@ export function AssessmentQuestionCard({
                       })
                     }
                     className={cn(
-                      "rounded-2xl border p-3.5 text-left transition-all",
+                      "rounded-md border p-3.5 text-left transition-all",
                       selected
                         ? "border-[var(--accent-plum)] bg-[var(--accent-plum)] text-[var(--accent-plum-contrast)]"
                         : "border-[var(--border-hairline)] bg-[var(--bg-canvas)] text-[var(--ink-primary)] hover:border-[var(--border-strong)]",
@@ -450,7 +449,7 @@ export function AssessmentQuestionCard({
                     })
                   }
                   className={cn(
-                    "rounded-2xl border p-3.5 text-left transition-all",
+                    "rounded-md border p-3.5 text-left transition-all",
                     selected
                       ? opt.value === "firm_boundary"
                         ? "border-[var(--accent-rose-fill)] bg-[var(--accent-rose-fill)] text-[var(--accent-rose-contrast)]"
@@ -474,7 +473,7 @@ export function AssessmentQuestionCard({
 
           {currentQuestion.supportsRevealRule && (
             <div
-              className="rounded-2xl border p-4"
+              className="rounded-md border p-4"
               style={{
                 backgroundColor: "var(--bg-subtle)",
                 borderColor: "var(--border-hairline)",
@@ -678,7 +677,7 @@ export function AssessmentQuestionCard({
                   })
                 }
                 className={cn(
-                  "flex w-full items-center justify-between gap-3 rounded-2xl border p-4 text-left text-sm transition-all",
+                  "flex w-full items-center justify-between gap-3 rounded-md border p-4 text-left text-sm transition-all",
                   selected
                     ? "border-[var(--accent-plum)] bg-[var(--accent-plum)] text-[var(--accent-plum-contrast)]"
                     : "border-[var(--border-hairline)] bg-[var(--bg-canvas)] text-[var(--ink-primary)] hover:border-[var(--border-strong)]",
@@ -706,7 +705,7 @@ export function AssessmentQuestionCard({
             return (
               <div
                 key={opt.value}
-                className="flex items-center justify-between gap-3 rounded-2xl border px-4 py-3"
+                className="flex items-center justify-between gap-3 rounded-md border px-4 py-3"
                 style={{
                   backgroundColor: "var(--bg-canvas)",
                   borderColor:
@@ -788,7 +787,7 @@ export function AssessmentQuestionCard({
                   updateCurrentAnswer({ customValue: next });
                 }}
                 className={cn(
-                  "flex w-full items-center justify-between gap-3 rounded-2xl border p-3.5 text-left text-sm transition-all",
+                  "flex w-full items-center justify-between gap-3 rounded-md border p-3.5 text-left text-sm transition-all",
                   selected
                     ? "border-[var(--accent-plum)] bg-[var(--accent-plum)] text-[var(--accent-plum-contrast)]"
                     : "border-[var(--border-hairline)] bg-[var(--bg-canvas)] text-[var(--ink-primary)] hover:border-[var(--border-strong)]",
@@ -904,7 +903,7 @@ export function AssessmentQuestionCard({
               currentAnswer?.experienceFrequency !== undefined ||
               currentAnswer?.desireDelta !== undefined) && (
               <div
-                className="mt-4 space-y-4 rounded-2xl border p-4"
+                className="mt-4 space-y-4 rounded-md border p-4"
                 style={{
                   backgroundColor: "var(--bg-subtle)",
                   borderColor: "var(--border-hairline)",

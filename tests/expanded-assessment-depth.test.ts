@@ -28,9 +28,11 @@ describe("Substantial assessment question banks", () => {
         );
         expect(questions.length).toBeGreaterThanOrEqual(10);
         expect(questions.filter((q) => q.quickDiscovery)).toHaveLength(2);
-        expect(
-          questions.filter((q) => q.reverseScored).length,
-        ).toBeGreaterThanOrEqual(2);
+        if (assessment.slug === "sexual-interests-curiosity-map") {
+          expect(questions.every((q) => !q.reverseScored)).toBe(true);
+        } else {
+          expect(questions.filter((q) => q.reverseScored).length).toBeGreaterThanOrEqual(2);
+        }
         expect(
           questions.every(
             (q) =>

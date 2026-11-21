@@ -12,6 +12,7 @@ import { agreementBanks } from "./agreements";
 import { fantasyBlueprintBanks } from "./fantasy-blueprint";
 import { applyLiveVoice } from "./edge-copy";
 import { bdsmBank } from "./bdsm-bank";
+import { kinkBank } from "./kink-bank";
 
 const banks = {
   ...desireSenseBanks,
@@ -57,6 +58,23 @@ export function publishCandidRevision(
         editorialNote: "First-person BDSM role item. Role tags drive the ranked percentages.",
       }));
     }
+    if (!intimacy && a.slug === "sexual-interests-curiosity-map") {
+      const items = kinkBank[section.id];
+      if (!items) throw new Error(`Missing kink bank: ${section.id}`);
+      return items.map((item, index): QuestionDefinition => ({
+        ...prototype,
+        id: `${revision}-${section.id}-${index + 1}`,
+        order: ++order,
+        prompt: item.text,
+        partnerPrompt: item.text,
+        helperText: "Rate how much you desire or get turned on by this. Skip is a valid answer.",
+        quickDiscovery: index < 2,
+        reverseScored: Boolean(item.reverse),
+        dimensionWeights: { [section.id]: 1 },
+        topicTags: (item.roles || []).map((role) => `role:${role}`),
+        editorialNote: "Candid unfiltered kink item. Role tags drive the ranked kink percentages.",
+      }));
+    }
     if (!intimacy) {
       const statements = candidCore[a.slug]?.[section.id];
       if (!statements)
@@ -85,8 +103,8 @@ export function publishCandidRevision(
           ...prototype,
           id: `${revision}-${section.id}-${index + 1}`,
           order: ++order,
-          prompt: `Which appeals more: ${left.charAt(0).toLowerCase() + left.slice(1)}, or ${right.charAt(0).toLowerCase() + right.slice(1)}?`,
-          partnerPrompt: `Which appeals more: ${left.charAt(0).toLowerCase() + left.slice(1)}, or ${right.charAt(0).toLowerCase() + right.slice(1)}?`,
+          prompt: `Which appeals to you more, ${left.charAt(0).toLowerCase() + left.slice(1)} or ${right.charAt(0).toLowerCase() + right.slice(1)}?`,
+          partnerPrompt: `Which appeals to you more, ${left.charAt(0).toLowerCase() + left.slice(1)} or ${right.charAt(0).toLowerCase() + right.slice(1)}?`,
           quickDiscovery: index < 2,
           helperText:
             "Pick the option that pulls harder, then rate how much. Neither side is the good one. Skip if both are wrong.",
@@ -173,7 +191,7 @@ export function publishCandidRevision(
     const per = a.questions.filter((q) => q.sectionId === a.sections[0]?.id).length;
     a.scoringNotes = [
       a.scoringNotes[0],
-      `The short form samples two statements per category. The full form has ${per} per category, including reverse wording. Skips stay unmeasured.`,
+      `The short form samples two statements per category. The full form has ${per} per category. ${a.questions.some((q) => q.reverseScored) ? "Reverse-worded statements are scored in the category direction." : "Interest statements are scored directly."} Skips stay unmeasured.`,
       a.scoringNotes[2],
     ];
   }

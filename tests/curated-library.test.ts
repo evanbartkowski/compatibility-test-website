@@ -17,7 +17,12 @@ describe("Focused agreement-scale library", () => {
           a.questions.length / a.dimensions!.length,
         );
         expect(questions.filter((q) => q.quickDiscovery)).toHaveLength(2);
-        expect(questions.some((q) => q.reverseScored)).toBe(true);
+        // Independent interests are direct ratings; low desire for one kink
+        // must not be turned into high desire for a different kink.
+        if (a.slug === "sexual-interests-curiosity-map") {
+          expect(questions.every((q) => !q.reverseScored)).toBe(true);
+          expect(questions.every((q) => q.topicTags?.some((tag) => tag.startsWith("role:")))).toBe(true);
+        } else expect(questions.some((q) => q.reverseScored)).toBe(true);
       }
       expect(
         a.questions.every(
@@ -61,6 +66,7 @@ describe("Focused agreement-scale library", () => {
   it("uses all seven positions consistently, reverses opposite wording and preserves meaningful answer labels", () => {
     for (const a of builtInAssessments) {
       for (const reverse of [false, true]) {
+        if (reverse && a.slug === "sexual-interests-curiosity-map") continue;
         const q = a.questions.find(
           (q) => Boolean(q.reverseScored) === reverse,
         )!;

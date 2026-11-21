@@ -21,7 +21,7 @@ export const desireSenseBanks: Record<string, CandidBank> = {
     novelty: i([
       "name, in explicit words, one act wanted more often during sex",
       "switch who initiates sex for a week and talk about what that did to desire",
-      "change the pace of foreplay: slower, meaner, or more tender than usual",
+      "change the pace of foreplay to be slower, meaner, or more tender than usual",
       "tell a sexual fantasy in embarrassing detail without acting it out",
       "have a date that is only kissing and hands, stopped while desire is still high",
       "retire one habitual act during sex and notice whether it is missed",
@@ -112,7 +112,7 @@ export const desireSenseBanks: Record<string, CandidBank> = {
     ]),
     focus: i([
       "use a blindfold so sex is only touch, voice, and breath",
-      "keep one sensation at a time: only a mouth, only hands, or only impact",
+      "keep to one sensation at a time, focusing only on a mouth, hands, or impact",
       "turn the music off so the sounds of sex are the soundtrack",
       "remove sight without ever removing the ability to say stop",
       "stack praise, pain, and fucking on purpose",
@@ -148,7 +148,7 @@ export const desireSenseBanks: Record<string, CandidBank> = {
       "add one sensation during sex instead of five at once",
       "pause sex when light, sound, pain, or praise starts to overwhelm",
       "build from a quiet kiss to impact, instead of starting at the peak",
-      "ask for overload on purpose: voice, grip, and fucking together",
+      "ask for sensory overload on purpose, combining voice, grip, and fucking together",
       "return to a familiar touch after a heavier experiment",
       "treat dissociation during sex as a stop, not as proof the scene is working",
     ]),
@@ -183,7 +183,7 @@ export const desireSenseBanks: Record<string, CandidBank> = {
       "plain language for the act, the hole, the toy, or the pace",
       "a preference named without a hint or a joke to hide behind",
       "sex suggested because of lust, not because the date has reached its assigned hour",
-      "a frequency named out loud: how often sex would actually feel like enough",
+      "a frequency named out loud for how often sex would actually feel like enough",
       "a no to a specific act that does not become a no to the person",
     ]),
     energetic: i([
@@ -196,7 +196,7 @@ export const desireSenseBanks: Record<string, CandidBank> = {
     ]),
     kinky: scene([
       "an order about pace, position, or permission to come",
-      "a name used only during sex: slut, sir, toy, good girl, or one invented for the scene",
+      "a name used only during sex, such as slut, sir, toy, good girl, or one invented for the scene",
       "a short ritual that starts the scene and a different one that ends it",
       "a role wanted in only one direction",
       "impact, bondage, or humiliation that was negotiated before anyone was naked",
@@ -207,7 +207,7 @@ export const desireSenseBanks: Record<string, CandidBank> = {
       "switch who initiates sex instead of keeping a permanent pursuer",
       "combine an ordinary affectionate date with an explicit kink conversation",
       "a drop from teasing into a direct request to be used, with no apology for the gear change",
-      "choose the style from the mood that day: sensual, filthy, primal, or protocol",
+      "choose the sexual style from the mood that day, whether sensual, filthy, primal, or protocol",
       "a refusal to be summarized by the last kind of sex",
     ]),
   },

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -25,11 +25,27 @@ export function CollapsibleSection({
   className,
   children,
 }: CollapsibleSectionProps) {
+  const details = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    const revealTarget = () => {
+      let key: string;
+      try { key = decodeURIComponent(window.location.hash.slice(1)); } catch { return; }
+      const target = key ? document.getElementById(key) : null;
+      if (target && details.current?.contains(target)) {
+        details.current.open = true;
+        target.scrollIntoView?.({ block: "start" });
+      }
+    };
+    revealTarget();
+    window.addEventListener("hashchange", revealTarget);
+    return () => window.removeEventListener("hashchange", revealTarget);
+  }, [children]);
   return (
     <details
+      ref={details}
       id={id}
       className={cn(
-        "group rounded-3xl border transition-all duration-300 open:pb-2",
+        "group rounded-lg border transition-all duration-300 open:pb-2",
         className
       )}
       style={{
@@ -38,10 +54,10 @@ export function CollapsibleSection({
       }}
       open={defaultOpen}
     >
-      <summary className="flex cursor-pointer list-none items-center justify-between p-5 sm:p-6 select-none [&::-webkit-details-marker]:hidden hover:bg-[var(--bg-subtle)]/60 rounded-3xl transition-colors">
+      <summary className="flex cursor-pointer list-none items-center justify-between p-5 sm:p-6 select-none [&::-webkit-details-marker]:hidden hover:bg-[var(--bg-subtle)]/60 rounded-lg transition-colors">
         <div className="flex items-center gap-3 sm:gap-4 min-w-0 pr-3">
           {Icon && (
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-subtle)] text-[var(--accent-plum)] group-hover:scale-105 transition-transform">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-[var(--border-hairline)] bg-[var(--bg-subtle)] text-[var(--accent-plum)] group-hover:scale-105 transition-transform">
               <Icon className="h-5 w-5" />
             </div>
           )}

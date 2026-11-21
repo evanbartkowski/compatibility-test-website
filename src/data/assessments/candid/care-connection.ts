@@ -215,7 +215,7 @@ export const careConnectionBanks: Record<string, CandidBank> = {
     planning: i([
       "read about a sex act alone before discussing it",
       "talk about a change to foreplay several days before a date",
-      "write what a sexual experiment excludes: pain, fluids, photos, other people",
+      "name what a sexual experiment excludes, like pain, fluids, photos, or other people",
       "ask questions about a role outside the bedroom, clothed and unhurried",
       "agree what happens if either person changes their mind before a planned scene",
       "separate 'I want to research this' from 'I want to do this'",

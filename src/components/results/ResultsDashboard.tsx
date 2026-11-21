@@ -180,7 +180,7 @@ function PreferenceBucketList({
 }) {
   return (
     <div
-      className="rounded-2xl border p-5"
+      className="rounded-md border p-5"
       style={{
         backgroundColor: "var(--bg-elevated)",
         borderColor: "var(--border-hairline)",
@@ -467,7 +467,7 @@ export function ResultsDashboard({
     <div className="results-dashboard site-shell py-10 sm:py-14">
       {/* Header Banner */}
       <div
-        className="rounded-3xl border p-6 sm:p-10"
+        className="rounded-lg border p-6 sm:p-10"
         style={{
           backgroundColor: "var(--bg-elevated)",
           borderColor: "var(--border-hairline)",
@@ -605,7 +605,7 @@ export function ResultsDashboard({
 
         {result.provisional && (
           <div
-            className="mt-6 flex items-start gap-3 rounded-2xl border p-4 text-xs"
+            className="mt-6 flex items-start gap-3 rounded-md border p-4 text-xs"
             style={{
               backgroundColor:
                 "color-mix(in srgb, var(--accent-gold) 12%, transparent)",
@@ -688,7 +688,7 @@ export function ResultsDashboard({
       {/* Previous Attempt Diff Comparison (if ?compare= passed) */}
       {previousResult && (
         <div
-          className="mt-6 rounded-3xl border p-6"
+          className="mt-6 rounded-lg border p-6"
           style={{
             backgroundColor: "var(--bg-subtle)",
             borderColor: "var(--border-strong)",
@@ -713,7 +713,7 @@ export function ResultsDashboard({
               return (
                 <div
                   key={dim.dimension}
-                  className="rounded-2xl border bg-[var(--bg-elevated)] p-3.5 text-xs"
+                  className="rounded-md border bg-[var(--bg-elevated)] p-3.5 text-xs"
                 >
                   <p className="font-medium text-[var(--ink-primary)]">
                     {dim.label}
@@ -832,7 +832,7 @@ export function ResultsDashboard({
                 {result.curiosityGroups.map((group) => (
                   <div
                     key={group.level}
-                    className="rounded-2xl border p-4"
+                    className="rounded-md border p-4"
                     style={{
                       backgroundColor: "var(--bg-canvas)",
                       borderColor: "var(--border-hairline)",
@@ -885,7 +885,7 @@ export function ResultsDashboard({
                   {result.blendedArchetype.blendScores.map((b, i) => (
                     <div
                       key={b.id}
-                      className="rounded-2xl border p-4"
+                      className="rounded-md border p-4"
                       style={{
                         backgroundColor:
                           i === 0 ? "var(--bg-subtle)" : "var(--bg-canvas)",
@@ -919,7 +919,7 @@ export function ResultsDashboard({
           {/* Multi-Rater 360 Panel (Test 19) */}
           {assessmentMeta?.supportsMultiRater && (
             <section
-              className="rounded-3xl border p-6 sm:p-8"
+              className="rounded-lg border p-6 sm:p-8"
               style={{
                 backgroundColor: "var(--bg-elevated)",
                 borderColor: "var(--border-hairline)",
@@ -964,7 +964,7 @@ export function ResultsDashboard({
               </div>
 
               {peerInviteUrl && (
-                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--accent-sage)] bg-[var(--bg-subtle)] p-4 text-xs">
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-[var(--accent-sage)] bg-[var(--bg-subtle)] p-4 text-xs">
                   <span className="truncate font-mono-tabular text-[var(--ink-primary)]">
                     {peerInviteUrl}
                   </span>
@@ -1007,7 +1007,7 @@ export function ResultsDashboard({
           {/* Trait Spectrum Continuums (Big Five, Conflict, etc.) */}
           {showSpectrumAlongside && (
             <section
-              className="rounded-3xl border p-6 sm:p-8"
+              className="rounded-lg border p-6 sm:p-8"
               style={{
                 backgroundColor: "var(--bg-elevated)",
                 borderColor: "var(--border-hairline)",
@@ -1029,7 +1029,7 @@ export function ResultsDashboard({
           {/* What You Are Into: Deep evidence-linked desire & limit breakdown */}
           {result.whatYouAreInto && (
             <section
-              className="rounded-3xl border p-6 sm:p-8"
+              className="rounded-lg border p-6 sm:p-8"
               style={{
                 backgroundColor: "var(--bg-elevated)",
                 borderColor: "var(--border-hairline)",
@@ -1059,7 +1059,7 @@ export function ResultsDashboard({
                     .map((summaryPoint, idx) => (
                       <div
                         key={idx}
-                        className="rounded-2xl border px-3.5 py-2.5 text-xs leading-relaxed text-[var(--ink-primary)]"
+                        className="rounded-md border px-3.5 py-2.5 text-xs leading-relaxed text-[var(--ink-primary)]"
                         style={{
                           backgroundColor: "var(--bg-subtle)",
                           borderColor: "var(--border-hairline)",
@@ -1073,7 +1073,7 @@ export function ResultsDashboard({
 
               {result.whatYouAreInto.roleOrDynamicLean && (
                 <div
-                  className="mt-5 flex flex-col justify-between gap-3 rounded-2xl border p-4 sm:flex-row sm:items-center"
+                  className="mt-5 flex flex-col justify-between gap-3 rounded-md border p-4 sm:flex-row sm:items-center"
                   style={{
                     backgroundColor:
                       "color-mix(in srgb, var(--accent-plum) 10%, var(--bg-subtle))",
@@ -1176,7 +1176,7 @@ export function ResultsDashboard({
                       "No hard limits or low enjoyment boundaries were flagged on these items.",
                   };
                   return (
-                    <p className="mt-4 rounded-2xl border border-dashed p-5 text-xs text-[var(--ink-muted)]">
+                    <p className="mt-4 rounded-md border border-dashed p-5 text-xs text-[var(--ink-muted)]">
                       {emptyCopy[intoTab]}
                     </p>
                   );
@@ -1187,7 +1187,7 @@ export function ResultsDashboard({
                     {items.map((item) => (
                       <div
                         key={`${intoTab}-${item.questionId}`}
-                        className="flex flex-col justify-between rounded-2xl border p-4"
+                        className="flex flex-col justify-between rounded-md border p-4"
                         style={{
                           backgroundColor: "var(--bg-canvas)",
                           borderColor:
@@ -1298,7 +1298,7 @@ export function ResultsDashboard({
 
           {/* Interactive Radar (preserved with exact heading for E2E) */}
           <section
-            className="rounded-3xl border p-6 sm:p-8"
+            className="rounded-lg border p-6 sm:p-8"
             style={{
               backgroundColor: "var(--bg-elevated)",
               borderColor: "var(--border-hairline)",
@@ -1326,7 +1326,7 @@ export function ResultsDashboard({
           {result.dimensionInteractions &&
             result.dimensionInteractions.length > 0 && (
               <section
-                className="rounded-3xl border p-6 sm:p-8"
+                className="rounded-lg border p-6 sm:p-8"
                 style={{
                   backgroundColor: "var(--bg-subtle)",
                   borderColor: "var(--border-hairline)",
@@ -1349,7 +1349,7 @@ export function ResultsDashboard({
                   {result.dimensionInteractions.map((inter) => (
                     <div
                       key={inter.id}
-                      className="flex flex-col justify-between rounded-2xl border p-5"
+                      className="flex flex-col justify-between rounded-md border p-5"
                       style={{
                         backgroundColor: "var(--bg-elevated)",
                         borderColor: "var(--border-hairline)",
@@ -1480,7 +1480,7 @@ export function ResultsDashboard({
 
               {result.unmetPreferences && result.unmetPreferences.length > 0 && (
                 <div
-                  className="rounded-2xl border p-5 sm:p-6"
+                  className="rounded-md border p-5 sm:p-6"
                   style={{
                     backgroundColor: "var(--bg-subtle)",
                     borderColor: "var(--border-hairline)",
@@ -1565,7 +1565,7 @@ export function ResultsDashboard({
           {/* Expandable Full Question & Answer Review Accordion */}
           {result.qaSummary && result.qaSummary.length > 0 && (
             <section
-              className="rounded-3xl border p-6 sm:p-8"
+              className="rounded-lg border p-6 sm:p-8"
               style={{
                 backgroundColor: "var(--bg-elevated)",
                 borderColor: "var(--border-hairline)",
@@ -1733,7 +1733,7 @@ export function ResultsDashboard({
                               key={qa.questionId}
                               id={`qa-row-${qa.questionId}`}
                               className={cn(
-                                "rounded-2xl border p-4 text-xs transition-all",
+                                "rounded-md border p-4 text-xs transition-all",
                                 isHighlighted &&
                                   "ring-2 ring-[var(--accent-plum)]",
                               )}
@@ -1852,7 +1852,7 @@ export function ResultsDashboard({
                   <Link
                     key={rec.slug}
                     href={`/assess/${rec.slug}`}
-                    className="group rounded-2xl border p-5 transition-colors hover:border-[var(--accent-plum)]"
+                    className="group rounded-md border p-5 transition-colors hover:border-[var(--accent-plum)]"
                     style={{
                       backgroundColor: "var(--bg-elevated)",
                       borderColor: "var(--border-hairline)",
@@ -1888,7 +1888,7 @@ export function ResultsDashboard({
         {showScatterTab && (
           <Tabs.Content value="scatterplot" className="mt-8 space-y-8">
             <div
-              className="rounded-3xl border p-6 sm:p-8"
+              className="rounded-lg border p-6 sm:p-8"
               style={{
                 backgroundColor: "var(--bg-elevated)",
                 borderColor: "var(--border-hairline)",
@@ -1916,7 +1916,7 @@ export function ResultsDashboard({
         {showCommunityTab && (
           <Tabs.Content value="community" className="mt-8 space-y-6">
             <div
-              className="rounded-3xl border p-6 sm:p-8"
+              className="rounded-lg border p-6 sm:p-8"
               style={{
                 backgroundColor: "var(--bg-elevated)",
                 borderColor: "var(--border-hairline)",
@@ -1965,7 +1965,7 @@ export function ResultsDashboard({
 
               {demoPreview && (
                 <div
-                  className="mt-5 flex items-start gap-3 rounded-2xl border p-4 text-xs"
+                  className="mt-5 flex items-start gap-3 rounded-md border p-4 text-xs"
                   style={{
                     backgroundColor:
                       "color-mix(in srgb, var(--accent-gold) 14%, transparent)",
@@ -2056,7 +2056,7 @@ export function ResultsDashboard({
                   </p>
                 ) : community.suppressedByPrivacyThreshold ? (
                   <div
-                    className="rounded-2xl border p-6 text-center"
+                    className="rounded-md border p-6 text-center"
                     style={{
                       backgroundColor: "var(--bg-subtle)",
                       borderColor: "var(--border-hairline)",
@@ -2097,7 +2097,7 @@ export function ResultsDashboard({
           <Tabs.Content value="ideal-partner" className="mt-8 space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
               <div
-                className="rounded-3xl border p-6 sm:p-8"
+                className="rounded-lg border p-6 sm:p-8"
                 style={{
                   backgroundColor: "var(--bg-elevated)",
                   borderColor: "var(--border-hairline)",
@@ -2126,7 +2126,7 @@ export function ResultsDashboard({
               </div>
 
               <div
-                className="rounded-3xl border p-6 sm:p-8"
+                className="rounded-lg border p-6 sm:p-8"
                 style={{
                   backgroundColor: "var(--bg-elevated)",
                   borderColor: "var(--border-hairline)",
@@ -2145,7 +2145,7 @@ export function ResultsDashboard({
                     {result.idealPartner.whatMattersMost.map((m, i) => (
                       <div
                         key={i}
-                        className="rounded-2xl border p-4"
+                        className="rounded-md border p-4"
                         style={{
                           backgroundColor: "var(--bg-subtle)",
                           borderColor: "var(--border-hairline)",
@@ -2166,7 +2166,7 @@ export function ResultsDashboard({
 
             <div className="grid gap-6 md:grid-cols-2">
               <div
-                className="rounded-3xl border p-6 sm:p-8"
+                className="rounded-lg border p-6 sm:p-8"
                 style={{
                   backgroundColor: "var(--bg-subtle)",
                   borderColor: "var(--border-hairline)",
@@ -2179,7 +2179,7 @@ export function ResultsDashboard({
                   {result.idealPartner.earlyDatingSignals.map((sig, i) => (
                     <div
                       key={i}
-                      className="rounded-2xl border p-4"
+                      className="rounded-md border p-4"
                       style={{
                         backgroundColor: "var(--bg-elevated)",
                         borderColor: "var(--border-hairline)",
@@ -2197,7 +2197,7 @@ export function ResultsDashboard({
               </div>
 
               <div
-                className="rounded-3xl border p-6 sm:p-8"
+                className="rounded-lg border p-6 sm:p-8"
                 style={{
                   backgroundColor: "var(--bg-subtle)",
                   borderColor: "var(--border-hairline)",
@@ -2210,7 +2210,7 @@ export function ResultsDashboard({
                   {result.idealPartner.potentialMismatches.map((mis, i) => (
                     <div
                       key={i}
-                      className="flex items-start gap-2.5 rounded-2xl border p-4 text-xs"
+                      className="flex items-start gap-2.5 rounded-md border p-4 text-xs"
                       style={{
                         backgroundColor: "var(--bg-elevated)",
                         borderColor: "var(--border-hairline)",
@@ -2231,7 +2231,7 @@ export function ResultsDashboard({
                   {result.idealPartner.explorationOpportunities.map((ex, i) => (
                     <div
                       key={`ex-${i}`}
-                      className="rounded-2xl border p-4 text-xs"
+                      className="rounded-md border p-4 text-xs"
                       style={{
                         backgroundColor: "var(--bg-elevated)",
                         borderColor: "var(--accent-gold)",

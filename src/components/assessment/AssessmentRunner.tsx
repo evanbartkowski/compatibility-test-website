@@ -493,7 +493,7 @@ export function AssessmentRunner({
           </Link>
           {savedDraftPrompt && (
             <div
-              className="mb-8 flex flex-col justify-between gap-4 rounded-2xl border p-5 sm:flex-row sm:items-center"
+              className="mb-8 flex flex-col justify-between gap-4 rounded-md border p-5 sm:flex-row sm:items-center"
               style={{
                 backgroundColor: "var(--bg-subtle)",
                 borderColor: "var(--accent-gold)",
@@ -538,14 +538,14 @@ export function AssessmentRunner({
           )}
 
           <div
-            className="rounded-3xl border p-6 sm:p-10"
+            className="rounded-lg border p-6 sm:p-10"
             style={{
               backgroundColor: "var(--bg-elevated)",
               borderColor: "var(--border-hairline)",
               boxShadow: "var(--shadow-soft)",
             }}
           >
-            <div className="assessment-consent-art mb-6 flex items-center justify-center overflow-hidden rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-canvas)] py-4">
+            <div className="assessment-consent-art mb-6 flex items-center justify-center overflow-hidden rounded-md border border-[var(--border-hairline)] bg-[var(--bg-canvas)] py-4">
               <AssessmentArtwork
                 slug={assessment.slug}
                 category={assessment.category}
@@ -623,7 +623,7 @@ export function AssessmentRunner({
                         type="button"
                         onClick={() => setMode(item.key)}
                         className={cn(
-                          "rounded-2xl border p-4 text-left transition-all",
+                          "rounded-md border p-4 text-left transition-all",
                           mode === item.key
                             ? "border-[var(--accent-plum)] bg-[var(--bg-subtle)]"
                             : "border-[var(--border-hairline)] bg-[var(--bg-canvas)] hover:border-[var(--border-strong)]",
@@ -703,7 +703,7 @@ export function AssessmentRunner({
 
               {assessment.supportsCommunityComparison && (
                 <div
-                  className="rounded-2xl border p-4"
+                  className="rounded-md border p-4"
                   style={{
                     backgroundColor: "var(--bg-subtle)",
                     borderColor: "var(--border-hairline)",
@@ -823,7 +823,7 @@ export function AssessmentRunner({
 
               {perspective === "partner" && (
                 <div
-                  className="rounded-2xl border p-4"
+                  className="rounded-md border p-4"
                   style={{
                     backgroundColor: "var(--bg-subtle)",
                     borderColor: "var(--border-hairline)",

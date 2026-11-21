@@ -37,6 +37,8 @@ test("question pages have readable tap targets, retain answers and support both 
   for (const theme of ["dark", "light"] as const) {
     if (theme === "light")
       await page.getByRole("button", { name: "Switch to light theme" }).click();
+    if (theme === "light") await expect(page.getByRole("heading", { level: 2 })).toHaveCSS("color", "rgb(25, 22, 38)");
+    await page.screenshot({ path: info.outputPath(`questionnaire-${theme}.png`), fullPage: true });
     const audit = await new AxeBuilder({ page })
       .include(".assessment-workspace")
       .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])

@@ -1249,7 +1249,7 @@ const power: Survey = {
       experiment:
         "Discuss one low-stakes interaction where you might lead and what choices the other person wants to retain. Include an easy way to redirect you.",
       reflection:
-        "What do you enjoy about leading: initiative, attentiveness, structure, expression or something else?",
+        "What do you enjoy about leading, whether initiative, attentiveness, structure, or expression?",
       items: [
         "I enjoy initiating a mutually wanted intimate interaction.",
         "When preferences have been discussed, I like helping guide the pace.",

@@ -163,7 +163,7 @@ export function ResultsOverview({
                 onClick={() => setSelected(d.dimension)}
                 disabled={d.answeredCount === 0}
                 className={cn(
-                  "flex flex-col justify-between text-left p-4 sm:p-5 rounded-2xl border transition-all duration-300 relative group overflow-hidden cursor-pointer",
+                  "flex flex-col justify-between text-left p-4 sm:p-5 rounded-lg border transition-all duration-300 relative group overflow-hidden cursor-pointer",
                   tier.bgClass,
                   tier.borderClass,
                   isSelected
@@ -178,7 +178,7 @@ export function ResultsOverview({
                     </span>
                     <span
                       className={cn(
-                        "font-mono text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0",
+                        "font-mono text-[10px] font-bold px-2 py-0.5 rounded-md border shrink-0",
                         tier.badgeClass
                       )}
                     >
@@ -216,7 +216,7 @@ export function ResultsOverview({
 
                 <div className="mt-4">
                   <div
-                    className="h-2 w-full rounded-full overflow-hidden"
+                    className="h-2 w-full rounded overflow-hidden"
                     style={{
                       backgroundColor:
                         "var(--bg-inset, rgba(255,255,255,0.06))",
@@ -224,7 +224,7 @@ export function ResultsOverview({
                   >
                     <div
                       className={cn(
-                        "h-full rounded-full transition-all duration-700 bg-gradient-to-r",
+                        "h-full rounded transition-all duration-700 bg-gradient-to-r",
                         tier.gradientClass,
                         tier.glowClass
                       )}

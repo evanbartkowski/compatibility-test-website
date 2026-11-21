@@ -142,7 +142,7 @@ export const communicationRoleBanks: Record<string, CandidBank> = {
       "reassurance that sex does not have to end in anyone's orgasm",
       "a question, mid-scene, about whether edging is still hot or has become frustrating",
       "orders about whose orgasm comes first",
-      "permission used as the toy: asked for, withheld, then given",
+      "permission used as the toy, asked for, withheld, then granted",
     ]),
     flexibility: i([
       "end sex without an orgasm and call that complete",

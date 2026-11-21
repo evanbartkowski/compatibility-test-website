@@ -1,4 +1,5 @@
 import type { AssessmentDefinition, QuestionAnswer, ScoredAssessmentResult } from "./types";
+import { KINK_ROLE_COPY } from "./kink-roles";
 
 export interface RoleScore {
   key: string;
@@ -64,6 +65,7 @@ export const ROLE_COPY: Record<string, Omit<RoleScore, "key" | "percent" | "answ
   sensory: copy("Sensory player", "Sensation and impact", "Blindfolds, temperature, texture, and overload are a major part of sex for you.", ["A blindfold with your hands free", "Ice, wax, or a rough palm, one at a time", "Sound low enough that a stop can be heard"]),
   edge: copy("Edge player", "Sensation and impact", "You are drawn to higher-intensity play, including fear, breath, or an edge, when trust is already there.", ["Fear play with a pre-agreed stop", "A hand on the throat that ends on a tap, not a how-to", "No edge play when either of you is drunk"]),
   caregiver: copy("Caregiver", "Sexual style", "You want to look after an adult partner: aftercare, tending, and the landing after intensity.", ["Water and a blanket after a scene", "A next-day check-in", "Asking whether they want to be held or left alone"]),
+  ...KINK_ROLE_COPY,
 };
 
 const PAIRS: Array<[string, string]> = [
@@ -117,13 +119,14 @@ export function rankAssessmentRoles(
   }
   const fromTags = [...buckets.entries()].map(([key, scores]) => {
     const section = assessment.sections.find((s) => s.id === key);
+    const humanLabel = key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
     const meta = ROLE_COPY[key] || copy(
-      section?.title || key,
-      "Your pattern",
-      `You keep landing on ${section?.title || key}. That is a pattern in your answers, not a task for a partner.`,
+      section?.title || humanLabel,
+      "Kinks & Desires",
+      `You score strongly on ${section?.title || humanLabel}.`,
       [
-        `Pick the ${section?.title || key} item you would actually do.`,
-        "Name the condition that keeps it hot, and the one that makes it a no.",
+        `Explore what conditions make ${section?.title || humanLabel} exciting for you.`,
+        "Communicate clear boundaries and safewords before exploring.",
       ],
     );
     return {
