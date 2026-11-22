@@ -886,7 +886,7 @@ export function AssessmentRunner({
         </nav>
         <header className="assessment-page-heading">
           <div
-            className="mb-4 flex items-center justify-between border-b pb-3"
+            className="mb-4 flex items-center justify-between border-b pb-3 w-full"
             style={{ borderColor: "var(--border-hairline)" }}
           >
             <Link
@@ -899,7 +899,7 @@ export function AssessmentRunner({
               {assessment.title}
             </span>
           </div>
-          <h2 ref={questionHeading} tabIndex={-1} className="font-display">
+          <h2 ref={questionHeading} tabIndex={-1} className="font-display text-center w-full">
             {progressPercent}% complete
           </h2>
         </header>

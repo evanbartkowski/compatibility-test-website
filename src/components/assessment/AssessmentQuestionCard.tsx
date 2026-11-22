@@ -270,7 +270,7 @@ export function AssessmentQuestionCard({
     >
       <div className="assessment-question-meta">
         <span className="assessment-question-number" aria-hidden="true">
-          {answered ? <Check size={16} aria-hidden="true" /> : number}
+          {answered ? <Check size={14} aria-hidden="true" /> : number}
         </span>
         <span className="sr-only">Question {number}</span>
         <span className="assessment-answer-status">
@@ -283,7 +283,7 @@ export function AssessmentQuestionCard({
       </div>
       {currentQuestion.inputType === "partner_prediction" && (
         <p className="assessment-question-hint">
-          <Users size={16} aria-hidden="true" />
+          <Users size={15} aria-hidden="true" />
           {perspective === "partner"
             ? "How do you think your partner answered?"
             : "Answer for yourself. Your partner can guess your answer later."}
@@ -292,7 +292,7 @@ export function AssessmentQuestionCard({
       <h3
         id={`assessment-question-${currentQuestion.id}`}
         tabIndex={-1}
-        className="font-display"
+        className="font-display text-center text-lg sm:text-xl font-semibold leading-relaxed text-[var(--ink-primary)] mx-auto max-w-2xl"
       >
         {displayPrompt}
       </h3>
@@ -345,8 +345,8 @@ export function AssessmentQuestionCard({
           </div>
         ) : (
           <>
-            <div className="mt-7">
-              <p className="mb-2.5 text-xs font-medium text-[var(--ink-muted)]">
+            <div className="mt-6">
+              <p className="mb-2.5 text-xs font-medium text-[var(--ink-muted)] text-center">
                 Your personal preference (keys 1 to 5)
               </p>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-5">
@@ -392,7 +392,7 @@ export function AssessmentQuestionCard({
               </div>
             </div>
 
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
               {SPECIAL_STATES.map((st) => {
                 const selected =
                   !currentAnswer?.firmBoundary &&
@@ -495,7 +495,7 @@ export function AssessmentQuestionCard({
                         updateCurrentAnswer({ revealRule: rule.value })
                       }
                       className={cn(
-                        "rounded-xl border p-2.5 text-left text-xs transition-all",
+                        "rounded-md border p-2.5 text-left text-xs transition-all",
                         active
                           ? "border-[var(--accent-plum)] bg-[var(--bg-elevated)] font-medium text-[var(--ink-primary)] shadow-sm"
                           : "border-[var(--border-hairline)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]",
@@ -569,7 +569,7 @@ export function AssessmentQuestionCard({
                         color: selected ? "#ffffff" : "var(--ink-primary)",
                         boxShadow: selected ? `0 0 14px ${optColor.color}40` : "none",
                       }}
-                      className="flex h-10 sm:h-11 items-center justify-center rounded-xl border font-mono-tabular text-sm font-bold transition-all"
+                      className="flex h-10 sm:h-11 items-center justify-center rounded-md border font-mono-tabular text-sm font-bold transition-all"
                     >
                       {val}
                     </button>
