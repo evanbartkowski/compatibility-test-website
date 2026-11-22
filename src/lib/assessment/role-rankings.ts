@@ -61,7 +61,8 @@ export const ROLE_COPY: Record<string, Omit<RoleScore, "key" | "percent" | "answ
   object_bottom: copy("Objectification bottom", "Roleplay and identity", "You want to be used as a sexual object or tool.", ["A scene where you are positioned and used, then checked on", "A word that returns you to being a person", "Objectification that stays in the scene"]),
   object_top: copy("Objectification top", "Roleplay and identity", "You want to treat a willing partner as a sexual object or tool.", ["Use them for your pleasure inside limits they set", "Check in before you ignore their reactions as part of the game", "Aftercare that treats them as a person again"]),
   protocol: copy("Protocol", "Power exchange", "You want rules, honorifics, and structured behavior, not only a vibe.", ["One rule you actually keep", "A greeting that starts the dynamic and an ending that stops it", "Protocol that does not run their work or their family"]),
-  impact: copy("Impact player", "Sensation and impact", "Spanking, flogging, caning, or other impact is its own interest for you.", ["A hand, a paddle, or a flogger on a partner who asked", "A spanking hard enough to leave a mark", "Impact that stops when the word is used"]),
+  bdsm: copy("BDSM", "Power exchange", "Bondage, discipline, dominance, submission, and sadomasochism as an intentional erotic dynamic.", ["A scene combining physical restraint with clear power exchange", "Negotiating a scene with explicit limits and safewords"]),
+  impact: copy("Impact Play", "Sensation and impact", "Spanking, flogging, caning, or other impact is a core turn-on for you.", ["A structured impact scene with agreed implements", "A spanking that leaves marks you wanted"]),
   sensory: copy("Sensory player", "Sensation and impact", "Blindfolds, temperature, texture, and overload are a major part of sex for you.", ["A blindfold with your hands free", "Ice, wax, or a rough palm, one at a time", "Sound low enough that a stop can be heard"]),
   edge: copy("Edge player", "Sensation and impact", "You are drawn to higher-intensity play, including fear, breath, or an edge, when trust is already there.", ["Fear play with a pre-agreed stop", "A hand on the throat that ends on a tap, not a how-to", "No edge play when either of you is drunk"]),
   caregiver: copy("Caregiver", "Sexual style", "You want to look after an adult partner: aftercare, tending, and the landing after intensity.", ["Water and a blanket after a scene", "A next-day check-in", "Asking whether they want to be held or left alone"]),
@@ -83,41 +84,180 @@ const PAIRS: Array<[string, string]> = [
   ["exhibitionist", "voyeur"],
 ];
 
-function agreement(qMin: number, qMax: number, value: number): number {
-  if (qMax <= qMin) return 50;
-  return Math.max(0, Math.min(100, Math.round(((value - qMin) / (qMax - qMin)) * 100)));
+export function answerScoreAndWeight(
+  q: { inputType?: string; scaleConfig?: { min?: number; max?: number }; reverseScored?: boolean },
+  ans: QuestionAnswer | undefined,
+): { score: number; weight: number } | null {
+  if (!ans || ans.skipped) return null;
+  if (ans.firmBoundary || ans.curiosityLevel === "firm_boundary") {
+    return { score: 0, weight: 2.0 };
+  }
+  let raw: number | null = null;
+  let weight = 1.0;
+
+  if (typeof ans.customValue === "number" && q.inputType === "rating_scale") {
+    const val = ans.customValue;
+    // Calibrated non-linear intensity curve for 1-7 scale in kink tests
+    if (val >= 7) {
+      raw = 100;
+      weight = 1.25;
+    } else if (val >= 6) {
+      raw = 85;
+      weight = 1.05;
+    } else if (val >= 5) {
+      raw = 68;
+      weight = 0.95;
+    } else if (val >= 4) {
+      raw = 30; // neutral answer indicates lack of active drive, not 50% burning desire
+      weight = 0.60;
+    } else if (val >= 3) {
+      raw = 15;
+      weight = 0.85;
+    } else if (val >= 2) {
+      raw = 5;
+      weight = 1.05;
+    } else {
+      raw = 0;
+      weight = 1.25;
+    }
+  } else if (typeof ans.enjoyment === "number") {
+    const val = ans.enjoyment;
+    if (val >= 5) { raw = 100; weight = 1.2; }
+    else if (val >= 4) { raw = 80; weight = 1.0; }
+    else if (val >= 3) { raw = 40; weight = 0.7; }
+    else if (val >= 2) { raw = 15; weight = 0.9; }
+    else { raw = 0; weight = 1.2; }
+  } else if (ans.curiosityLevel === "very_interested") {
+    raw = 95; weight = 1.2;
+  } else if (ans.curiosityLevel === "interested") {
+    raw = 78; weight = 1.0;
+  } else if (ans.curiosityLevel === "curious_uncertain") {
+    raw = 45; weight = 0.7;
+  } else if (ans.curiosityLevel === "not_interested") {
+    raw = 10; weight = 1.1;
+  }
+
+  if (raw === null) return null;
+  const score = q.reverseScored ? 100 - raw : raw;
+  return { score, weight };
 }
 
-export function answerPercent(q: { inputType?: string; scaleConfig?: { min?: number; max?: number } }, ans: QuestionAnswer | undefined): number | null {
-  if (!ans || ans.skipped) return null;
-  if (ans.firmBoundary || ans.curiosityLevel === "firm_boundary") return 0;
-  if (typeof ans.customValue === "number" && q.inputType === "rating_scale") {
-    return agreement(q.scaleConfig?.min ?? 1, q.scaleConfig?.max ?? 7, ans.customValue);
-  }
-  if (typeof ans.enjoyment === "number") return agreement(1, 5, ans.enjoyment);
-  if (ans.curiosityLevel === "very_interested") return 95;
-  if (ans.curiosityLevel === "interested") return 78;
-  if (ans.curiosityLevel === "curious_uncertain") return 58;
-  if (ans.curiosityLevel === "not_interested") return 18;
-  return null;
+export function answerPercent(
+  q: { inputType?: string; scaleConfig?: { min?: number; max?: number }; reverseScored?: boolean },
+  ans: QuestionAnswer | undefined,
+): number | null {
+  const sw = answerScoreAndWeight(q, ans);
+  return sw ? sw.score : null;
 }
 
 export function rankAssessmentRoles(
   assessment: AssessmentDefinition,
   answers: Record<string, QuestionAnswer>,
 ): RoleScore[] {
-  const buckets = new Map<string, number[]>();
+  type Acc = { weightedSum: number; weightTotal: number; count: number; rawScores: number[] };
+  const roleBuckets = new Map<string, Acc>();
+
   for (const q of assessment.questions) {
-    const pct = answerPercent(q, answers[q.id]);
-    if (pct === null) continue;
-    const roles = (q.topicTags || []).filter((tag) => tag.startsWith("role:")).map((tag) => tag.slice(5));
-    for (const key of roles) {
-      const list = buckets.get(key) || [];
-      list.push(pct);
-      buckets.set(key, list);
+    const sw = answerScoreAndWeight(q, answers[q.id]);
+    if (!sw) continue;
+
+    const roles = (q.topicTags || [])
+      .filter((tag) => tag.startsWith("role:"))
+      .map((tag) => tag.slice(5));
+
+    roles.forEach((key, index) => {
+      // Primary tag gets 1.0 rank weight; secondary tags get decreasing weights (0.85, 0.75, etc.)
+      const positionWeight = index === 0 ? 1.0 : Math.max(0.60, 0.90 - index * 0.08);
+      const effectiveWeight = sw.weight * positionWeight;
+      const acc = roleBuckets.get(key) || { weightedSum: 0, weightTotal: 0, count: 0, rawScores: [] };
+      acc.weightedSum += sw.score * effectiveWeight;
+      acc.weightTotal += effectiveWeight;
+      acc.count += 1;
+      acc.rawScores.push(sw.score);
+      roleBuckets.set(key, acc);
+    });
+  }
+
+  const computedScores = new Map<string, { percent: number; count: number }>();
+  for (const [key, acc] of roleBuckets.entries()) {
+    if (acc.weightTotal <= 0) continue;
+    const base = acc.weightedSum / acc.weightTotal;
+    // Calibrate confidence by volume: categories confirmed across multiple items reach 100%
+    const confidence = Math.min(1.0, 0.45 + (acc.count / 4) * 0.55);
+    const calibrated = Math.round(base * confidence + 35 * (1 - confidence));
+    const avgScore = Math.max(0, Math.min(100, calibrated));
+    computedScores.set(key, { percent: avgScore, count: acc.count });
+  }
+
+  // Cross-category dynamics and umbrella synergies
+  const getScore = (k: string) => computedScores.get(k)?.percent ?? 0;
+  const setScore = (k: string, p: number, c = 1) => {
+    computedScores.set(k, {
+      percent: Math.max(0, Math.min(100, Math.round(p))),
+      count: Math.max(computedScores.get(k)?.count ?? 0, c),
+    });
+  };
+
+  const dom = getScore("dominant");
+  const sub = getScore("submissive");
+
+  // 1. Switch dynamic synthesis:
+  if (dom >= 40 && sub >= 40) {
+    const balance = 100 - Math.abs(dom - sub);
+    const naturalSwitch = Math.round(Math.min(dom, sub) * 0.85 + balance * 0.15);
+    setScore("switch", Math.max(getScore("switch"), naturalSwitch), 2);
+  }
+
+  // 2. BDSM umbrella synthesis:
+  const bdsmElements = [
+    getScore("dominant"),
+    getScore("submissive"),
+    getScore("sadist"),
+    getScore("masochist"),
+    getScore("impact"),
+    getScore("rigger"),
+    getScore("rope_bunny"),
+    getScore("shibari"),
+    getScore("bondage"),
+    getScore("restraints"),
+    getScore("brat_tamer"),
+    getScore("brat"),
+    getScore("master"),
+    getScore("slave"),
+    getScore("cnc_top"),
+    getScore("cnc_bottom"),
+    getScore("protocol"),
+    getScore("edge"),
+    getScore("chastity"),
+    getScore("edging"),
+  ].filter((s) => s > 0).sort((a, b) => b - a);
+
+  if (bdsmElements.length > 0) {
+    const topElements = bdsmElements.slice(0, 3);
+    const avgTop = Math.round(topElements.reduce((a, b) => a + b, 0) / topElements.length);
+    const directBdsm = getScore("bdsm");
+    const synthesizedBdsm = Math.max(directBdsm, avgTop);
+    setScore("bdsm", synthesizedBdsm, Math.max(computedScores.get("bdsm")?.count ?? 0, bdsmElements.length));
+  }
+
+  // 3. Vanilla inverse calibration:
+  const highKinksCount = [...computedScores.values()].filter((v) => v.percent >= 70).length;
+  if (highKinksCount >= 3) {
+    const vanilla = getScore("vanilla");
+    if (vanilla > 0) {
+      setScore("vanilla", Math.max(0, vanilla - highKinksCount * 4));
     }
   }
-  const fromTags = [...buckets.entries()].map(([key, scores]) => {
+
+  // 4. Brat Tamer & Brat calibration
+  if (dom >= 60 && getScore("brat_tamer") > 0) {
+    setScore("brat_tamer", Math.max(getScore("brat_tamer"), Math.round(getScore("brat_tamer") * 0.9 + dom * 0.1)));
+  }
+  if (sub >= 60 && getScore("brat") > 0) {
+    setScore("brat", Math.max(getScore("brat"), Math.round(getScore("brat") * 0.9 + sub * 0.1)));
+  }
+
+  const fromTags: RoleScore[] = [...computedScores.entries()].map(([key, data]) => {
     const section = assessment.sections.find((s) => s.id === key);
     const humanLabel = key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
     const meta = ROLE_COPY[key] || copy(
@@ -132,11 +272,12 @@ export function rankAssessmentRoles(
     return {
       key,
       ...meta,
-      percent: Math.round(scores.reduce((s, n) => s + n, 0) / scores.length),
-      answeredCount: scores.length,
+      percent: data.percent,
+      answeredCount: data.count,
     };
   });
-  return fromTags.sort((a, b) => b.percent - a.percent || a.label.localeCompare(b.label));
+
+  return fromTags.sort((a, b) => b.percent - a.percent || b.answeredCount - a.answeredCount || a.label.localeCompare(b.label));
 }
 
 export function rankingsFromRadar(result: ScoredAssessmentResult): RoleScore[] {

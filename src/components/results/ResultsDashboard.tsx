@@ -98,6 +98,7 @@ const ShareableSummaryCard = dynamic(() =>
   ),
 );
 import { ResultsOverview, CommunityBenchmarks } from "./ResultsOverview";
+import { KinkScoreList } from "./KinkScoreList";
 import { CollapsibleSection } from "./CollapsibleSection";
 import { IntimacyInsights } from "./IntimacyInsights";
 import { RoleRankingList } from "./RoleRankingList";
@@ -632,11 +633,27 @@ export function ResultsDashboard({
         )}
       </div>
 
-      {/* 1. Category Scores Overview (Visually appealing color-coded scores showcase at top of page) */}
-      <ResultsOverview result={result} previousResult={previousResult} />
+      {/* 1. Category Scores Overview / Complete Kink & BDSM Big List */}
+      {(() => {
+        const isKinkOrBdsmTest =
+          result.assessmentSlug === "sexual-interests-curiosity-map" ||
+          result.assessmentSlug === "bdsm-power-dynamics-test" ||
+          result.assessmentSlug === "kink-curiosity-catalog" ||
+          result.assessmentSlug === "kink-exploration-map" ||
+          Boolean(result.roleRankings && result.roleRankings.length > 5);
 
-      {/* 2. Role & Archetype Match (Collapsible dropdown menu) */}
-      <RoleRankingList result={result} />
+        if (isKinkOrBdsmTest) {
+          return <KinkScoreList result={result} previousResult={previousResult} />;
+        }
+
+        return (
+          <>
+            <ResultsOverview result={result} previousResult={previousResult} />
+            {/* 2. Role & Archetype Match (Collapsible dropdown menu) */}
+            <RoleRankingList result={result} />
+          </>
+        );
+      })()}
 
       {/* 3. Action Guide (Collapsible dropdown menu) */}
       {result.advice && result.advice.status === "ready" && (
