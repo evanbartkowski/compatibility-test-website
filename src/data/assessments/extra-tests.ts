@@ -174,19 +174,19 @@ const judging = [
 ];
 
 const sameGender = [
-  "I am sexually attracted to people of my own gender.",
-  "I picture sex with someone of my own gender more easily than with anyone else.",
-  "!Same-gender bodies do not turn me on.",
-  "A same-gender crush has been real, not a joke I told for attention.",
-  "I get aroused by same-gender porn, fantasy, or people I actually know.",
-  "If I had to pick the gender I most want in bed, it is my own.",
-  "!I have never wanted to kiss someone of my own gender.",
-  "Same-gender attraction shows up in my body, not only in my politics.",
-  "I have wanted to date, not only sleep with, someone of my own gender.",
-  "!The idea of a same-gender relationship leaves me cold.",
-  "My strongest sexual pull has been toward my own gender.",
-  "I notice same-gender people in a room the way other people notice the gender they want.",
-  "I would rather be with someone of my own gender than force an opposite-gender script.",
+  "I am a top. I want to fuck, lead, and set the pace with a same-gender partner.",
+  "I am a bottom. I want to be fucked, held down, or opened up by a same-gender partner.",
+  "!I do not want a sexual role. Top, bottom, and vers are not how I have sex.",
+  "I am vers. I want both, and I want a partner who can switch with me.",
+  "I want a masc partner: short hair, low voice, muscle, or a masculine way of moving.",
+  "I want a femme partner: makeup, softness, heels, or a feminine way of taking up space.",
+  "!Presentation does not decide who I want. Masc, femme, and androgynous all work.",
+  "I want a bear, a daddy, a twink, a butch, a femme, or a stud, and I know which.",
+  "I want a partner who is bigger than me, or smaller than me, and that size gap is the point.",
+  "!I do not have a body type. Fit, fat, hairy, smooth, tall, and short can all get me off.",
+  "I want rough gay sex: hair pulling, spit, biting, and being used.",
+  "I want tender gay sex: kissing, eye contact, and being made love to.",
+  "The kind of gay I am is specific. I can name the role, the body, and the dynamic.",
 ];
 
 const otherGender = [
@@ -206,19 +206,19 @@ const otherGender = [
 ];
 
 const sortOf = [
-  "I want a same-gender dynamic with a clear sexual role, whether top, bottom, vers, or the equivalent.",
-  "Whether masculine partners, feminine partners, or both, I know which presentation I actually chase.",
-  "!I do not care about role, presentation, or scene. Attraction is only the gender.",
-  "I want rough same-gender sex, not only tender same-gender romance.",
-  "I want a queer relationship that is domestic, not only a hookup culture.",
-  "Whether bears, twinks, butches, femmes, studs, or outside those boxes, I have a clear type.",
-  "!Labels for how I have queer sex feel like costumes I do not wear.",
-  "I want to be out, or I want this private. I know which, and it is part of the kind of queer life I want.",
-  "Kink and same-gender sex belong together for me, not in separate rooms.",
-  "I want a partner who is also attracted to my gender, not a straight experiment.",
-  "!The only thing I want from queerness is the identity, not the sex.",
-  "I know whether I want to pursue, be pursued, or switch.",
-  "The kind of gay, bi, or queer sex I want is specific, and I can name it.",
+  "I want a hairy partner, a smooth partner, or a partner with a beard, and I know which.",
+  "I want a muscular partner, a slim partner, a fat partner, or a dad-bod partner, and that is a real filter.",
+  "!Body hair, muscle, and size are not what I screen for.",
+  "I want a discreet partner who is not out, or I want a partner who is obviously queer in public.",
+  "I want a partner who is also a top, also a bottom, or willing to vers with me.",
+  "I want leather, jockstraps, lingerie, or nothing, and the clothes are part of the type.",
+  "!I do not care what they wear or how they present. I care that they want me.",
+  "I want an older adult partner, or a younger adult partner, and the age gap between adults is the heat.",
+  "I want a dominant partner, a submissive partner, or a switch, in gay sex specifically.",
+  "I want a partner who is into the same kink as me, not only a vanilla same-gender relationship.",
+  "!Kink is optional. I can want a plain same-gender fuck.",
+  "I want a partner who will say the filthy sentence, or a partner who is quiet and physical.",
+  "I know the partner I am hunting. I could describe them to a friend without blushing the type away.",
 ];
 
 const community = [
@@ -323,7 +323,7 @@ export const extraAssessments: AssessmentDefinition[] = [
     category: "sexuality-intimacy",
     adultsOnly: true,
     matching: true,
-    hook: "Who you want, how same-gender that want is, and what kind of queer sex and life you actually mean. Not a diagnosis.",
+    hook: "What kind of gay you are, and which partners you actually want: role, body, presentation, and dynamic. Not a diagnosis.",
     ask: "Who do you want in the bed, and what kind of dynamic do you want with them?",
     scales: [
       { key: "same_gender", label: "Same-gender attraction", description: "How much your want points at your own gender.", items: sameGender },

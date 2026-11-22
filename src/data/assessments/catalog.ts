@@ -127,15 +127,12 @@ export const archivedAssessments: AssessmentDefinition[] = [
 ];
 
 export const activeIntimacySlugs = new Set([
-  "desire-reality-map",
   "aftercare-recovery-style",
   "toys-tools-gear-preferences",
   "fantasy-catalog",
-  "communication-language-profile",
   "partner-ideal-dealbreakers",
   "long-term-dynamic-vision",
   "spicy-would-you-rather",
-  "erotic-blueprint-style",
   "personal-erotic-blueprint",
 ]);
 

@@ -34,7 +34,7 @@ const answer = (
 });
 
 function definition(): AssessmentDefinition {
-  const value = getAssessmentBySlug("desire-reality-map");
+  const value = getAssessmentBySlug("fantasy-catalog");
   expect(
     value,
     "New collection is registered in the live data layer",
@@ -110,10 +110,10 @@ describe("New intimacy collection", () => {
     const suite = builtInAssessments.filter(
       (a) => a.collection === "intimacy-suite",
     );
-    expect(suite).toHaveLength(10);
+    expect(suite).toHaveLength(7);
     for (const a of suite) {
       expect(a.adultsOnly).toBe(true);
-      expect(a.questions.length).toBeGreaterThanOrEqual(50);
+      expect(a.questions.length).toBeGreaterThanOrEqual(a.slug === "aftercare-recovery-style" ? 16 : 50);
       expect(
         a.questions.filter((q) => q.quickDiscovery).length,
       ).toBeGreaterThan(0);

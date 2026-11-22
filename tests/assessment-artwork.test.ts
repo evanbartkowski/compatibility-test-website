@@ -23,7 +23,7 @@ describe("AssessmentArtwork", () => {
     }
   });
   it("renders distinct thematic artwork for all 20 active assessments", () => {
-    expect(builtInAssessments).toHaveLength(22);
+    expect(builtInAssessments).toHaveLength(19);
 
     const renderedArtworks = new Set<string>();
 

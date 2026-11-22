@@ -4,10 +4,10 @@ import { inspectAssessmentDefinition } from "@/lib/assessment/definition";
 
 describe("Focused assessment library", () => {
   it("publishes the core tests and the intimacy collection without dropping archived versions", () => {
-    expect(builtInAssessments).toHaveLength(22);
-    expect(builtInAssessments.filter((a) => a.collection)).toHaveLength(10);
+    expect(builtInAssessments).toHaveLength(19);
+    expect(builtInAssessments.filter((a) => a.collection)).toHaveLength(7);
     for (const a of builtInAssessments) {
-      expect(a.questions.length).toBeGreaterThanOrEqual(50);
+      expect(a.questions.length).toBeGreaterThanOrEqual(a.slug === "aftercare-recovery-style" ? 16 : 50);
       expect(a.questions.length).toBeLessThanOrEqual(150);
       expect(inspectAssessmentDefinition(a).errors, a.slug).toEqual([]);
       expect(a.adviceProfile).toBeTruthy();

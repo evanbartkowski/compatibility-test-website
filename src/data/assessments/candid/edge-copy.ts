@@ -25,9 +25,9 @@ export const liveNames: Record<string, { title: string; short: string; hook: str
     adult: true,
   },
   "conflict-communication-personality": {
-    title: "The Fight Test",
-    short: "The Fight Test",
-    hook: "How you fight, freeze, weaponize sex, and whether your conflict repair is real.",
+    title: "The Red Flags Test",
+    short: "The Red Flags Test",
+    hook: "Avoidance, abuse, drinking, weed, other drugs, no drive, and being rude. A high score is a flag, not a vibe.",
     adult: true,
   },
   "relationship-dealbreakers-boundaries": {
@@ -78,13 +78,13 @@ export const liveNames: Record<string, { title: string; short: string; hook: str
   "fantasy-catalog": {
     title: "The Secret Sex Fantasies Test",
     short: "The Sex Fantasies Test",
-    hook: "Fifty secret sexual fantasies from tender romance to raw taboo. Receiving and performing rated independently.",
+    hook: "Werewolves, vampires, CEOs, CNC, gang bangs, trains, and the other fantasies. Desire and experience stay separate.",
     adult: true,
   },
   "aftercare-recovery-style": {
     title: "The Aftercare Test",
     short: "The Aftercare Test",
-    hook: "What your body and mind need after sex: holding, sweet praise, hydration, quiet space, or a check-in.",
+    hook: "What you want after sex: more sex, kissing, cuddling, TV, dirty talk, food, spanking, or a game.",
   },
   "attachment-bedroom": {
     title: "The Bedroom Attachment Test",
@@ -247,11 +247,11 @@ export const sectionLabels: Record<string, Record<string, string>> = {
     playful_connection: "Gifts",
   },
   "conflict-communication-personality": {
-    direct_communication: "Saying the ugly sentence",
-    listening: "Hearing it",
-    regulation: "The brake",
-    accountability: "The specific sorry",
-    collaboration: "A deal that is not a surrender",
+    direct_communication: "Avoidance",
+    listening: "Abusive when angry",
+    regulation: "Drinking and drugs",
+    accountability: "No drive",
+    collaboration: "Rude",
   },
   "relationship-dealbreakers-boundaries": {
     reliability: "Sex icks",

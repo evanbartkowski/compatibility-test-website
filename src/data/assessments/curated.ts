@@ -1412,7 +1412,10 @@ consolidatedSlugRedirects["recovery-past-experiences"] = "intimacy-partner-prefe
 consolidatedSlugRedirects["fantasy-sharing-comfort"] = "fantasy-catalog";
 consolidatedSlugRedirects["roleplay-scenario-explorer"] = "fantasy-catalog";
 
-consolidatedSlugRedirects["praise-intensity-spectrum"] = "communication-language-profile";
+consolidatedSlugRedirects["praise-intensity-spectrum"] = "sexual-interests-curiosity-map";
+consolidatedSlugRedirects["communication-language-profile"] = "sexual-interests-curiosity-map";
+consolidatedSlugRedirects["desire-reality-map"] = "fantasy-catalog";
+consolidatedSlugRedirects["erotic-blueprint-style"] = "intimacy-partner-preferences";
 
 consolidatedSlugRedirects["privacy-visibility-risk-profile"] = "sexual-interests-curiosity-map";
 consolidatedSlugRedirects["jealousy-compersion-relationship-structures"] = "sexual-interests-curiosity-map";
@@ -1421,7 +1424,7 @@ consolidatedSlugRedirects["group-multipartner-interest"] = "sexual-interests-cur
 consolidatedSlugRedirects["attachment-bedroom"] = "attachment-style-discovery";
 consolidatedSlugRedirects["post-intimacy-morning-after"] = "emotional-availability-reflection";
 consolidatedSlugRedirects["limits-boundaries-deep-dive"] = "relationship-dealbreakers-boundaries";
-consolidatedSlugRedirects["personal-erotic-blueprint"] = "erotic-blueprint-style";
+consolidatedSlugRedirects["personal-erotic-blueprint"] = "intimacy-partner-preferences";
 consolidatedSlugRedirects["turn-on-anatomy"] = "toys-tools-gear-preferences";
 consolidatedSlugRedirects["primal-movement-play"] = "bdsm-power-dynamics-test";
 

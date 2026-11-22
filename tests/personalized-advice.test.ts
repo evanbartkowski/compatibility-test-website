@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   builtInAssessments,
+  getArchivedAssessmentBySlug,
   getAssessmentBySlug,
 } from "@/data/assessments/catalog";
 import { scoreAssessmentSubmission } from "@/lib/assessment/scoring";
@@ -122,7 +123,7 @@ describe("Evidence-based private advice", () => {
     expect(first.advice?.experiments).not.toEqual(second.advice?.experiments);
   });
   it("distinguishes actionable gaps, fantasy-only interest, limits, private choices and missing context", () => {
-    const a = getAssessmentBySlug("desire-reality-map")!;
+    const a = getAssessmentBySlug("fantasy-catalog")!;
     const qs = a.questions
       .filter((q) => q.intimacyRole === "receive")
       .slice(0, 5);
@@ -179,14 +180,14 @@ describe("Evidence-based private advice", () => {
     ).not.toHaveProperty("advice");
   });
   it("does not fabricate a style or a partner profile from skipped answers", () => {
-    const a = getAssessmentBySlug("desire-reality-map")!;
+    const a = getAssessmentBySlug("fantasy-catalog")!;
     const result = score(a, {});
     expect(result.advice?.status).toBe("needs-more-answers");
     expect(result.advice?.experiments).toEqual([]);
     expect(result.advice?.partnerTraits).toEqual([]);
   });
   it("adds an original five-style reflection with evidence-based primary and secondary ranks", () => {
-    const a = getAssessmentBySlug("erotic-blueprint-style")!;
+    const a = getArchivedAssessmentBySlug("erotic-blueprint-style", "3.0.0")!;
     expect(a).toBeTruthy();
     expect(a.questions.length).toBeGreaterThanOrEqual(50);
     const answers = responses(a, "sensual");
