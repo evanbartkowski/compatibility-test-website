@@ -127,53 +127,41 @@ export function AssessmentArtwork({
           </>
         );
 
-      // 3. THE LOVE COMPATIBILITY & SEXUAL DESIRE TEST (Magnetic Pulsing Twin Hearts & Erotic Passion Flare)
+      // 3. THE LOVE COMPATIBILITY TEST (Magnetic Pulsing Twin Hearts & Orbit Trajectories)
       case "attachment-style-discovery":
         return (
           <>
             <defs>
               <linearGradient id={`${pfx}-h1`} x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#f43f5e" />
-                <stop offset="50%" stopColor="#fb7185" />
+                <stop offset="0%" stopColor="#fb7185" />
                 <stop offset="100%" stopColor="#e11d48" />
               </linearGradient>
               <linearGradient id={`${pfx}-h2`} x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#ec4899" />
-                <stop offset="50%" stopColor="#c084fc" />
-                <stop offset="100%" stopColor="#9333ea" />
+                <stop offset="0%" stopColor="#c084fc" />
+                <stop offset="100%" stopColor="#7c3aed" />
               </linearGradient>
-              <radialGradient id={`${pfx}-passion`} cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#ffedd5" stopOpacity="0.9" />
-                <stop offset="30%" stopColor="#f43f5e" stopOpacity="0.6" />
-                <stop offset="70%" stopColor="#a855f7" stopOpacity="0.2" />
-                <stop offset="100%" stopColor="#0f172a" stopOpacity="0" />
-              </radialGradient>
               <filter id={`${pfx}-glow`}>
-                <feGaussianBlur stdDeviation="3.5" result="b" />
+                <feGaussianBlur stdDeviation="3" result="b" />
                 <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
               </filter>
             </defs>
-            {/* Passion core flare */}
-            <circle cx={cx} cy={cy} r="32" fill={`url(#${pfx}-passion)`} />
-            {/* Interlaced magnetic orbital waves */}
-            <ellipse cx={cx} cy={cy} rx="72" ry="26" transform={`rotate(-14 ${cx} ${cy})`} fill="none" stroke="#f43f5e" strokeWidth="1.2" strokeDasharray="5 4" opacity="0.5" />
-            <ellipse cx={cx} cy={cy} rx="72" ry="26" transform={`rotate(14 ${cx} ${cy})`} fill="none" stroke="#c084fc" strokeWidth="1.2" strokeDasharray="5 4" opacity="0.5" />
-            <ellipse cx={cx} cy={cy} rx="48" ry="16" fill="none" stroke="#fda4af" strokeWidth="0.8" opacity="0.4" />
-            {/* Left heart - emotional devotion */}
-            <g transform={`translate(${cx - 38}, ${cy - 8}) scale(0.75)`} filter={`url(#${pfx}-glow)`}>
-              <path d="M0 14 C-16 -6, -30 10, 0 34 C30 10, 16 -6, 0 14 Z" fill={`url(#${pfx}-h1)`} fillOpacity="0.85" stroke="#ffe4e6" strokeWidth="1.3" />
+            {/* Magnetic orbit paths */}
+            <ellipse cx={cx} cy={cy} rx="65" ry="24" transform={`rotate(-12 ${cx} ${cy})`} fill="none" stroke="#e11d48" strokeWidth="1" strokeDasharray="4 4" opacity="0.45" />
+            <ellipse cx={cx} cy={cy} rx="65" ry="24" transform={`rotate(12 ${cx} ${cy})`} fill="none" stroke="#a855f7" strokeWidth="1" strokeDasharray="4 4" opacity="0.45" />
+            {/* Central attraction flare */}
+            <circle cx={cx} cy={cy} r="18" fill="#f43f5e" fillOpacity="0.18" />
+            <circle cx={cx} cy={cy} r="3" fill="#ffffff" filter={`url(#${pfx}-glow)`} />
+            {/* Left heart */}
+            <g transform={`translate(${cx - 36}, ${cy - 8}) scale(0.7)`} filter={`url(#${pfx}-glow)`}>
+              <path d="M0 14 C-16 -6, -30 10, 0 34 C30 10, 16 -6, 0 14 Z" fill={`url(#${pfx}-h1)`} fillOpacity="0.8" stroke="#fecdd3" strokeWidth="1.2" />
             </g>
-            {/* Right heart - sexual passion */}
-            <g transform={`translate(${cx + 38}, ${cy - 8}) scale(0.75)`} filter={`url(#${pfx}-glow)`}>
-              <path d="M0 14 C-16 -6, -30 10, 0 34 C30 10, 16 -6, 0 14 Z" fill={`url(#${pfx}-h2)`} fillOpacity="0.85" stroke="#f3e8ff" strokeWidth="1.3" />
+            {/* Right heart */}
+            <g transform={`translate(${cx + 36}, ${cy - 8}) scale(0.7)`} filter={`url(#${pfx}-glow)`}>
+              <path d="M0 14 C-16 -6, -30 10, 0 34 C30 10, 16 -6, 0 14 Z" fill={`url(#${pfx}-h2)`} fillOpacity="0.8" stroke="#e9d5ff" strokeWidth="1.2" />
             </g>
-            {/* Erotic connection arcs */}
-            <path d={`M${cx - 24} ${cy - 8} C${cx - 8} ${cy - 22}, ${cx + 8} ${cy - 22}, ${cx + 24} ${cy - 8}`} fill="none" stroke="#fb7185" strokeWidth="1.6" filter={`url(#${pfx}-glow)`} />
-            <path d={`M${cx - 24} ${cy + 8} C${cx - 8} ${cy + 22}, ${cx + 8} ${cy + 22}, ${cx + 24} ${cy + 8}`} fill="none" stroke="#c084fc" strokeWidth="1.6" filter={`url(#${pfx}-glow)`} />
-            {/* Floating desire spark orbs */}
-            <circle cx={cx - 12} cy={cy - 12} r="2" fill="#ffffff" filter={`url(#${pfx}-glow)`} />
-            <circle cx={cx + 12} cy={cy + 12} r="2" fill="#ffffff" filter={`url(#${pfx}-glow)`} />
-            <circle cx={cx} cy={cy} r="4" fill="#ffffff" filter={`url(#${pfx}-glow)`} />
+            {/* Dynamic magnetic lines */}
+            <path d={`M${cx - 20} ${cy - 6} C${cx - 6} ${cy - 18}, ${cx + 6} ${cy - 18}, ${cx + 20} ${cy - 6}`} fill="none" stroke="#f43f5e" strokeWidth="1.4" opacity="0.7" />
+            <path d={`M${cx - 20} ${cy + 6} C${cx - 6} ${cy + 18}, ${cx + 6} ${cy + 18}, ${cx + 20} ${cy + 6}`} fill="none" stroke="#a855f7" strokeWidth="1.4" opacity="0.7" />
           </>
         );
 

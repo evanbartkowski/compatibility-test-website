@@ -256,107 +256,21 @@ button, a, select, summary { touch-action: manipulation; }
   .standards-grid { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 700px) {
-  .assessment-workspace {
-    margin-inline: max(8px, env(safe-area-inset-left)) max(8px, env(safe-area-inset-right));
-    width: auto;
-    max-width: 100%;
-    padding-inline: 4px;
-    padding-top: 10px;
-    padding-bottom: 36px;
-  }
-  .assessment-question-card {
-    padding: 16px 12px 18px;
-    border-radius: 8px;
-    margin-bottom: 12px;
-  }
-  .assessment-question-card h3 {
-    font-size: 17px;
-    line-height: 1.45;
-    text-align: center;
-    margin: 6px auto 14px;
-  }
-  .agreement-options {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    overflow: visible;
-    gap: 6px;
-  }
-  .agreement-option:nth-child(4) {
-    grid-column: 1 / -1;
-  }
-  .agreement-choice {
-    min-height: 48px;
-    padding: 6px 4px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .agreement-label {
-    font-size: 11px;
-    line-height: 1.25;
-    overflow-wrap: normal;
-    text-align: center;
-  }
-  .assessment-question-meta {
-    justify-content: center;
-    position: relative;
-    margin-bottom: 8px;
-  }
-  .assessment-question-number {
-    width: 26px;
-    height: 26px;
-    font-size: 11px;
-  }
-  .assessment-answer-status {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 10px;
-  }
-  .assessment-nav {
-    display: flex;
-    flex-direction: column-reverse;
-    gap: 10px;
-    width: 100%;
-    padding-top: 14px;
-  }
-  .assessment-nav .button {
-    width: 100%;
-    min-height: 48px;
-    font-size: 15px;
-    justify-content: center;
-  }
-  .intimacy-desire-scale {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
-  }
-  .intimacy-desire-scale label {
-    min-height: 52px;
-    padding: 8px;
-    font-size: 12px;
-  }
-  .intimacy-desire-scale label:last-child {
-    grid-column: 1 / -1;
-  }
-  .auth-dialog {
-    width: calc(100% - 24px - env(safe-area-inset-left) - env(safe-area-inset-right));
-    padding: 24px 20px;
-    border-radius: 20px;
-    max-height: calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-  }
-  .auth-dialog h2 {
-    font-size: 26px;
-  }
-  .header-inner {
-    padding-top: env(safe-area-inset-top);
-    height: calc(68px + env(safe-area-inset-top));
-  }
-  .mobile-navigation {
-    max-height: calc(100dvh - 76px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-  }
-  .site-footer {
-    padding-bottom: max(24px, env(safe-area-inset-bottom));
-  }
+  .assessment-workspace { margin-inline: max(12px, env(safe-area-inset-left)) max(12px, env(safe-area-inset-right)); width: auto; max-width: 820px; }
+  .assessment-question-card { padding: 16px 14px; border-radius: 8px; }
+  .assessment-question-card h3 { font-size: 16px; line-height: 1.5; text-align: center; }
+  .agreement-options { grid-template-columns: repeat(4, minmax(0, 1fr)); overflow: visible; gap: 6px; }
+  .agreement-option:last-child { grid-column: auto; }
+  .agreement-choice { min-height: 64px; padding: 8px 4px; border-radius: 6px; }
+  .agreement-label { font-size: 11px; line-height: 1.25; overflow-wrap: normal; text-align: center; }
+  .assessment-question-meta { justify-content: center; position: relative; margin-bottom: 10px; }
+  .assessment-answer-status { font-size: 11px; }
+  .intimacy-desire-scale { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .intimacy-desire-scale label { min-height: 60px; padding: 8px; font-size: 13px; }
+  .intimacy-desire-scale label:last-child { grid-column: auto; }
+  .auth-dialog { width: calc(100% - 24px - env(safe-area-inset-left) - env(safe-area-inset-right)); padding: 24px 20px; border-radius: 20px; max-height: calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
+  .auth-dialog h2 { font-size: 26px; }
+  .header-inner { padding-top: env(safe-area-inset-top); height: calc(68px + env(safe-area-inset-top)); }
+  .mobile-navigation { max-height: calc(100dvh - 76px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
+  .site-footer { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
 }
