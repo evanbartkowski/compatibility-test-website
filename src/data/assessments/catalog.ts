@@ -33,7 +33,7 @@ export const assessmentCategories: AssessmentCategoryMeta[] = [
     slug: "sexuality-intimacy",
     title: "Sexuality & Intimacy",
     description:
-      "The BDSM test, the kink test, the sexual desire test, the fantasy test, and sensation play.",
+      "The BDSM test, the kink test, the love compatibility test, the fantasy test, and sensation play.",
     subtopics: [
       "Desire, sensory pacing and aftercare",
       "Initiative, chosen roles and negotiation",

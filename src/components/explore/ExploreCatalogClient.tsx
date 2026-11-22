@@ -83,7 +83,7 @@ export function ExploreCatalogClient({
     focus !== "matching" &&
     focus !== "general" &&
     focus !== "collection" &&
-    "The Delusion Test age height income money body men women population".includes(query);
+    "The Delusional Standards Test age height income money body men women population".includes(query);
   const ordered = [...filtered].sort(
     (a, b) =>
       Number(b.slug === "attachment-style-discovery") -
@@ -102,10 +102,7 @@ export function ExploreCatalogClient({
           <LockKeyhole size={13} />
           Your curiosity. Your pace.
         </span>
-        <h1 className="font-display mt-5">What would you like to discover?</h1>
-        <p>
-          The BDSM test, the kink test, the personality type test, the gay test, the racism/homophobia test, and The Delusion Test calculator. Threesomes live in the kink test.
-        </p>
+        <h1 className="sr-only">Explore Tests</h1>
       </div>
       <div className="library-toolbar">
         <div className="search-field">

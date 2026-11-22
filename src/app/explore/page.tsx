@@ -7,7 +7,7 @@ import { summarizeAssessment } from "@/lib/assessment/catalog-summary";
 export const metadata: Metadata = {
   title: "Explore All 20 Viral Tests | SoulFlame",
   description:
-    "Take the viral BDSM test, kink test, sex toy test, love compatibility test, IQ test, friendship test, love language test, sexual desire test, and 20 deep assessments on SoulFlame.",
+    "Take the viral BDSM test, kink test, sex toy test, love compatibility test, IQ test, friendship test, love language test, the racism/homophobia test, the delusional standards test, and 20 deep assessments on SoulFlame.",
   keywords: [
     "SoulFlame tests",
     "BDSM test",
@@ -17,7 +17,9 @@ export const metadata: Metadata = {
     "IQ test",
     "friendship test",
     "love language test",
-    "sexual desire test",
+    "the racism/homophobia test",
+    "the delusional standards test",
+    "delusional standards test",
     "husband wife test",
     "partner finding test",
     "icks test",

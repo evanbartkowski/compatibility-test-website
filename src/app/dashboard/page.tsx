@@ -193,7 +193,7 @@ export default function PersonalDashboardPage() {
                 Completed Assessments
               </h2>
               <Link
-                href="/assess/intimacy-partner-preferences"
+                href="/explore"
                 className="text-xs font-medium text-[var(--accent-plum)] hover:underline"
               >
                 + Take New Assessment
@@ -208,7 +208,7 @@ export default function PersonalDashboardPage() {
                   No completed assessments stored in this browser session yet.
                 </p>
                 <Link
-                  href="/assess/intimacy-partner-preferences"
+                  href="/explore"
                   className="mt-4 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-medium"
                   style={{
                     backgroundColor: "var(--accent-plum)",

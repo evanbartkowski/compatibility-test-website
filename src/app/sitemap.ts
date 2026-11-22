@@ -11,11 +11,11 @@ const TOP_VIRAL_SLUGS = new Set([
   "emotional-availability-reflection",
   "communication-language-profile",
   "desire-reality-map",
-  "intimacy-partner-preferences",
   "attachment-style-discovery",
   "relationship-dealbreakers-boundaries",
   "sexual-interests-curiosity-map",
   "erotic-blueprint-style",
+  "bias-self-check",
 ]);
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -23,6 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages: MetadataRoute.Sitemap = [
     { url: `${BASE_URL}/`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${BASE_URL}/explore`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${BASE_URL}/standards`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
     { url: `${BASE_URL}/couples`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE_URL}/assessments`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
     { url: `${BASE_URL}/community`, lastModified: now, changeFrequency: "daily", priority: 0.8 },

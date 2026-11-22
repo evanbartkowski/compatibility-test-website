@@ -36,7 +36,7 @@ export default function CouplesPage() {
       a.slug === "private-fantasy-matcher" ||
       a.slug === "kink-exploration-map" ||
       a.slug === "bdsm-power-dynamics-test" ||
-      a.slug === "intimacy-partner-preferences" ||
+      a.slug === "attachment-style-discovery" ||
       a.slug === "love-affection-preferences" ||
       a.slug === "relationship-dealbreakers-boundaries" ||
       a.slug === "desire-frequency-initiation",

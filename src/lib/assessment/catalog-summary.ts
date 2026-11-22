@@ -43,8 +43,8 @@ export function summarizeAssessment(
 
 export const standardsCard: AssessmentSummary = {
   slug: "population-standards",
-  title: "The Delusion Test",
-  shortTitle: "The Delusion Test",
+  title: "The Delusional Standards Test",
+  shortTitle: "The Delusional Standards Test",
   category: "romance",
   status: "published",
   audienceNote: "Set age, height, money, body, and the rest. See what share of adult men or women actually match.",

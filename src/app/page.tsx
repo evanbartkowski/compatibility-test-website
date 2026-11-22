@@ -80,7 +80,7 @@ export default function HomePage() {
               Which test are you actually curious about?
             </h2>
             <p>
-              The BDSM test, the kink test, the personality type test, the gay test, the racism/homophobia test, and The Delusion Test calculator. Every test includes the full question set.
+              The BDSM test, the kink test, the personality type test, the gay test, the racism/homophobia test, and The Delusional Standards Test calculator. Every test includes the full question set.
             </p>
           </div>
             <Link href="/explore" className="text-link">
