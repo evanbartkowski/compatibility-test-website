@@ -16,7 +16,7 @@ export function StandardsCalculator() {
   return (
     <div className="standards-screen">
       <header className="standards-heading">
-        <p className="standards-kicker">The Standards Test</p>
+        <p className="standards-kicker">The Delusion Test</p>
         <h1>How rare is the person you are filtering for?</h1>
       </header>
       <aside className="standards-panel" aria-label="Your filters">

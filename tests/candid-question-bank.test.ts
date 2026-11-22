@@ -39,13 +39,12 @@ describe("Candid, specific published question banks", () => {
     expect(getAssessmentBySlug("attachment-style-discovery")!.shortTitle).toBe("The Love Compatibility Test");
     expect(getAssessmentBySlug("long-term-dynamic-vision")!.shortTitle).toBe("The Husband / Wife Test");
     expect(getAssessmentBySlug("partner-ideal-dealbreakers")!.shortTitle).toBe("The Partner Finding Test");
-    expect(getAssessmentBySlug("intimacy-partner-preferences")!.shortTitle).toBe("The Sexual Desire Test");
     expect(getAssessmentBySlug("big-five-personality-profile")!.questions.some((q) => /42|percent|analogy|argument/i.test(q.prompt))).toBe(true);
     expect(getAssessmentBySlug("emotional-availability-reflection")!.questions.filter((q) => /friend/i.test(q.prompt)).length).toBeGreaterThanOrEqual(20);
     expect(getAssessmentBySlug("sexual-interests-curiosity-map")!.questions.some((q) => /bondage|watersports|cuckold|CNC/i.test(q.prompt))).toBe(true);
   });
   it("asks directly about sex, kissing and aftercare instead of using coded phrases", () => {
-    const map = getAssessmentBySlug("intimacy-partner-preferences")!;
+    const map = getAssessmentBySlug("attachment-style-discovery")!;
     expect(
       map.questions.filter((q) =>
         /\b(?:sex|kissing|foreplay|fuck)\b/i.test(q.prompt),
@@ -56,7 +55,7 @@ describe("Candid, specific published question banks", () => {
       care.questions.every((q) => /\b(?:sex|aftercare)\b/i.test(q.prompt)),
     ).toBe(true);
     expect(
-      getAssessmentBySlug("intimacy-partner-preferences")!.questions.some((q) =>
+      getAssessmentBySlug("attachment-style-discovery")!.questions.some((q) =>
         /\bsex\b/i.test(q.prompt),
       ),
     ).toBe(true);

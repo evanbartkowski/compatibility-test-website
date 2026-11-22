@@ -48,25 +48,25 @@ export const adviceProfiles: Record<string, AssessmentAdviceProfile> = {
     ask: "How do you tell a partner you care when you do not have energy for a long conversation?",
   },
   "attachment-style-discovery": {
-    theme: "closeness and independence",
-    seek: "Someone who can offer clear reassurance while respecting separate time",
+    theme: "love and sexual compatibility",
+    seek: "Someone who can offer emotional reassurance, match or respect your sexual frequency, and connect with open communication",
     friction:
-      "Repeated reassurance requests and unexplained withdrawal can become a difficult cycle; a questionnaire cannot diagnose either person's attachment.",
+      "Mismatches in sexual desire drive or emotional reassurance can trigger cycles of withdrawal or pressure; direct, non-judgmental conversations prevent unspoken resentments.",
     optimize:
-      "Name both needs in the same request: a specific reassurance signal and a realistic amount of independent time.",
+      "Name emotional and intimate needs clearly: communicate your preferred sexual frequency, unhurried chemistry, and what helps you feel truly secure.",
     solo: [
       "Translate a reaction into a request",
-      "Write what happened, what you assumed and one direct request that does not require mind-reading.",
+      "Write what happened, what you assumed and one direct request that does not require mind-reading in both affection and the bedroom.",
     ],
     together: [
       "Agree on a reconnection cue",
-      "Choose a simple message for needing space and a realistic time to reconnect. Both people can revise it.",
+      "Choose a simple message for needing space and a clear way to initiate or decline sex without guilt.",
     ],
     curiosity: [
-      "Imagine two good responses",
-      "Draft a reassurance response and a space-respecting response to the same ordinary misunderstanding.",
+      "Share one desire without expectation",
+      "Name one turn-on, one frequency preference, and one reassurance signal that helps you feel deeply connected.",
     ],
-    ask: "When you need space, what would help us stay clear about when we will reconnect?",
+    ask: "What helps you feel most secure emotionally, and what makes sex feel most fulfilling and exciting for you?",
   },
   "love-affection-preferences": {
     theme: "affection that lands",

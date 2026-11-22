@@ -321,11 +321,19 @@ const availability: Survey = {
 
 const attachment: Survey = {
   slug: "attachment-style-discovery",
-  title: "Attachment, Trust & Independence",
-  category: "romance",
+  title: "Love & Sexual Compatibility",
+  category: "compatibility",
+  adult: true,
   description:
-    "Examine reassurance, closeness, autonomy, trust and how you respond when a connection feels uncertain.",
-  merged: ["attachment-style-discovery"],
+    "Examine emotional security, trust, autonomy, sexual desire, chemistry, and whether you truly fit together long-term.",
+  merged: [
+    "attachment-style-discovery",
+    "intimacy-partner-preferences",
+    "sexual-chemistry-compatibility",
+    "desire-frequency-initiation",
+    "sensuality-physical-affection",
+    "intimacy-communication-aftercare",
+  ],
   scales: [
     {
       key: "reassurance",
@@ -455,6 +463,84 @@ const attachment: Survey = {
         "I can tell a partner that a change in contact has left me uncertain.",
         "I can hear a partner's request for space and ask what reconnection will look like.",
         "I can say what would help me feel secure without demanding that a partner remove all uncertainty.",
+      ],
+    },
+    {
+      key: "sexual_desire",
+      label: "Sexual desire & frequency",
+      description:
+        "How often you crave sex, whether your desire is spontaneous or responsive, and how you initiate.",
+      ends: ["Context-dependent desire", "Spontaneous, high-frequency desire"],
+      readings: [
+        "Your desire is strongly responsive to emotional context, feeling desired, and an unhurried setting before wanting to initiate.",
+        "Your desire is balanced between spontaneous wanting and responsive arousal depending on your mood and connection.",
+        "Your desire is frequent and spontaneous. You feel active sexual want unprompted and enjoy initiating without hesitation.",
+      ],
+      tradeoff:
+        "A difference in sexual frequency or initiation is a dynamic to communicate about, not proof that either partner is inadequate.",
+      experiment:
+        "Discuss each person's ideal sexual frequency and what turns a 'maybe' into a 'yes' outside the bedroom with no pressure.",
+      reflection:
+        "When you feel desire, what conditions make it easy and exciting to express it?",
+      items: [
+        "Interest in sex often appears for me spontaneously, even during a busy routine.",
+        "I feel comfortable initiating physical intimacy rather than waiting for my partner.",
+        "!I rarely feel a desire for sex until a slow, inviting emotional setup has already developed.",
+        "Having a regular sexual rhythm is an important part of feeling connected to a partner.",
+        "My sexual desire can arise suddenly without needing a planned romantic occasion.",
+        "I can recognize and communicate a clear desire for intimacy even when my partner is unsure.",
+      ],
+    },
+    {
+      key: "sexual_chemistry",
+      label: "Sexual chemistry & touch",
+      description:
+        "Your preferred physical pacing, touch, kissing, and physical chemistry in bed.",
+      ends: ["Direct, fast-paced chemistry", "Sensory, unhurried chemistry"],
+      readings: [
+        "You prefer a direct, passionate physical pace where buildup leads straightforwardly to satisfying climax.",
+        "You appreciate a flexible rhythm, moving between slow sensory tenderness and intense direct friction.",
+        "You crave unhurried sensuality, deep touch, kissing, and varied pacing as essential components of intimacy.",
+      ],
+      tradeoff:
+        "Different physical rhythms can complement each other when both partners communicate what feels good.",
+      experiment:
+        "Experiment with varying physical pacing and touch without any predetermined outcome.",
+      reflection:
+        "What pace and style of physical touch makes you feel most connected and aroused?",
+      items: [
+        "Unhurried touch and affectionate kissing make a huge difference to my sexual enjoyment.",
+        "I prefer adjusting physical pace in response to my partner's cues rather than rushing.",
+        "!Extended physical buildup usually adds little to an intimate encounter I already want.",
+        "Eye contact, rhythm, and mutual presence matter to me just as much as physical friction.",
+        "I enjoy exploring different speeds and intensity depending on the mood of the night.",
+        "Having time to fully experience sensations helps me feel present and satisfied.",
+      ],
+    },
+    {
+      key: "sexual_communication",
+      label: "Sexual communication & aftercare",
+      description:
+        "Comfort speaking up during sex, dirty talk, adjusting pace, and reconnecting after intimacy.",
+      ends: ["Hesitant to speak up", "Candid, open bedroom communication"],
+      readings: [
+        "Speaking candidly about sexual desires or adjusting acts during intimacy can feel delicate or vulnerable.",
+        "You can discuss core intimate desires comfortably while keeping some boundaries or fantasies private.",
+        "You are open, candid, and direct about what you want in bed, dirty talk, limits, and post-intimacy aftercare.",
+      ],
+      tradeoff:
+        "Clear communication in bed deepens trust and satisfaction, while silence leaves desires to guesswork.",
+      experiment:
+        "Practice naming one specific thing you want in bed and one thing you enjoy during aftercare.",
+      reflection:
+        "What makes you feel safe enough to ask for exactly what you want during intimacy?",
+      items: [
+        "I can describe specific acts and turn-ons I want in bed without feeling embarrassed.",
+        "I can ask for a change in pace or say 'not like that' during sex without awkwardness.",
+        "!I tend to keep my intimate desires to myself because voicing them might disappoint my partner.",
+        "I appreciate deliberate aftercare, tenderness, or a quick check-in after we finish.",
+        "I am comfortable discussing sexual desires and boundaries when we are not in bed.",
+        "I can receive bedroom feedback from a partner without taking it as personal criticism.",
       ],
     },
   ],
@@ -1373,7 +1459,6 @@ const surveys: Survey[] = [
   affection,
   conflict,
   values,
-  intimacy,
   exploration,
   power,
 ];
@@ -1405,9 +1490,10 @@ consolidatedSlugRedirects["kink-compatibility-stress-test"] = "sexual-interests-
 consolidatedSlugRedirects["sensory-sensation-play-map"] = "toys-tools-gear-preferences";
 consolidatedSlugRedirects["sensory-deprivation-overload"] = "toys-tools-gear-preferences";
 
-consolidatedSlugRedirects["service-devotion-profile"] = "intimacy-partner-preferences";
-consolidatedSlugRedirects["aftercare-recovery-style"] = "intimacy-partner-preferences";
-consolidatedSlugRedirects["recovery-past-experiences"] = "intimacy-partner-preferences";
+consolidatedSlugRedirects["intimacy-partner-preferences"] = "attachment-style-discovery";
+consolidatedSlugRedirects["service-devotion-profile"] = "attachment-style-discovery";
+consolidatedSlugRedirects["aftercare-recovery-style"] = "aftercare-recovery-style";
+consolidatedSlugRedirects["recovery-past-experiences"] = "attachment-style-discovery";
 
 consolidatedSlugRedirects["fantasy-sharing-comfort"] = "fantasy-catalog";
 consolidatedSlugRedirects["roleplay-scenario-explorer"] = "fantasy-catalog";
@@ -1415,7 +1501,7 @@ consolidatedSlugRedirects["roleplay-scenario-explorer"] = "fantasy-catalog";
 consolidatedSlugRedirects["praise-intensity-spectrum"] = "sexual-interests-curiosity-map";
 consolidatedSlugRedirects["communication-language-profile"] = "sexual-interests-curiosity-map";
 consolidatedSlugRedirects["desire-reality-map"] = "fantasy-catalog";
-consolidatedSlugRedirects["erotic-blueprint-style"] = "intimacy-partner-preferences";
+consolidatedSlugRedirects["erotic-blueprint-style"] = "attachment-style-discovery";
 
 consolidatedSlugRedirects["privacy-visibility-risk-profile"] = "sexual-interests-curiosity-map";
 consolidatedSlugRedirects["jealousy-compersion-relationship-structures"] = "sexual-interests-curiosity-map";

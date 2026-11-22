@@ -334,8 +334,8 @@ export const extraAssessments: AssessmentDefinition[] = [
   }),
   build({
     slug: "bias-self-check",
-    title: "The Bias Test",
-    shortTitle: "The Bias Test",
+    title: "the racism/homophobia test",
+    shortTitle: "the racism/homophobia test",
     category: "personality",
     matching: false,
     hook: "A blunt self-check for racist and homophobic patterns. A high score is prejudice, not a personality to match on.",

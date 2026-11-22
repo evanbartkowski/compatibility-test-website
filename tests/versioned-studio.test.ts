@@ -75,7 +75,7 @@ describe("Stored community cohort integrity", () => {
 describe("Versioned authoring", () => {
   it("resolves original scoring versions while publishing only the curated defaults", () => {
     expect(
-      store.resolveAssessment("intimacy-partner-preferences")?.version,
+      store.resolveAssessment("attachment-style-discovery")?.version,
     ).toBe("6.0.0");
     expect(
       store.resolveAssessment("intimacy-partner-preferences", "2.0.0")
@@ -88,7 +88,7 @@ describe("Versioned authoring", () => {
     expect(store.resolveAssessment("private-fantasy-matcher")).toBeUndefined();
     expect(
       store.listPublishedAssessments().filter((a) => a.version === "6.0.0"),
-    ).toHaveLength(9);
+    ).toHaveLength(8);
   });
   it("keeps a live version available while a new draft is edited and unpublishes only explicitly", () => {
     const a = definition("live-draft-test");

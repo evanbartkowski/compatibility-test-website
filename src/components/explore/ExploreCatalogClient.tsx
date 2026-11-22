@@ -83,7 +83,7 @@ export function ExploreCatalogClient({
     focus !== "matching" &&
     focus !== "general" &&
     focus !== "collection" &&
-    "the standards test age height income money body men women population".includes(query);
+    "The Delusion Test age height income money body men women population".includes(query);
   const ordered = [...filtered].sort(
     (a, b) =>
       Number(b.slug === "attachment-style-discovery") -
@@ -104,7 +104,7 @@ export function ExploreCatalogClient({
         </span>
         <h1 className="font-display mt-5">What would you like to discover?</h1>
         <p>
-          The BDSM test, the kink test, the personality type test, the gay test, the bias test, and the standards calculator. Threesomes live in the kink test.
+          The BDSM test, the kink test, the personality type test, the gay test, the racism/homophobia test, and The Delusion Test calculator. Threesomes live in the kink test.
         </p>
       </div>
       <div className="library-toolbar">
@@ -171,11 +171,6 @@ export function ExploreCatalogClient({
             </button>
           ))}
       </div>
-      <p className="library-count" role="status">
-        {ordered.length + (showStandards ? 1 : 0)}{" "}
-        {ordered.length + (showStandards ? 1 : 0) === 1 ? "test" : "tests"} to explore{" "}
-        <span aria-hidden="true">·</span> Progress saves in this browser
-      </p>
       {ordered.length || showStandards ? (
         <div className="test-grid">
           <h2 className="sr-only">Available tests</h2>

@@ -16,7 +16,7 @@ describe("Substantial assessment question banks", () => {
       expect(assessment.questions.length).toBeLessThanOrEqual(150);
       expect(inspectAssessmentDefinition(assessment).errors).toEqual([]);
       expect(selectAssessmentQuestions(assessment, "quick", {})).toHaveLength(
-        10,
+        assessment.dimensions!.length * 2,
       );
       const prompts = assessment.questions.map((q) =>
         q.prompt.toLowerCase().replace(/[^a-z0-9]/g, ""),
@@ -47,9 +47,9 @@ describe("Substantial assessment question banks", () => {
   it("retains the original 30-question definitions for saved results and existing invitations", () => {
     for (const assessment of builtInAssessments) {
       const original = getArchivedAssessmentBySlug(assessment.slug, "3.0.0");
-      expect(original?.questions).toHaveLength(30);
+      expect(original?.questions).toHaveLength(assessment.dimensions!.length * 6);
       expect(original?.questions.filter((q) => q.quickDiscovery)).toHaveLength(
-        15,
+        assessment.dimensions!.length * 3,
       );
       expect(original?.questions[0].id).not.toBe(assessment.questions[0].id);
       const v4 = getArchivedAssessmentBySlug(assessment.slug, "4.0.0")!;

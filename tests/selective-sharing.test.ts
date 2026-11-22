@@ -5,7 +5,7 @@ import {
   projectResultForSharing,
   type ResultShareSelection,
 } from "@/lib/assessment/sharing";
-const definition = getAssessmentBySlug("intimacy-partner-preferences")!;
+const definition = getAssessmentBySlug("attachment-style-discovery")!;
 const question = definition.questions[0];
 const result = scoreAssessmentSubmission({
   assessment: definition,

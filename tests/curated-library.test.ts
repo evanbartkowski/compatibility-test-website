@@ -6,8 +6,8 @@ import {
 } from "@/lib/assessment/scoring";
 
 describe("Focused agreement-scale library", () => {
-  it("replaces overlapping surveys with nine distinct, substantial assessments", () => {
-    expect(builtInAssessments).toHaveLength(9);
+  it("replaces overlapping surveys with eight distinct, substantial assessments", () => {
+    expect(builtInAssessments).toHaveLength(8);
     for (const a of builtInAssessments) {
       expect(a.version).toBe("6.0.0");
       expect(a.dimensions!.length).toBeGreaterThanOrEqual(5);

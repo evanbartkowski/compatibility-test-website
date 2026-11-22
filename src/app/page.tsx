@@ -59,7 +59,6 @@ export default function HomePage() {
     "sexual-interests-curiosity-map",
     "toys-tools-gear-preferences",
     "attachment-style-discovery",
-    "intimacy-partner-preferences",
     "love-affection-preferences",
     "long-term-dynamic-vision",
     "partner-ideal-dealbreakers",
@@ -69,7 +68,9 @@ export default function HomePage() {
     "myers-briggs-type-test",
     "gay-lgbt-attraction-test",
     "bias-self-check",
-  ].map((slug) => getAssessmentBySlug(slug)!);
+  ]
+    .map((slug) => getAssessmentBySlug(slug))
+    .filter((a): a is NonNullable<typeof a> => Boolean(a));
   return (
     <HomeExperience example={example(0)} partner={example(1)}>
       <section className="home-start" aria-labelledby="home-start-title">
@@ -79,7 +80,7 @@ export default function HomePage() {
               Which test are you actually curious about?
             </h2>
             <p>
-              The BDSM test, the kink test, the personality type test, the gay test, the bias test, and the standards calculator. Every test includes the full question set.
+              The BDSM test, the kink test, the personality type test, the gay test, the racism/homophobia test, and The Delusion Test calculator. Every test includes the full question set.
             </p>
           </div>
             <Link href="/explore" className="text-link">

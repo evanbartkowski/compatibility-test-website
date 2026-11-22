@@ -93,7 +93,6 @@ export function ProfileGlyph({ kind = 0 }: { kind?: number }) {
 }
 export function TestCard({
   assessment,
-  featured,
   resultId,
   href,
 }: {
@@ -110,7 +109,6 @@ export function TestCard({
     >
       <div className="test-card-art">
         <AssessmentArtwork slug={assessment.slug} category={assessment.category} />
-        {featured && <span className="card-tag">Start here</span>}
         {assessment.adultsOnly && (
           <span className="mature-tag">Mature · 18+</span>
         )}

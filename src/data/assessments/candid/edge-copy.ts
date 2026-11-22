@@ -15,7 +15,7 @@ export const liveNames: Record<string, { title: string; short: string; hook: str
   "attachment-style-discovery": {
     title: "The Love Compatibility Test",
     short: "The Love Compatibility Test",
-    hook: "Sex, money, fighting, emotional security, and whether you truly fit together long-term.",
+    hook: "Emotional security, sexual desire, fighting, money, physical chemistry, and whether you truly fit together long-term.",
     adult: true,
   },
   "love-affection-preferences": {

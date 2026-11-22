@@ -127,41 +127,53 @@ export function AssessmentArtwork({
           </>
         );
 
-      // 3. THE LOVE COMPATIBILITY TEST (Magnetic Pulsing Twin Hearts & Orbit Trajectories)
+      // 3. THE LOVE COMPATIBILITY & SEXUAL DESIRE TEST (Magnetic Pulsing Twin Hearts & Erotic Passion Flare)
       case "attachment-style-discovery":
         return (
           <>
             <defs>
               <linearGradient id={`${pfx}-h1`} x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#fb7185" />
+                <stop offset="0%" stopColor="#f43f5e" />
+                <stop offset="50%" stopColor="#fb7185" />
                 <stop offset="100%" stopColor="#e11d48" />
               </linearGradient>
               <linearGradient id={`${pfx}-h2`} x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#c084fc" />
-                <stop offset="100%" stopColor="#7c3aed" />
+                <stop offset="0%" stopColor="#ec4899" />
+                <stop offset="50%" stopColor="#c084fc" />
+                <stop offset="100%" stopColor="#9333ea" />
               </linearGradient>
+              <radialGradient id={`${pfx}-passion`} cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#ffedd5" stopOpacity="0.9" />
+                <stop offset="30%" stopColor="#f43f5e" stopOpacity="0.6" />
+                <stop offset="70%" stopColor="#a855f7" stopOpacity="0.2" />
+                <stop offset="100%" stopColor="#0f172a" stopOpacity="0" />
+              </radialGradient>
               <filter id={`${pfx}-glow`}>
-                <feGaussianBlur stdDeviation="3" result="b" />
+                <feGaussianBlur stdDeviation="3.5" result="b" />
                 <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
               </filter>
             </defs>
-            {/* Magnetic orbit paths */}
-            <ellipse cx={cx} cy={cy} rx="65" ry="24" transform={`rotate(-12 ${cx} ${cy})`} fill="none" stroke="#e11d48" strokeWidth="1" strokeDasharray="4 4" opacity="0.45" />
-            <ellipse cx={cx} cy={cy} rx="65" ry="24" transform={`rotate(12 ${cx} ${cy})`} fill="none" stroke="#a855f7" strokeWidth="1" strokeDasharray="4 4" opacity="0.45" />
-            {/* Central attraction flare */}
-            <circle cx={cx} cy={cy} r="18" fill="#f43f5e" fillOpacity="0.18" />
-            <circle cx={cx} cy={cy} r="3" fill="#ffffff" filter={`url(#${pfx}-glow)`} />
-            {/* Left heart */}
-            <g transform={`translate(${cx - 36}, ${cy - 8}) scale(0.7)`} filter={`url(#${pfx}-glow)`}>
-              <path d="M0 14 C-16 -6, -30 10, 0 34 C30 10, 16 -6, 0 14 Z" fill={`url(#${pfx}-h1)`} fillOpacity="0.8" stroke="#fecdd3" strokeWidth="1.2" />
+            {/* Passion core flare */}
+            <circle cx={cx} cy={cy} r="32" fill={`url(#${pfx}-passion)`} />
+            {/* Interlaced magnetic orbital waves */}
+            <ellipse cx={cx} cy={cy} rx="72" ry="26" transform={`rotate(-14 ${cx} ${cy})`} fill="none" stroke="#f43f5e" strokeWidth="1.2" strokeDasharray="5 4" opacity="0.5" />
+            <ellipse cx={cx} cy={cy} rx="72" ry="26" transform={`rotate(14 ${cx} ${cy})`} fill="none" stroke="#c084fc" strokeWidth="1.2" strokeDasharray="5 4" opacity="0.5" />
+            <ellipse cx={cx} cy={cy} rx="48" ry="16" fill="none" stroke="#fda4af" strokeWidth="0.8" opacity="0.4" />
+            {/* Left heart - emotional devotion */}
+            <g transform={`translate(${cx - 38}, ${cy - 8}) scale(0.75)`} filter={`url(#${pfx}-glow)`}>
+              <path d="M0 14 C-16 -6, -30 10, 0 34 C30 10, 16 -6, 0 14 Z" fill={`url(#${pfx}-h1)`} fillOpacity="0.85" stroke="#ffe4e6" strokeWidth="1.3" />
             </g>
-            {/* Right heart */}
-            <g transform={`translate(${cx + 36}, ${cy - 8}) scale(0.7)`} filter={`url(#${pfx}-glow)`}>
-              <path d="M0 14 C-16 -6, -30 10, 0 34 C30 10, 16 -6, 0 14 Z" fill={`url(#${pfx}-h2)`} fillOpacity="0.8" stroke="#e9d5ff" strokeWidth="1.2" />
+            {/* Right heart - sexual passion */}
+            <g transform={`translate(${cx + 38}, ${cy - 8}) scale(0.75)`} filter={`url(#${pfx}-glow)`}>
+              <path d="M0 14 C-16 -6, -30 10, 0 34 C30 10, 16 -6, 0 14 Z" fill={`url(#${pfx}-h2)`} fillOpacity="0.85" stroke="#f3e8ff" strokeWidth="1.3" />
             </g>
-            {/* Dynamic magnetic lines */}
-            <path d={`M${cx - 20} ${cy - 6} C${cx - 6} ${cy - 18}, ${cx + 6} ${cy - 18}, ${cx + 20} ${cy - 6}`} fill="none" stroke="#f43f5e" strokeWidth="1.4" opacity="0.7" />
-            <path d={`M${cx - 20} ${cy + 6} C${cx - 6} ${cy + 18}, ${cx + 6} ${cy + 18}, ${cx + 20} ${cy + 6}`} fill="none" stroke="#a855f7" strokeWidth="1.4" opacity="0.7" />
+            {/* Erotic connection arcs */}
+            <path d={`M${cx - 24} ${cy - 8} C${cx - 8} ${cy - 22}, ${cx + 8} ${cy - 22}, ${cx + 24} ${cy - 8}`} fill="none" stroke="#fb7185" strokeWidth="1.6" filter={`url(#${pfx}-glow)`} />
+            <path d={`M${cx - 24} ${cy + 8} C${cx - 8} ${cy + 22}, ${cx + 8} ${cy + 22}, ${cx + 24} ${cy + 8}`} fill="none" stroke="#c084fc" strokeWidth="1.6" filter={`url(#${pfx}-glow)`} />
+            {/* Floating desire spark orbs */}
+            <circle cx={cx - 12} cy={cy - 12} r="2" fill="#ffffff" filter={`url(#${pfx}-glow)`} />
+            <circle cx={cx + 12} cy={cy + 12} r="2" fill="#ffffff" filter={`url(#${pfx}-glow)`} />
+            <circle cx={cx} cy={cy} r="4" fill="#ffffff" filter={`url(#${pfx}-glow)`} />
           </>
         );
 
@@ -781,6 +793,121 @@ export function AssessmentArtwork({
               {/* Prismatic Center */}
               <circle cx={cx} cy={cy} r="5" fill="#ffffff" />
             </g>
+          </>
+        );
+
+      // 21. THE PERSONALITY TYPE TEST (Cognitive 4-Quadrant Matrix Crystal)
+      case "myers-briggs-type-test":
+        return (
+          <>
+            <defs>
+              <linearGradient id={`${pfx}-mbti-g1`} x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#38bdf8" />
+                <stop offset="50%" stopColor="#a855f7" />
+                <stop offset="100%" stopColor="#f43f5e" />
+              </linearGradient>
+              <filter id={`${pfx}-glow`}>
+                <feGaussianBlur stdDeviation="3" result="b" />
+                <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+            </defs>
+            {/* Coordinate grid rings */}
+            <circle cx={cx} cy={cy} r="46" fill="none" stroke="#a855f7" strokeWidth="0.8" strokeDasharray="3 4" opacity="0.4" />
+            <circle cx={cx} cy={cy} r="32" fill="none" stroke="#38bdf8" strokeWidth="0.8" opacity="0.3" />
+            {/* Cross-axes */}
+            <line x1={cx - 52} y1={cy} x2={cx + 52} y2={cy} stroke="#6366f1" strokeWidth="1" strokeDasharray="2 3" opacity="0.5" />
+            <line x1={cx} y1={cy - 48} x2={cx} y2={cy + 48} stroke="#6366f1" strokeWidth="1" strokeDasharray="2 3" opacity="0.5" />
+            {/* 4 Quadrant Diamond Crystals */}
+            <g filter={`url(#${pfx}-glow)`}>
+              <polygon points={`${cx},${cy - 36} ${cx + 34},${cy} ${cx},${cy + 36} ${cx - 34},${cy}`} fill={`url(#${pfx}-mbti-g1)`} fillOpacity="0.4" stroke="#e0e7ff" strokeWidth="1.4" />
+              <polygon points={`${cx},${cy - 36} ${cx + 34},${cy} ${cx},${cy}`} fill="#38bdf8" fillOpacity="0.3" stroke="#38bdf8" strokeWidth="0.8" />
+              <polygon points={`${cx + 34},${cy} ${cx},${cy + 36} ${cx},${cy}`} fill="#f43f5e" fillOpacity="0.3" stroke="#f43f5e" strokeWidth="0.8" />
+              <polygon points={`${cx},${cy + 36} ${cx - 34},${cy} ${cx},${cy}`} fill="#a855f7" fillOpacity="0.3" stroke="#a855f7" strokeWidth="0.8" />
+              <polygon points={`${cx - 34},${cy} ${cx},${cy - 36} ${cx},${cy}`} fill="#818cf8" fillOpacity="0.3" stroke="#818cf8" strokeWidth="0.8" />
+            </g>
+            {/* 4 Dimension nodes (E/I, N/S, T/F, J/P) */}
+            <circle cx={cx} cy={cy - 36} r="3.5" fill="#38bdf8" filter={`url(#${pfx}-glow)`} />
+            <circle cx={cx + 34} cy={cy} r="3.5" fill="#f43f5e" filter={`url(#${pfx}-glow)`} />
+            <circle cx={cx} cy={cy + 36} r="3.5" fill="#a855f7" filter={`url(#${pfx}-glow)`} />
+            <circle cx={cx - 34} cy={cy} r="3.5" fill="#818cf8" filter={`url(#${pfx}-glow)`} />
+            <circle cx={cx} cy={cy} r="4.5" fill="#ffffff" filter={`url(#${pfx}-glow)`} />
+          </>
+        );
+
+      // 22. THE GAY TEST (Interlocking Luminous Pride & Celestial Gender Spectrum)
+      case "gay-lgbt-attraction-test":
+        return (
+          <>
+            <defs>
+              <linearGradient id={`${pfx}-pride1`} x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#f43f5e" />
+                <stop offset="35%" stopColor="#ec4899" />
+                <stop offset="70%" stopColor="#a855f7" />
+                <stop offset="100%" stopColor="#06b6d4" />
+              </linearGradient>
+              <linearGradient id={`${pfx}-pride2`} x1="100%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#06b6d4" />
+                <stop offset="40%" stopColor="#10b981" />
+                <stop offset="75%" stopColor="#eab308" />
+                <stop offset="100%" stopColor="#f97316" />
+              </linearGradient>
+              <filter id={`${pfx}-glow`}>
+                <feGaussianBlur stdDeviation="3.5" result="b" />
+                <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+            </defs>
+            {/* Ambient spectrum halo */}
+            <circle cx={cx} cy={cy} r="44" fill="#a855f7" fillOpacity="0.1" filter={`url(#${pfx}-glow)`} />
+            {/* Interlocking twin attraction circles */}
+            <g filter={`url(#${pfx}-glow)`}>
+              <circle cx={cx - 20} cy={cy} r="32" fill="none" stroke={`url(#${pfx}-pride1)`} strokeWidth="2.5" opacity="0.85" />
+              <circle cx={cx + 20} cy={cy} r="32" fill="none" stroke={`url(#${pfx}-pride2)`} strokeWidth="2.5" opacity="0.85" />
+            </g>
+            {/* Orbiting celestial gender arcs */}
+            <path d={`M${cx - 48} ${cy - 12} L${cx - 38} ${cy - 22} M${cx - 38} ${cy - 22} L${cx - 46} ${cy - 22} M${cx - 38} ${cy - 22} L${cx - 38} ${cy - 14}`} stroke="#f43f5e" strokeWidth="2" strokeLinecap="round" />
+            <path d={`M${cx + 48} ${cy - 12} L${cx + 38} ${cy - 22} M${cx + 38} ${cy - 22} L${cx + 46} ${cy - 22} M${cx + 38} ${cy - 22} L${cx + 38} ${cy - 14}`} stroke="#06b6d4" strokeWidth="2" strokeLinecap="round" />
+            {/* Intersecting vesica flare */}
+            <ellipse cx={cx} cy={cy} rx="12" ry="24" fill="#ec4899" fillOpacity="0.25" filter={`url(#${pfx}-glow)`} />
+            <circle cx={cx} cy={cy} r="4.5" fill="#ffffff" filter={`url(#${pfx}-glow)`} />
+          </>
+        );
+
+      // 23. THE RACISM / HOMOPHOBIA TEST (Reflective Scales of Truth & Dual-Aperture Reticle)
+      case "bias-self-check":
+        return (
+          <>
+            <defs>
+              <linearGradient id={`${pfx}-lens`} x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#f59e0b" />
+                <stop offset="50%" stopColor="#e2e8f0" />
+                <stop offset="100%" stopColor="#64748b" />
+              </linearGradient>
+              <filter id={`${pfx}-glow`}>
+                <feGaussianBlur stdDeviation="2.5" result="b" />
+                <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+            </defs>
+            {/* Calibration reticle circle */}
+            <circle cx={cx} cy={cy} r="44" fill="none" stroke="#94a3b8" strokeWidth="1" strokeDasharray="3 4" opacity="0.4" />
+            <circle cx={cx} cy={cy} r="28" fill="none" stroke="#f59e0b" strokeWidth="0.8" opacity="0.5" />
+            {/* Horizontal balance beam */}
+            <line x1={cx - 50} y1={cy} x2={cx + 50} y2={cy} stroke="#e2e8f0" strokeWidth="1.6" filter={`url(#${pfx}-glow)`} />
+            <line x1={cx} y1={cy - 36} x2={cx} y2={cy + 36} stroke="#f59e0b" strokeWidth="1.2" opacity="0.6" />
+            {/* Left scale basin (Perception / Bias) */}
+            <g transform={`translate(${cx - 36}, ${cy})`} filter={`url(#${pfx}-glow)`}>
+              <line x1="0" y1="0" x2="-14" y2="18" stroke="#94a3b8" strokeWidth="1" />
+              <line x1="0" y1="0" x2="14" y2="18" stroke="#94a3b8" strokeWidth="1" />
+              <path d="M-18 18 Q0 28 18 18 Z" fill="#475569" fillOpacity="0.4" stroke="#94a3b8" strokeWidth="1.2" />
+            </g>
+            {/* Right scale basin (Accountability / Truth) */}
+            <g transform={`translate(${cx + 36}, ${cy})`} filter={`url(#${pfx}-glow)`}>
+              <line x1="0" y1="0" x2="-14" y2="18" stroke="#f59e0b" strokeWidth="1" />
+              <line x1="0" y1="0" x2="14" y2="18" stroke="#f59e0b" strokeWidth="1" />
+              <path d="M-18 18 Q0 28 18 18 Z" fill="#d97706" fillOpacity="0.35" stroke="#f59e0b" strokeWidth="1.2" />
+            </g>
+            {/* Central fulcrum & diamond indicator */}
+            <polygon points={`${cx},${cy - 8} ${cx + 6},${cy + 4} ${cx - 6},${cy + 4}`} fill="#ffffff" filter={`url(#${pfx}-glow)`} />
+            <circle cx={cx} cy={cy} r="3" fill="#f59e0b" />
           </>
         );
 
