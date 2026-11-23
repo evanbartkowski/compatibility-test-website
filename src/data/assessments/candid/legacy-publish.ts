@@ -71,8 +71,8 @@ export function publishLegacyCandid(
           ...prototype,
           id: `rev2-${section.id}-${index + 1}`,
           order: ++order,
-          prompt: `Which appeals more: ${left.charAt(0).toLowerCase() + left.slice(1)}, or ${right.charAt(0).toLowerCase() + right.slice(1)}?`,
-          partnerPrompt: `Which appeals more: ${left.charAt(0).toLowerCase() + left.slice(1)}, or ${right.charAt(0).toLowerCase() + right.slice(1)}?`,
+          prompt: `Would you rather ${left.charAt(0).toLowerCase() + left.slice(1)}, or ${right.charAt(0).toLowerCase() + right.slice(1)}?`,
+          partnerPrompt: `Would you rather ${left.charAt(0).toLowerCase() + left.slice(1)}, or ${right.charAt(0).toLowerCase() + right.slice(1)}?`,
           quickDiscovery: index < 2,
           helperText:
             "Choose the option that appeals more, then rate its appeal separately. Skip if neither fits.",

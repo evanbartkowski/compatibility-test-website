@@ -14,7 +14,6 @@ const TOP_VIRAL_SLUGS = new Set([
   "attachment-style-discovery",
   "relationship-dealbreakers-boundaries",
   "sexual-interests-curiosity-map",
-  "erotic-blueprint-style",
   "bias-self-check",
 ]);
 

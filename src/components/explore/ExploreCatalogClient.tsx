@@ -110,7 +110,7 @@ export function ExploreCatalogClient({
           <input
             type="search"
             aria-label="Search assessments"
-            placeholder="Search tests: BDSM, kink, love language, IQ, icks, desires…"
+            placeholder="Search tests: BDSM, The Freak Test, partner compatibility, IQ, icks, desires…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />

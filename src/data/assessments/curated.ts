@@ -321,13 +321,14 @@ const availability: Survey = {
 
 const attachment: Survey = {
   slug: "attachment-style-discovery",
-  title: "Love & Sexual Compatibility",
+  title: "Partner Compatibility Test",
   category: "compatibility",
   adult: true,
   description:
-    "Examine emotional security, trust, autonomy, sexual desire, chemistry, and whether you truly fit together long-term.",
+    "Examine emotional security, trust, autonomy, sexual desire, chemistry, partner priorities, and whether you truly fit together long-term.",
   merged: [
     "attachment-style-discovery",
+    "partner-ideal-dealbreakers",
     "intimacy-partner-preferences",
     "sexual-chemistry-compatibility",
     "desire-frequency-initiation",
@@ -541,6 +542,32 @@ const attachment: Survey = {
         "I appreciate deliberate aftercare, tenderness, or a quick check-in after we finish.",
         "I am comfortable discussing sexual desires and boundaries when we are not in bed.",
         "I can receive bedroom feedback from a partner without taking it as personal criticism.",
+      ],
+    },
+    {
+      key: "partner_priorities",
+      label: "Partner priorities & dealbreakers",
+      description:
+        "What you actively require in a partner versus habits and behaviors that are immediate dealbreakers.",
+      ends: ["Flexible preferences", "Non-negotiable partner standards"],
+      readings: [
+        "Your standards allow room for adaptation. You focus on overall connection rather than a strict checklist of behaviors.",
+        "You balance high standards in key areas like emotional safety and effort with flexibility on less critical quirks.",
+        "You have crystal-clear dealbreakers and partner priorities. You know what you will not tolerate and seek an intentional match.",
+      ],
+      tradeoff:
+        "Clear standards protect you from settling, but rigidity can prematurely rule out partners who would grow with you.",
+      experiment:
+        "Write down your top three absolute dealbreakers and two areas where you are willing to give grace.",
+      reflection:
+        "Which past relationship lesson shaped your highest non-negotiable standard today?",
+      items: [
+        "I know my core dealbreakers and would end a connection rather than stay with someone who repeatedly crosses them.",
+        "I expect a partner to take equal initiative in planning, emotional effort, and keeping the spark alive.",
+        "!I often overlook serious warning signs or poor effort because I hope the person will eventually change.",
+        "Having aligned financial habits, lifestyle goals, and future vision is non-negotiable for me in a long-term partner.",
+        "I need a partner who can apologize sincerely and change their behavior after an issue is discussed.",
+        "I look for someone who actively desires my mind and my body, rather than treating intimacy as routine.",
       ],
     },
   ],
@@ -1510,7 +1537,8 @@ consolidatedSlugRedirects["group-multipartner-interest"] = "sexual-interests-cur
 consolidatedSlugRedirects["attachment-bedroom"] = "attachment-style-discovery";
 consolidatedSlugRedirects["post-intimacy-morning-after"] = "emotional-availability-reflection";
 consolidatedSlugRedirects["limits-boundaries-deep-dive"] = "relationship-dealbreakers-boundaries";
-consolidatedSlugRedirects["personal-erotic-blueprint"] = "intimacy-partner-preferences";
+consolidatedSlugRedirects["personal-erotic-blueprint"] = "attachment-style-discovery";
+consolidatedSlugRedirects["partner-ideal-dealbreakers"] = "attachment-style-discovery";
 consolidatedSlugRedirects["turn-on-anatomy"] = "toys-tools-gear-preferences";
 consolidatedSlugRedirects["primal-movement-play"] = "bdsm-power-dynamics-test";
 

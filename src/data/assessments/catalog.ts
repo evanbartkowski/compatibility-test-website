@@ -33,7 +33,7 @@ export const assessmentCategories: AssessmentCategoryMeta[] = [
     slug: "sexuality-intimacy",
     title: "Sexuality & Intimacy",
     description:
-      "The BDSM test, the kink test, the love compatibility test, the fantasy test, and sensation play.",
+      "The BDSM test, The Freak Test (kinks), the partner compatibility test, the fantasy test, and sensation play.",
     subtopics: [
       "Desire, sensory pacing and aftercare",
       "Initiative, chosen roles and negotiation",
@@ -50,7 +50,7 @@ export const assessmentCategories: AssessmentCategoryMeta[] = [
     slug: "romance",
     title: "Romance & Attraction",
     description:
-      "The love compatibility test, the love language test, the friendship test, and emotional connection.",
+      "The partner compatibility test, the love language test, the friendship test, and emotional connection.",
     subtopics: [
       "Everyday affection and practical care",
       "Attachment rhythms (reassurance and autonomy)",
@@ -83,7 +83,7 @@ export const assessmentCategories: AssessmentCategoryMeta[] = [
     slug: "compatibility",
     title: "Couples & Compatibility",
     description:
-      "The husband/wife test, the partner finding test, the icks test, the fight test, and long-term agreements.",
+      "The husband/wife test, the partner compatibility test, the icks test, the fight test, and long-term agreements.",
     subtopics: [
       "Listening, clarity and difficult conversations",
       "Long term money, home, and future alignment",
@@ -130,10 +130,8 @@ export const activeIntimacySlugs = new Set([
   "aftercare-recovery-style",
   "toys-tools-gear-preferences",
   "fantasy-catalog",
-  "partner-ideal-dealbreakers",
   "long-term-dynamic-vision",
   "spicy-would-you-rather",
-  "personal-erotic-blueprint",
 ]);
 
 export const activeIntimacyAssessments = intimacyAssessments.filter((a) =>

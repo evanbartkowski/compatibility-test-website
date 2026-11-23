@@ -61,7 +61,6 @@ export default function HomePage() {
     "attachment-style-discovery",
     "love-affection-preferences",
     "long-term-dynamic-vision",
-    "partner-ideal-dealbreakers",
     "relationship-dealbreakers-boundaries",
     "big-five-personality-profile",
     "emotional-availability-reflection",
@@ -80,7 +79,7 @@ export default function HomePage() {
               Which test are you actually curious about?
             </h2>
             <p>
-              The BDSM test, the kink test, the personality type test, the gay test, the racism/homophobia test, and The Delusional Standards Test calculator. Every test includes the full question set.
+              The BDSM test, The Freak Test (kinks), the partner compatibility test, the personality type test, the gay test, the racism/homophobia test, and The Delusional Standards Test calculator. Every test includes the full question set.
             </p>
           </div>
             <Link href="/explore" className="text-link">

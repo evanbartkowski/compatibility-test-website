@@ -103,11 +103,11 @@ export function publishCandidRevision(
           ...prototype,
           id: `${revision}-${section.id}-${index + 1}`,
           order: ++order,
-          prompt: `Which appeals to you more, ${left.charAt(0).toLowerCase() + left.slice(1)} or ${right.charAt(0).toLowerCase() + right.slice(1)}?`,
-          partnerPrompt: `Which appeals to you more, ${left.charAt(0).toLowerCase() + left.slice(1)} or ${right.charAt(0).toLowerCase() + right.slice(1)}?`,
+          prompt: `Would you rather ${left.charAt(0).toLowerCase() + left.slice(1)}, or ${right.charAt(0).toLowerCase() + right.slice(1)}?`,
+          partnerPrompt: `Would you rather ${left.charAt(0).toLowerCase() + left.slice(1)}, or ${right.charAt(0).toLowerCase() + right.slice(1)}?`,
           quickDiscovery: index < 2,
           helperText:
-            "Pick the option that pulls harder, then rate how much. Neither side is the good one. Skip if both are wrong.",
+            "Pick the option that pulls harder. Neither side is right or wrong. Skip if neither fits.",
           options: [
             { label: left, value: "a", dimensionWeights: { [section.id]: 0 } },
             { label: right, value: "b", dimensionWeights: { [section.id]: 1 } },

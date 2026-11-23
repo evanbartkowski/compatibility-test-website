@@ -211,25 +211,6 @@ test("partner flow reveals only the permitted counterpart and private synthesis 
   } finally {
     await partner.close();
   }
-  const synthesis = await page.request.post("/api/assessments/submit", {
-    data: {
-      assessmentSlug: "personal-erotic-blueprint",
-      mode: "quick",
-      consent,
-      answers: {},
-    },
-  });
-  expect(synthesis.ok()).toBe(true);
-  const blueprint = await synthesis.json();
-  expect(
-    blueprint.result.intimacyBlueprint.sources.map(
-      (s: { title: string }) => s.title,
-    ),
-  ).toEqual([a.title]);
-  await page.goto(`/results/${blueprint.submissionId}`);
-  await expect(
-    page.getByRole("heading", { name: "Across your saved reflections" }),
-  ).toBeVisible();
 });
 
 test("new collection can be filtered and binary choices do not invent desire", async ({

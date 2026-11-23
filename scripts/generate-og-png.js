@@ -61,11 +61,11 @@ const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height=
       </g>
       <g transform="translate(175, 0)">
         <rect x="0" y="0" width="150" height="38" rx="19" fill="#201A2E" stroke="#FF1361" stroke-width="1.2" stroke-opacity="0.6"/>
-        <text x="75" y="24" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="600" fill="#FFF">The Kink Test</text>
+        <text x="75" y="24" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="600" fill="#FFF">The Freak Test</text>
       </g>
       <g transform="translate(340, 0)">
         <rect x="0" y="0" width="220" height="38" rx="19" fill="#201A2E" stroke="#FFA000" stroke-width="1.2" stroke-opacity="0.6"/>
-        <text x="110" y="24" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="600" fill="#FFF">Love Compatibility</text>
+        <text x="110" y="24" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="600" fill="#FFF">Partner Compatibility</text>
       </g>
 
       <!-- Row 2 -->

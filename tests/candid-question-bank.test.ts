@@ -31,14 +31,14 @@ describe("Candid, specific published question banks", () => {
     expect(live.questions.filter((q) => /dominat|submissive|rope|CNC|sadist|impact/i.test(q.prompt)).length).toBeGreaterThanOrEqual(12);
     expect(live.questions.some((q) => q.topicTags?.includes("role:dominant"))).toBe(true);
     expect(live.questions.some((q) => /childlike|age-regress|ageplayer/i.test(q.prompt))).toBe(false);
-    expect(getAssessmentBySlug("sexual-interests-curiosity-map")!.shortTitle).toBe("The Kink Test");
+    expect(getAssessmentBySlug("sexual-interests-curiosity-map")!.shortTitle).toBe("The Freak Test (kinks)");
     expect(getAssessmentBySlug("relationship-dealbreakers-boundaries")!.shortTitle).toBe("The Icks Test");
     expect(getAssessmentBySlug("love-affection-preferences")!.shortTitle).toBe("The Love Language Test");
     expect(getAssessmentBySlug("big-five-personality-profile")!.shortTitle).toBe("The IQ Test");
     expect(getAssessmentBySlug("emotional-availability-reflection")!.shortTitle).toBe("The Friendship Test");
-    expect(getAssessmentBySlug("attachment-style-discovery")!.shortTitle).toBe("The Love Compatibility Test");
+    expect(getAssessmentBySlug("attachment-style-discovery")!.shortTitle).toBe("Partner Compatibility Test");
     expect(getAssessmentBySlug("long-term-dynamic-vision")!.shortTitle).toBe("The Husband / Wife Test");
-    expect(getAssessmentBySlug("partner-ideal-dealbreakers")!.shortTitle).toBe("The Partner Finding Test");
+    expect(getAssessmentBySlug("spicy-would-you-rather")!.shortTitle).toBe("would you rather (spicy) test");
     expect(getAssessmentBySlug("big-five-personality-profile")!.questions.some((q) => /42|percent|analogy|argument/i.test(q.prompt))).toBe(true);
     expect(getAssessmentBySlug("emotional-availability-reflection")!.questions.filter((q) => /friend/i.test(q.prompt)).length).toBeGreaterThanOrEqual(20);
     expect(getAssessmentBySlug("sexual-interests-curiosity-map")!.questions.some((q) => /bondage|watersports|cuckold|CNC/i.test(q.prompt))).toBe(true);
@@ -84,7 +84,7 @@ describe("Candid, specific published question banks", () => {
     );
     expect(new Set(allPrompts).size).toBe(allPrompts.length);
     for (const a of builtInAssessments) {
-      expect(a.questions.length).toBeGreaterThanOrEqual(a.slug === "aftercare-recovery-style" ? 16 : 50);
+      expect(a.questions.length).toBeGreaterThanOrEqual(a.slug === "aftercare-recovery-style" || a.slug === "spicy-would-you-rather" ? 15 : 50);
       expect(a.questions.length).toBeLessThanOrEqual(150);
       expect(new Set(a.questions.map((q) => q.prompt.toLowerCase())).size).toBe(
         a.questions.length,

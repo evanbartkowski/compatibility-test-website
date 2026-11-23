@@ -13,9 +13,9 @@ export const liveNames: Record<string, { title: string; short: string; hook: str
     adult: true,
   },
   "attachment-style-discovery": {
-    title: "The Love Compatibility Test",
-    short: "The Love Compatibility Test",
-    hook: "Emotional security, sexual desire, fighting, money, physical chemistry, and whether you truly fit together long-term.",
+    title: "Partner Compatibility Test",
+    short: "Partner Compatibility Test",
+    hook: "Emotional security, lifestyle goals, sexual chemistry, dealbreakers, and who you actually want to find and keep long-term.",
     adult: true,
   },
   "love-affection-preferences": {
@@ -43,8 +43,8 @@ export const liveNames: Record<string, { title: string; short: string; hook: str
     adult: true,
   },
   "sexual-interests-curiosity-map": {
-    title: "The Kink & Taboo Desires Test",
-    short: "The Kink Test",
+    title: "The Freak Test (kinks)",
+    short: "The Freak Test (kinks)",
     hook: "A candid catalog of kinks: CNC, roleplay, edging, public play, group sex, impact, and taboos.",
     adult: true,
   },
@@ -201,9 +201,9 @@ export const liveNames: Record<string, { title: string; short: string; hook: str
     hook: "When fantasies clash: how you negotiate desires, deal with mismatched kinks, and find common ground.",
   },
   "spicy-would-you-rather": {
-    title: "The Spicy Would You Rather Test",
-    short: "The Spicy Would You Rather Test",
-    hook: "Fifty spicy dilemmas. Pick the wilder option between two irresistible erotic choices.",
+    title: "would you rather (spicy) test",
+    short: "would you rather (spicy) test",
+    hook: "Pick the wilder option between two irresistible, unfiltered spicy dilemmas.",
   },
   "personal-erotic-blueprint": {
     title: "The Master Intimacy Blueprint Test",

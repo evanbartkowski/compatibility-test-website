@@ -222,6 +222,18 @@ export const candidCore: Record<string, Record<string, string[]>> = {
       "I appreciate being asked whether I want cuddling, conversation or space after sex.",
       "A warm check-in after intimacy helps the experience feel shared and complete.",
     ],
+    partner_priorities: [
+      "I know my core dealbreakers and I will walk away instead of hoping someone changes.",
+      "I expect a partner to take equal initiative in planning dates, sex, and emotional check-ins.",
+      "!I frequently overlook red flags or lazy effort because I am afraid of starting over alone.",
+      "A partner who can hear hard feedback without turning it into a fight is essential to me.",
+      "I need financial honesty and shared lifestyle habits before I can see someone as a long-term match.",
+      "I want a partner who actively desires my mind and my body, not someone who treats intimacy like routine.",
+      "!I stay in relationships where I feel lonely because being single feels worse.",
+      "If their words and their actions don't match after three months, chemistry is not enough to keep me.",
+      "I expect mutual effort to keep romance, playfulness, and great sex alive over the years.",
+      "I will not tolerate someone who punishes me with silence or coldness when they are upset.",
+    ],
   },
   "love-affection-preferences": {
     appreciation: [

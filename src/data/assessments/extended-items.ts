@@ -197,6 +197,16 @@ export const extendedItems: Record<string, Record<string, string[]>> = {
       "!I find it difficult to talk about sex even with a long-term partner.",
       "Knowing what my partner craves in bed helps me feel closer and more connected.",
     ],
+    partner_priorities: [
+      "I prioritize emotional maturity and consistency over surface-level charm or status.",
+      "I refuse to compromise on core lifestyle values like financial honesty and mutual respect.",
+      "!I tend to ignore red flags early on if I feel intense chemistry with someone.",
+      "I need a partner who shares my vision for how we handle conflict and difficult conversations.",
+      "A partner who can take constructive feedback without shutting down is essential to me.",
+      "I expect mutual effort in keeping romance and sexual attraction alive over the years.",
+      "!I would stay in an unfulfilling relationship rather than risk being single again.",
+      "I am clear on what makes a relationship work for me and I date with that standard in mind.",
+    ],
   },
   "love-affection-preferences": {
     appreciation: [

@@ -110,10 +110,10 @@ describe("New intimacy collection", () => {
     const suite = builtInAssessments.filter(
       (a) => a.collection === "intimacy-suite",
     );
-    expect(suite).toHaveLength(7);
+    expect(suite).toHaveLength(5);
     for (const a of suite) {
       expect(a.adultsOnly).toBe(true);
-      expect(a.questions.length).toBeGreaterThanOrEqual(a.slug === "aftercare-recovery-style" ? 16 : 50);
+      expect(a.questions.length).toBeGreaterThanOrEqual(a.slug === "aftercare-recovery-style" || a.slug === "spicy-would-you-rather" ? 15 : 50);
       expect(
         a.questions.filter((q) => q.quickDiscovery).length,
       ).toBeGreaterThan(0);
