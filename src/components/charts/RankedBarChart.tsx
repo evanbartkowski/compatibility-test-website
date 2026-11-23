@@ -26,15 +26,6 @@ export function RankedBarChart({ items }: { items: PriorityRankItem[] }) {
           >
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
               <div className="flex items-center gap-2.5">
-                <span
-                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono-tabular text-[11px] font-bold"
-                  style={{
-                    backgroundColor: "var(--bg-subtle)",
-                    color: "var(--ink-primary)",
-                  }}
-                >
-                  #{item.rank}
-                </span>
                 <span className="font-medium text-sm text-[var(--ink-primary)]">{item.label}</span>
               </div>
               <div className="flex items-center gap-2">

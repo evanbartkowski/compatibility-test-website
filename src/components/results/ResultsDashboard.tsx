@@ -99,6 +99,7 @@ const ShareableSummaryCard = dynamic(() =>
 );
 import { ResultsOverview, CommunityBenchmarks } from "./ResultsOverview";
 import { KinkScoreList } from "./KinkScoreList";
+import { RedFlagScorecard } from "./RedFlagScorecard";
 import { CollapsibleSection } from "./CollapsibleSection";
 import { IntimacyInsights } from "./IntimacyInsights";
 import { RoleRankingList } from "./RoleRankingList";
@@ -633,8 +634,17 @@ export function ResultsDashboard({
         )}
       </div>
 
-      {/* 1. Category Scores Overview / Complete Kink & BDSM Big List */}
+      {/* 1. Category Scores Overview / Complete Kink & BDSM Big List / Red Flags Scorecard */}
       {(() => {
+        if (result.assessmentSlug === "conflict-communication-personality") {
+          return (
+            <>
+              <RedFlagScorecard result={result} previousResult={previousResult} />
+              <RoleRankingList result={result} />
+            </>
+          );
+        }
+
         const isKinkOrBdsmTest =
           result.assessmentSlug === "sexual-interests-curiosity-map" ||
           result.assessmentSlug === "bdsm-power-dynamics-test" ||

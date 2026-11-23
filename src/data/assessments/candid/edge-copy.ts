@@ -27,7 +27,7 @@ export const liveNames: Record<string, { title: string; short: string; hook: str
   "conflict-communication-personality": {
     title: "The Red Flags Test",
     short: "The Red Flags Test",
-    hook: "Avoidance, abuse, drinking, weed, other drugs, no drive, and being rude. A high score is a flag, not a vibe.",
+    hook: "Avoidance, emotional manipulation, substance chaos, sneaky disloyalty, and contempt. A high score is a red flag.",
     adult: true,
   },
   "relationship-dealbreakers-boundaries": {
@@ -247,11 +247,11 @@ export const sectionLabels: Record<string, Record<string, string>> = {
     playful_connection: "Gifts",
   },
   "conflict-communication-personality": {
-    direct_communication: "Avoidance",
-    listening: "Abusive when angry",
-    regulation: "Drinking and drugs",
-    accountability: "No drive",
-    collaboration: "Rude",
+    direct_communication: "Avoidance & Stonewalling",
+    listening: "Emotional Manipulation",
+    regulation: "Substance & Chaos",
+    accountability: "Sneaky Disloyalty & Rosters",
+    collaboration: "Contempt & Scorekeeping",
   },
   "relationship-dealbreakers-boundaries": {
     reliability: "Sex icks",

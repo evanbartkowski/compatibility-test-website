@@ -38,7 +38,9 @@ export function useSavedResults(initial: SavedResultEntry[] = EMPTY) {
   const submissions = useMemo(() => {
     const map = new Map<string, SavedResultEntry>();
     for (const entry of [...browser, ...initial, ...remote]) {
-      if (entry?.submissionId && entry.result?.perspective === "primary") map.set(entry.submissionId, entry);
+      if (entry?.submissionId && (!entry.result?.perspective || entry.result?.perspective === "primary" || (entry as { perspective?: string }).perspective === "primary")) {
+        map.set(entry.submissionId, entry);
+      }
     }
     return [...map.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }, [browser, initial, remote]);

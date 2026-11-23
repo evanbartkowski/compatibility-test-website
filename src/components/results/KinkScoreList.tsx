@@ -100,7 +100,7 @@ export function KinkScoreList({
             {topKink && (
               <div className="inline-flex items-center gap-1.5 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-1.5 font-semibold text-rose-200">
                 <Trophy size={13} className="text-amber-400" />
-                <span>#1 {topKink.label}:</span>
+                <span>Top: {topKink.label}</span>
                 <strong className="text-rose-300 font-bold">{topKink.percent}%</strong>
               </div>
             )}
@@ -195,7 +195,7 @@ export function KinkScoreList({
 
         {/* Big List Grid (2 columns on tablet/desktop, 1 column on mobile) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6">
-          {filteredRoles.map((role, index) => {
+          {filteredRoles.map((role) => {
             const tier = getScoreTier(role.percent);
             const isExpanded = expandedKeys.has(role.key);
 
@@ -216,9 +216,6 @@ export function KinkScoreList({
                 <div>
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="font-mono text-[11px] text-[var(--ink-muted)] shrink-0">
-                        #{index + 1}
-                      </span>
                       <span className="font-display text-sm sm:text-base font-semibold text-[var(--ink-primary)] truncate">
                         {role.label}
                       </span>

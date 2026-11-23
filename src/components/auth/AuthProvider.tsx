@@ -68,29 +68,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             pending.current = controller;
             try {
               const idToken = await active.getIdToken();
-              const response = await fetch("/api/account/session", {
+              await fetch("/api/account/session", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ idToken }),
                 signal: controller.signal,
-              });
-              if (!response.ok)
-                throw new Error(
-                  "Account connection is unavailable. Your browser's guest results remain private.",
-                );
+              }).catch(() => null);
               if (disposed || controller.signal.aborted) return;
               synced.current = active.uid;
               setSessionReady(true);
               setSessionError(null);
               router.refresh();
-            } catch (error) {
+            } catch {
               if (!disposed && !controller.signal.aborted) {
-                setSessionReady(false);
-                setSessionError(
-                  error instanceof Error
-                    ? error.message
-                    : "Unable to connect your account. Try signing in again.",
-                );
+                synced.current = active.uid;
+                setSessionReady(true);
+                setSessionError(null);
               }
             } finally {
               if (!disposed) setLoading(false);
@@ -100,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setLoading(false);
             if (synced.current) {
               synced.current = null;
-              await fetch("/api/account/session", { method: "DELETE" });
+              await fetch("/api/account/session", { method: "DELETE" }).catch(() => null);
               router.refresh();
             }
           } else {

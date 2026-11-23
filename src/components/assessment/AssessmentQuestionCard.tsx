@@ -45,16 +45,6 @@ const SCALE_COLORS_5: Record<number, { color: string; border: string; bg: string
   5: { color: "#22c55e", border: "rgba(34, 197, 94, 0.4)", bg: "rgba(34, 197, 94, 0.08)", activeBg: "#22c55e" },
 };
 
-const SCALE_COLORS_7: Record<number, { color: string; border: string; bg: string; activeBg: string }> = {
-  1: { color: "#f43f5e", border: "rgba(244, 63, 94, 0.4)", bg: "rgba(244, 63, 94, 0.08)", activeBg: "#f43f5e" },
-  2: { color: "#fb923c", border: "rgba(251, 146, 60, 0.4)", bg: "rgba(251, 146, 60, 0.08)", activeBg: "#fb923c" },
-  3: { color: "#f59e0b", border: "rgba(245, 158, 11, 0.4)", bg: "rgba(245, 158, 11, 0.08)", activeBg: "#f59e0b" },
-  4: { color: "#8b5cf6", border: "rgba(139, 92, 246, 0.4)", bg: "rgba(139, 92, 246, 0.08)", activeBg: "#8b5cf6" },
-  5: { color: "#0ea5e9", border: "rgba(14, 165, 233, 0.4)", bg: "rgba(14, 165, 233, 0.08)", activeBg: "#0ea5e9" },
-  6: { color: "#14b8a6", border: "rgba(20, 184, 166, 0.4)", bg: "rgba(20, 184, 166, 0.08)", activeBg: "#14b8a6" },
-  7: { color: "#22c55e", border: "rgba(34, 197, 94, 0.4)", bg: "rgba(34, 197, 94, 0.08)", activeBg: "#22c55e" },
-};
-
 const SPECIAL_STATES: Array<{ value: EnjoymentResponse; label: string }> = [
   { value: "haven_t_experienced", label: "Haven't experienced this" },
   { value: "curious", label: "Curious about trying" },
@@ -347,7 +337,7 @@ export function AssessmentQuestionCard({
           <>
             <div className="mt-6">
               <p className="mb-2.5 text-xs font-medium text-[var(--ink-muted)] text-center">
-                Your personal preference (keys 1 to 5)
+                Your personal preference
               </p>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-5">
                 {ENJOYMENT_SCALE.map((opt) => {
@@ -372,18 +362,9 @@ export function AssessmentQuestionCard({
                         color: selected ? "#ffffff" : "var(--ink-primary)",
                         boxShadow: selected ? `0 0 14px ${optColor.color}40` : "none",
                       }}
-                      className="flex items-center justify-between rounded-xl border px-3 py-2 text-left transition-all sm:flex-col sm:items-center sm:text-center min-h-[44px]"
+                      className="flex items-center justify-center rounded-xl border px-3 py-2.5 text-center transition-all min-h-[44px]"
                     >
-                      <span
-                        className="flex h-5 w-5 items-center justify-center rounded-full font-mono-tabular text-xs font-bold"
-                        style={{
-                          backgroundColor: selected ? "rgba(255, 255, 255, 0.25)" : optColor.color,
-                          color: "#ffffff",
-                        }}
-                      >
-                        {opt.short}
-                      </span>
-                      <span className="text-xs font-medium sm:mt-1">
+                      <span className="text-xs font-medium">
                         {opt.label}
                       </span>
                     </button>
@@ -514,81 +495,25 @@ export function AssessmentQuestionCard({
         </div>
       )}
 
-      {/* TYPE 3: RATING SCALE (5-pt / 7-pt Likert with anchor captions) */}
+      {/* TYPE 3: RATING SCALE (Consistently styled AgreementScale across all tests) */}
       {currentQuestion.inputType === "rating_scale" &&
         (() => {
           const min = currentQuestion.scaleConfig?.min ?? 1;
           const max = currentQuestion.scaleConfig?.max ?? 5;
-          if (
-            min === 1 &&
-            max === 7 &&
-            currentQuestion.scaleConfig?.maxLabel === "Strongly agree"
-          ) {
-            return (
+          const count = max - min + 1;
+          return (
+            <div className="mt-7">
               <AgreementScale
                 questionId={currentQuestion.id}
                 value={currentAnswer?.customValue}
+                scalePoints={count === 7 ? 7 : 5}
+                minLabel={currentQuestion.scaleConfig?.minLabel}
+                midLabel={currentQuestion.scaleConfig?.midLabel}
+                maxLabel={currentQuestion.scaleConfig?.maxLabel}
                 onChange={(customValue) =>
                   updateCurrentAnswer({ customValue, firmBoundary: false })
                 }
               />
-            );
-          }
-          const values = Array.from(
-            { length: max - min + 1 },
-            (_, i) => min + i,
-          );
-          return (
-            <div className="mt-7 space-y-3">
-              <div
-                className={cn(
-                  "grid gap-2",
-                  values.length === 7 ? "grid-cols-7" : "grid-cols-5",
-                )}
-              >
-                {values.map((val) => {
-                  const selected =
-                    !currentAnswer?.firmBoundary &&
-                    currentAnswer?.customValue === val;
-                  const colorMap = values.length === 7 ? SCALE_COLORS_7 : SCALE_COLORS_5;
-                  const optColor = colorMap[val] || { color: "#8b5cf6", border: "rgba(139, 92, 246, 0.4)", bg: "rgba(139, 92, 246, 0.08)", activeBg: "#8b5cf6" };
-                  return (
-                    <button
-                      key={val}
-                      type="button"
-                      aria-pressed={selected}
-                      onClick={() =>
-                        updateCurrentAnswer({
-                          customValue: val,
-                          firmBoundary: false,
-                        })
-                      }
-                      style={{
-                        borderColor: selected ? optColor.color : optColor.border,
-                        backgroundColor: selected ? optColor.activeBg : optColor.bg,
-                        color: selected ? "#ffffff" : "var(--ink-primary)",
-                        boxShadow: selected ? `0 0 14px ${optColor.color}40` : "none",
-                      }}
-                      className="flex h-10 sm:h-11 items-center justify-center rounded-md border font-mono-tabular text-sm font-bold transition-all"
-                    >
-                      {val}
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="flex justify-between gap-4 text-[11px] text-[var(--ink-muted)]">
-                <span>
-                  {currentQuestion.scaleConfig?.minLabel || "Strongly disagree"}
-                </span>
-                {currentQuestion.scaleConfig?.midLabel && (
-                  <span className="hidden sm:inline">
-                    {currentQuestion.scaleConfig.midLabel}
-                  </span>
-                )}
-                <span className="text-right">
-                  {currentQuestion.scaleConfig?.maxLabel || "Strongly agree"}
-                </span>
-              </div>
             </div>
           );
         })()}
@@ -695,7 +620,7 @@ export function AssessmentQuestionCard({
       {currentQuestion.inputType === "ranking" && (
         <div className="mt-7 space-y-2.5">
           <p className="text-xs text-[var(--ink-muted)]">
-            Order from #1 (top priority) down using the arrow controls:
+            Order by priority using the arrow controls:
           </p>
           {currentRankOrder.map((optVal, idx) => {
             const opt = currentQuestion.options?.find(
@@ -714,18 +639,13 @@ export function AssessmentQuestionCard({
               >
                 <div className="flex items-center gap-3">
                   <span
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-mono-tabular text-xs font-bold"
+                    className="h-2 w-2 rounded-full shrink-0"
                     style={{
                       backgroundColor:
-                        idx === 0 ? "var(--accent-plum)" : "var(--bg-subtle)",
-                      color:
-                        idx === 0
-                          ? "var(--accent-plum-contrast)"
-                          : "var(--ink-secondary)",
+                        idx === 0 ? "var(--accent-plum)" : "var(--ink-muted)",
+                      opacity: idx === 0 ? 1 : 0.4,
                     }}
-                  >
-                    #{idx + 1}
-                  </span>
+                  />
                   <span className="text-sm font-medium text-[var(--ink-primary)]">
                     {opt.label}
                   </span>

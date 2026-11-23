@@ -44,13 +44,6 @@ export function IntimacyResponse({
     answer?.partnerWillingness === "firm_boundary";
   return (
     <div className="intimacy-response">
-      <p className="intimacy-role">
-        {question.intimacyRole === "receive"
-          ? "Your receiving preference"
-          : question.intimacyRole === "offer"
-            ? "Your offering preference"
-            : "Your preference today"}
-      </p>
       {question.options && (
         <fieldset className="intimacy-choice">
           <legend>Which fits better?</legend>
@@ -97,16 +90,6 @@ export function IntimacyResponse({
                     onAnswer({ enjoyment: (i + 1) as 1 | 2 | 3 | 4 | 5 })
                   }
                 />
-                <span
-                  className="intimacy-scale-number"
-                  aria-hidden="true"
-                  style={{
-                    backgroundColor: isSelected ? "rgba(255, 255, 255, 0.25)" : stepColor.color,
-                    color: "#ffffff",
-                  }}
-                >
-                  {i + 1}
-                </span>
                 <span>{label}</span>
               </label>
             );
